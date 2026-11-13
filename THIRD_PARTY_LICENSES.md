@@ -2,6 +2,8 @@
 
 **Estado:** borrador inicial (2026-11-12), elaborado con información conocida y **pendiente de verificar contra la fuente oficial** de cada componente antes de incorporarlo (columna *Verificado*). Ninguna dependencia entra en el repositorio sin pasar a ✅. La licencia del código **no** implica la licencia de los pesos ni del dataset: se revisan por separado.
 
+**Actualización 2026-11-12 (Fase 1):** las dependencias Python instaladas se verifican de forma automática contra los metadatos de cada paquete. El inventario está en [docs/licenses/python-dependencies.md](docs/licenses/python-dependencies.md) y lo genera `scripts/license_report.py --check` en CI. De ahí: FastAPI MIT, Starlette BSD-3, Pydantic MIT, SQLAlchemy MIT, Alembic MIT, asyncpg Apache-2.0, argon2-cffi MIT, PyJWT MIT, cryptography Apache-2.0/BSD-3, prometheus-client Apache-2.0/BSD-2, uvicorn BSD-3, NumPy BSD-3, Pillow MIT-CMU. Única licencia no permisiva pura: certifi, MPL-2.0 (copyleft débil a nivel de archivo; se usa sin modificar). PostgreSQL 17.12 se usa con los binarios de EDB bajo la PostgreSQL License. Datasets: estado verificado en `ml/datasets/sources/*.yaml` (ver [docs/progress/etapa-datasets.md](docs/progress/etapa-datasets.md)).
+
 Leyenda de uso comercial: ✅ permitido · ⚠️ permitido con obligaciones o matices · ❌ no apto para el producto principal.
 
 ## Componentes del producto

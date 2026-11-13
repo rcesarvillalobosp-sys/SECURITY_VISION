@@ -1,0 +1,82 @@
+# Security Vision — entorno local con Docker.
+# Requiere: virtualización activada + Docker Desktop (WSL2). Copiar .env.example a .env y completar.
+#   docker compose up -d                       # postgres + api
+#   docker compose --profile media up -d       # + mediamtx + valkey
+#   docker compose --profile monitoring up -d  # + prometheus + grafana
+# Todos los puertos se publican solo en 127.0.0.1.
+
+name: security-vision
+
+x-restart: &restart
+  restart: unless-stopped
+
+services:
+  postgres:
+    <<: *restart
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_DB: security_vision
+      POSTGRES_USER: security_vision
+      POSTGRES_PASSWORD: ${SV_DB_PASSWORD:?definir SV_DB_PASSWORD en .env}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    ports: ["127.0.0.1:5433:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U security_vision -d security_vision"]
+      interval: 5s
+      retries: 10
+
+  migrate:
+    build: {context: ., dockerfile: docker/api.Dockerfile}
+    command: ["/app/.venv/bin/svctl", "migrate"]
+    environment: &api-env
+      SV_ENVIRONMENT: ${SV_ENVIRONMENT:-development}
+      SV_DATABASE_URL: postgresql+asyncpg://security_vision:${SV_DB_PASSWORD}@postgres:5432/security_vision
+      SV_JWT_SECRET: ${SV_JWT_SECRET:?generar con: uv run svctl gen-secrets}
+      SV_SECRETS_KEY: ${SV_SECRETS_KEY:?generar con: uv run svctl gen-secrets}
+      SV_BOOTSTRAP_ADMIN_EMAIL: ${SV_BOOTSTRAP_ADMIN_EMAIL:-}
+      SV_BOOTSTRAP_ADMIN_PASSWORD: ${SV_BOOTSTRAP_ADMIN_PASSWORD:-}
+    depends_on: {postgres: {condition: service_healthy}}
+
+  api:
+    <<: *restart
+    build: {context: ., dockerfile: docker/api.Dockerfile}
+    environment: *api-env
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on: {migrate: {condition: service_completed_successfully}}
+
+  valkey:
+    <<: *restart
+    profiles: [media]
+    image: valkey/valkey:8.1-alpine
+    command: ["valkey-server", "--save", "", "--appendonly", "no"]
+    ports: ["127.0.0.1:6379:6379"]
+
+  mediamtx:
+    <<: *restart
+    profiles: [media]
+    image: bluenviron/mediamtx:1.13.1
+    volumes: ["./docker/mediamtx/mediamtx.yml:/mediamtx.yml:ro"]
+    ports:
+      - "127.0.0.1:8554:8554"        # RTSP
+      - "127.0.0.1:8889:8889"        # WebRTC (WHEP)
+      - "127.0.0.1:8189:8189/udp"    # WebRTC ICE
+
+  prometheus:
+    <<: *restart
+    profiles: [monitoring]
+    image: prom/prometheus:v3.5.0
+    volumes: ["./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro"]
+    ports: ["127.0.0.1:9090:9090"]
+
+  grafana:
+    <<: *restart
+    profiles: [monitoring]
+    image: grafana/grafana-oss:12.1.0
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${SV_GRAFANA_ADMIN_PASSWORD:?definir SV_GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+    ports: ["127.0.0.1:3000:3000"]
+
+volumes:
+  pgdata:
