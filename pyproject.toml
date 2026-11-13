@@ -76,6 +76,7 @@ dev = [
     "ruff>=0.8",
     "import-linter>=2.1",
     "aiosmtpd>=1.4",
+    "onnx>=1.18",
 ]
 
 [build-system]
