@@ -104,3 +104,16 @@ Formato breve: contexto → decisión → consecuencias. Estado: **Aceptada** sa
 ## ADR-0027 Rotación del refresh token con margen de gracia
 - **Contexto:** en la prueba real de la Fase 8, dos renovaciones simultáneas con la misma cookie se interpretaron como reutilización de un token robado y se revocó la sesión. En producción ocurre con dos pestañas abiertas.
 - **Decisión:** las renovaciones de una sesión se serializan con un bloqueo de fila. Presentar el token recién rotado dentro de los 10 s siguientes a la rotación se trata como una carrera benigna y se rota de nuevo. Fuera de ese margen sigue revocando la sesión. Además, el frontend reintenta la renovación si el servidor no responde (red o 5xx) en lugar de dar la sesión por cerrada.
+
+## ADR-0028 Micro-batching voraz y preproceso fuera del turno de GPU
+- **Contexto:** con varias cámaras, el preproceso (CPU) se hacía dentro del candado de la GPU y esta esperaba (60 % de uso con 8 cámaras).
+- **Decisión:** cada cámara prepara su fotograma en su hilo. Un despachador infiere en un solo lote todo lo que haya en cola (`SV_DETECTION_MAX_BATCH`, 4 por defecto), sin espera añadida (`SV_DETECTION_MAX_WAIT_MS`=0). La interfaz `detect(frame, camera_id)` no cambia. Medido: +53 % de capacidad con 8 cámaras.
+
+## ADR-0029 Fotograma perezoso y decodificador de un hilo
+- **Decisión:** la captura entrega `Frame.lazy`, que solo convierte a RGB si alguien lee los píxeles; el análisis usa 2 de cada 15 fotogramas. El decodificador usa un hilo por defecto (medido: 15 % de CPU frente a 22 % con `AUTO`), configurable con `decode_threads` (0 = automático, para 4K). El búfer de contexto de la evidencia guarda JPEG en lugar de fotogramas en bruto. Medido: −30 % de CPU y −50 % de memoria del worker con 8 cámaras.
+
+## ADR-0030 Observabilidad de rendimiento en producción
+- **Decisión:** el worker publica en Prometheus los tiempos por etapa (ventana de 60 s), la CPU por grupo de hilos (no hace falta un perfilador externo, que además no funcionó en Windows) y el estado de la GPU por NVML, incluidos el estado de energía y los motivos de limitación. Las trazas OpenTelemetry son opcionales (`SV_OTEL_ENDPOINT`, OTLP/HTTP, muestreo `SV_OTEL_SAMPLE_RATIO`); desactivadas no tienen coste.
+
+## ADR-0031 Optimizaciones descartadas por medición
+- **FP16 con ONNX Runtime CUDA** en GTX 1650: 230 ms frente a 155 ms (sin Tensor Cores y con `Cast` añadidos). **Trickle ICE** en WHEP: mediana 1,79 s frente a 1,26 s hasta el primer fotograma (añade una ida y vuelta). **Sin *spinning*** en ONNX Runtime: sin efecto. Se conservan los scripts y los resultados para repetir la medición en otro hardware. **TensorRT** queda pendiente de medir (descarga de 1,9 GB a 0,1 MB/s); no se publica ninguna cifra sin medirla.

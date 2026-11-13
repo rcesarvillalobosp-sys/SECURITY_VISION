@@ -35,3 +35,14 @@ Tras reiniciar el equipo: `uv run python scripts/dev_postgres.py start`.
 - **SMTP de pruebas local** (sin enviar correo real): `uv run python -m aiosmtpd -n -l 127.0.0.1:2525` y `SV_SMTP_HOST=127.0.0.1`, `SV_SMTP_PORT=2525`, `SV_SMTP_SECURITY=none`.
 
 Tras cambiar `.env`, reinicia la API (`svctl serve`): el despachador de alertas se ejecuta en su proceso.
+
+## Rendimiento y pruebas de carga (Fase 9)
+
+- **Energía de la GPU (portátiles):** con el plan «Equilibrado» la GTX 1650 se quedó en P5, con la memoria a 810 MHz, y la inferencia tardó 155 ms en lugar de 49. Para producción conviene usar el plan «Máximo rendimiento» y, en el Panel de control de NVIDIA, «preferir rendimiento máximo». En `/metrics` del worker, `sv_gpu_pstate` y `sv_gpu_throttle_active` muestran si la GPU está limitada.
+- **Prueba de carga reproducible:**
+  1. `uv run python scripts/make_load_video.py --codec h264_nvenc --out var/videos/load_1080p15_h264.mp4`
+  2. `uv run python scripts/rtsp_simulator.py --cameras 8 --video var/videos/load_1080p15_h264.mp4`
+  3. con MediaMTX, la API y el worker en marcha, y sin otras cámaras: `uv run python scripts/load_test.py --cameras 1 2 4 8 --analysis-fps 2 --label prueba`
+- **Motor aislado:** `uv run python ml/evaluation/engine_latency.py --device cuda`
+- **Trazas:** `uv sync --extra otel`; arrancar un receptor (Jaeger/Tempo/Collector o `scripts/otlp_sink.py`) y definir `SV_OTEL_ENDPOINT=http://127.0.0.1:4318`.
+- **Cámaras 4K:** si la decodificación de un hilo no da abasto, añadir `"decode_threads": 0` a las opciones de la fuente.

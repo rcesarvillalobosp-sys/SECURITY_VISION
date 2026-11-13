@@ -29,11 +29,34 @@ CROP_MARGIN = 0.25
 
 @dataclass(frozen=True)
 class FrameSnapshot:
-    """Fotograma analizado retenido brevemente para poder construir la evidencia."""
+    """Fotograma analizado retenido brevemente para poder construir la evidencia.
 
-    rgb: np.ndarray
+    El fotograma de la confirmación se conserva en bruto (``rgb``: recorte a resolución completa). Los del
+    búfer de contexto se guardan compactos (``jpeg``, ya ajustados a ``MAX_SIDE``): el contexto termina en
+    JPEG de todos modos y así cada cámara retiene ~0,5 MB por segundo de historia en lugar de ~6 MB (1080p).
+    """
+
+    rgb: np.ndarray | None
     analyzed: AnalyzedFrame
     detections: tuple[Detection, ...]
+    jpeg: bytes | None = None
+
+    def image(self) -> Image.Image:
+        if self.rgb is not None:
+            return Image.fromarray(self.rgb)
+        if self.jpeg is None:
+            raise ValueError("instantánea sin imagen")
+        return Image.open(io.BytesIO(self.jpeg)).convert("RGB")
+
+    def compact(self, quality: int = 90) -> FrameSnapshot:
+        """Copia para el búfer de contexto: JPEG de calidad alta, ajustado a ``MAX_SIDE``."""
+        if self.rgb is None:
+            return self
+        return FrameSnapshot(None, self.analyzed, self.detections, _jpeg(_fit(Image.fromarray(self.rgb)), quality))
+
+    @property
+    def nbytes(self) -> int:
+        return self.rgb.nbytes if self.rgb is not None else len(self.jpeg or b"")
 
 
 def _jpeg(img: Image.Image, quality: int) -> bytes:
@@ -105,16 +128,16 @@ def build_evidence(violation: Violation, confirm: FrameSnapshot, history: Sequen
     if ctx:
         picks = [ctx[0]] if len(ctx) == 1 or max_context == 1 else [ctx[0], ctx[len(ctx) // 2]]
         for s in picks[:max_context]:
-            img = _fit(Image.fromarray(s.rgb))
+            img = _fit(s.image())
             images.append(_image("context", _annotate(img, s, tid, violation.ppe_class), s, 80,
                                  meta_base | {"seconds_before": (violation.confirmed_at - s.analyzed.frame_ts)
                                               .total_seconds()}))
-    full = _fit(Image.fromarray(confirm.rgb))
+    full = _fit(confirm.image())
     images.append(_image("frame", full, confirm, 92, meta_base))
     images.append(_image("annotated", _annotate(full, confirm, tid, violation.ppe_class), confirm, 85, meta_base))
     person = _person(confirm, tid)
     if person is not None:
-        src = Image.fromarray(confirm.rgb)
+        src = confirm.image()
         b = person.bbox
         mw, mh = b.width * CROP_MARGIN, b.height * CROP_MARGIN
         box = (int(max(0, b.x1 - mw) * src.width), int(max(0, b.y1 - mh) * src.height),

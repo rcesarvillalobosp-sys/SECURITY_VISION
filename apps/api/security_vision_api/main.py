@@ -76,6 +76,10 @@ def create_app(settings: Settings | None = None, container: Container | None = N
         docs_url=None if settings.environment is Environment.PRODUCTION else "/docs",
         redoc_url=None,
     )
+    from security_vision.infrastructure.monitoring.tracing import instrument_fastapi, setup_tracing
+
+    if setup_tracing("security-vision-api", settings.otel_endpoint, settings.otel_sample_ratio):
+        instrument_fastapi(app)
     app.add_middleware(CORSMiddleware, allow_origins=settings.cors_origins, allow_credentials=True,
                        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
                        allow_headers=["Authorization", "Content-Type", "X-Request-ID"])

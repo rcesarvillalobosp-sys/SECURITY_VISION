@@ -63,13 +63,15 @@ class DetrDetectionModel(DetectionModel):
                               for c in self._canonical], dtype=np.float32)
 
     # ------------------------------------------------------------------ pre/post
-    def preprocess(self, frames: Sequence[Frame]) -> np.ndarray:
+    def prepare(self, frame: Frame) -> np.ndarray:
+        """Un fotograma -> tensor [3, H, W] float32 normalizado. Sin estado: seguro en paralelo."""
         h, w = self.spec.input_size
-        batch = np.empty((len(frames), 3, h, w), dtype=np.float32)
-        for i, f in enumerate(frames):
-            img = Image.fromarray(f.data).resize((w, h), Image.Resampling.BILINEAR)
-            batch[i] = np.asarray(img, dtype=np.float32).transpose(2, 0, 1) / 255.0
-        return (batch - self._mean) / self._std
+        img = Image.fromarray(frame.data).resize((w, h), Image.Resampling.BILINEAR)
+        chw = np.asarray(img, dtype=np.float32).transpose(2, 0, 1) / 255.0
+        return (chw - self._mean[0]) / self._std[0]
+
+    def preprocess(self, frames: Sequence[Frame]) -> np.ndarray:
+        return np.stack([self.prepare(f) for f in frames])
 
     def postprocess(self, logits: np.ndarray, boxes: np.ndarray) -> list[list[tuple[int, float, np.ndarray]]]:
         """Devuelve, por imagen, (índice de clase, score, caja xyxy normalizada)."""
@@ -103,10 +105,24 @@ class DetrDetectionModel(DetectionModel):
         if not frames:
             return []
         t0 = time.perf_counter()
-        tensor = self.preprocess(frames)
-        outputs = self.engine.predict({self.p["input_name"]: tensor})
-        elapsed = (time.perf_counter() - t0) * 1000  # preproceso + inferencia
+        prepared = [self.prepare(f) for f in frames]
+        prep_ms = (time.perf_counter() - t0) * 1000
+        out = self.detect_prepared(prepared, frames, camera_ids)
+        self.last_stage_ms["preprocess"] = prep_ms
+        return out
+
+    def detect_prepared(self, prepared: Sequence[np.ndarray], frames: Sequence[Frame],
+                        camera_ids: Sequence[str]) -> list[list[Detection]]:
+        """Inferencia + postproceso de fotogramas ya preparados con ``prepare`` (micro-batching)."""
+        if not frames:
+            return []
+        t1 = time.perf_counter()
+        tensor = np.stack(prepared) if len(prepared) > 1 else prepared[0][None]
+        outputs = self.engine.predict({self.p["input_name"]: np.ascontiguousarray(tensor, dtype=np.float32)})
+        t2 = time.perf_counter()
+        elapsed = (t2 - t1) * 1000  # inferencia del lote (el preproceso se mide aparte)
         raw = self.postprocess(outputs[self.p["logits_name"]], outputs[self.p["boxes_name"]])
+        self.last_stage_ms = {"inference": (t2 - t1) * 1000, "postprocess": (time.perf_counter() - t2) * 1000}
         model_id = self.spec.model_id
         result: list[list[Detection]] = []
         for f, cam, dets in zip(frames, camera_ids, raw, strict=True):

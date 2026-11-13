@@ -38,6 +38,7 @@ ml = [
 ]
 # Motores de inferencia (runtime del worker). onnxruntime-gpu incluye también el proveedor CPU.
 inference = [
+    "nvidia-ml-py>=12",
     "onnxruntime-gpu[cuda,cudnn]>=1.22",
     "openvino>=2025.2",
 ]
@@ -51,6 +52,11 @@ train = [
     "accelerate>=1.8",
     "safetensors>=0.5",
     "scipy>=1.14",
+]
+otel = [
+    "opentelemetry-exporter-otlp-proto-http>=1.27",
+    "opentelemetry-instrumentation-fastapi>=0.48b0",
+    "opentelemetry-sdk>=1.27",
 ]
 
 [project.scripts]

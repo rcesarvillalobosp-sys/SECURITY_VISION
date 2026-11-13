@@ -28,8 +28,10 @@ from security_vision.core.interfaces.infrastructure import MessageBus, ObjectSto
 from security_vision.core.interfaces.repositories import UnitOfWork
 from security_vision.core.interfaces.video import Frame, VideoPublisher, VideoSource
 from security_vision.core.registry import ProviderRegistry
+from security_vision.infrastructure.monitoring import tracing
 from security_vision.infrastructure.video.probe import encode_jpeg
 from security_vision.modules.analytics.live import StatsAccumulator, live_frame_payload
+from security_vision.modules.analytics.timings import StageTimings
 from security_vision.modules.cameras.service import (
     SNAPSHOT_KEY,
     CameraPolicy,
@@ -232,6 +234,7 @@ class WorkerRuntime:
         self.engine_name = engine_name
         self._failed_model: str | None = None
         self.model_swaps = 0
+        self.timings = StageTimings()
         self.cipher = cipher
         self.registry = registry
         self.storage = storage
@@ -326,23 +329,12 @@ class WorkerRuntime:
                 analyzer = CameraAnalyzer(cid, self.tracker_factory(), self.associator, evaluator)
                 self.analyzers[cid] = analyzer
 
-            def handle(frame: Frame, cid: str = cid) -> None:
+            def handle(frame: Frame, cid: str = cid, analyzer: CameraAnalyzer | None = analyzer) -> None:
                 det = self.detector  # se lee en cada fotograma: permite sustituir el modelo en caliente
                 if det is None:
                     return
-                dets = det.detect(frame, cid)
-                analyzed = analyzer.process(frame, dets) if analyzer else None
-                self.latest[cid] = (frame.frame_id, dets, analyzed)
-                if analyzed is not None and analyzed.evaluation is not None:
-                    snap = FrameSnapshot(frame.data, analyzed, tuple(dets))
-                    hist = self.history.setdefault(cid, deque(maxlen=12))
-                    if not hist or (frame.captured_at - hist[-1].analyzed.frame_ts).total_seconds() >= 0.9:
-                        hist.append(snap)
-                    self._on_evaluation(cid, analyzed, snap)
-                if analyzed is not None:
-                    self.stats.add(analyzed)
-                    if self.loop is not None:
-                        self.loop.call_soon_threadsafe(self._put_live, live_frame_payload(analyzed))
+                with tracing.span("analysis.frame", camera_id=cid, frame_id=frame.frame_id):
+                    self._analyze_frame(det, analyzer, frame, cid)
 
         loop = AnalysisLoop(worker, handle)
         loop.start()
@@ -354,6 +346,30 @@ class WorkerRuntime:
             pub = PublishLoop(worker, lambda u=url, f=fps: self.publisher_factory(u, f), fps)  # type: ignore[misc]
             pub.start()
             self.publishers[cid] = pub
+
+    def _analyze_frame(self, det: DetectionService, analyzer: CameraAnalyzer | None, frame: Frame,
+                       cid: str) -> None:
+        """Hilo de análisis de una cámara: detección -> tracking/asociación/reglas -> evidencias y eventos,
+        con tiempos por etapa (Prometheus) y spans (OpenTelemetry, si está activo)."""
+        with tracing.span("detect"):
+            dets = det.detect(frame, cid)
+        with tracing.span("analyze"), self.timings.measure("analyze"):  # tracking + asociación EPP + reglas
+            analyzed = analyzer.process(frame, dets) if analyzer else None
+        self.latest[cid] = (frame.frame_id, dets, analyzed)
+        with tracing.span("evidence_and_events"), self.timings.measure("evidence_and_events"):
+            if analyzed is not None and analyzed.evaluation is not None:
+                snap = FrameSnapshot(frame.data, analyzed, tuple(dets))
+                hist = self.history.setdefault(cid, deque(maxlen=12))
+                if not hist or (frame.captured_at - hist[-1].analyzed.frame_ts).total_seconds() >= 0.9:
+                    with self.timings.measure("context_compact"):
+                        hist.append(snap.compact())  # JPEG: ~10x menos memoria que el fotograma en bruto
+                self._on_evaluation(cid, analyzed, snap)
+            if analyzed is not None:
+                self.stats.add(analyzed)
+                if self.loop is not None:
+                    self.loop.call_soon_threadsafe(self._put_live, live_frame_payload(analyzed))
+        # Latencia de extremo a extremo: captura del fotograma -> resultado disponible
+        self.timings.add("end_to_end", (datetime.now(UTC) - frame.captured_at).total_seconds() * 1000)
 
     def _on_evaluation(self, cid: str, af: AnalyzedFrame, snap: FrameSnapshot | None = None) -> None:
         """Hilo de análisis: contabiliza y encola eventos para el bucle asyncio."""
@@ -595,6 +611,7 @@ class WorkerRuntime:
 
 def _unload(old: DetectionService) -> None:
     """Libera el modelo anterior cuando ya no hay inferencias en curso con él."""
+    old.close()  # termina los lotes pendientes y para su despachador
     with old._lock:
         try:
             old.model.engine.unload_model()

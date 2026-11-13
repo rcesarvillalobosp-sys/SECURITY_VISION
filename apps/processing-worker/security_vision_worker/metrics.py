@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 from collections.abc import Iterator
+from typing import ClassVar
 
 from prometheus_client import CollectorRegistry
 from prometheus_client.core import CounterMetricFamily, GaugeMetricFamily, Metric
@@ -111,6 +112,19 @@ class CameraCollector(Collector):
             for cls, n in det.stats.by_class.items():
                 by_cls.add_metric([det.model_id, cls], n)
             yield from (inf, calls, errs, by_cls)
+        if det is not None:
+            bs = CounterMetricFamily("sv_inference_batches", "Lotes inferidos por tamaño", labels=["size"])
+            for size, k in sorted(det.stats.batch_sizes.items()):
+                bs.add_metric([str(size)], k)
+            yield bs
+        stage = GaugeMetricFamily("sv_stage_ms", "Tiempo por etapa del análisis (ms, ventana deslizante)",
+                                  labels=["stage", "quantile"])
+        snaps = {**(det.timings.snapshot() if det is not None else {}), **self.rt.timings.snapshot()}
+        for name, q in snaps.items():
+            stage.add_metric([name, "0.5"], q["p50"])
+            stage.add_metric([name, "0.95"], q["p95"])
+            stage.add_metric([name, "mean"], q["mean"])
+        yield stage
 
 
 class ProcessCollector(Collector):
@@ -139,10 +153,96 @@ class ProcessCollector(Collector):
         rss.add_metric([], p.memory_info().rss)
         yield cpu
         yield rss
+        yield self._threads_cpu(p)
+
+    @staticmethod
+    def _threads_cpu(p) -> Metric:
+        """CPU acumulada por grupo de hilos (perfilado en producción sin herramientas externas).
+
+        Los hilos de Python se agrupan por el prefijo de su nombre (camera, analysis, publish,
+        detection...). Los hilos nativos (decodificador FFmpeg, ONNX Runtime/CUDA) no tienen nombre
+        Python y se agrupan como ``native``.
+        """
+        import threading
+
+        names = {t.native_id: t.name.split("-")[0] for t in threading.enumerate() if t.native_id}
+        groups: dict[str, float] = {}
+        for th in p.threads():
+            g = names.get(th.id, "native")
+            groups[g] = groups.get(g, 0.0) + th.user_time + th.system_time
+        fam = CounterMetricFamily("sv_worker_thread_cpu_seconds", "CPU acumulada por grupo de hilos",
+                                  labels=["group"])
+        for g, v in sorted(groups.items()):
+            fam.add_metric([g], v)
+        return fam
+
+
+class SystemCollector(Collector):
+    """CPU y RAM del equipo, y estado de la(s) GPU NVIDIA por NVML (``nvidia-ml-py``, BSD-3).
+
+    Incluye el estado de energía (P0 = máximo rendimiento ... P8 = reposo), los relojes y los motivos
+    de limitación activos: en un portátil explican latencias de inferencia mayores de lo esperado.
+    Sin NVML (otra GPU o sin el paquete) solo se publican CPU y RAM.
+    """
+
+    THROTTLE: ClassVar[dict[str, int]] = {
+        "gpu_idle": 0x1, "sw_power_cap": 0x4, "hw_slowdown": 0x8, "sw_thermal": 0x20, "hw_thermal": 0x40,
+        "hw_power_brake": 0x80}
+
+    def __init__(self) -> None:
+        import psutil
+
+        self._psutil = psutil
+        psutil.cpu_percent(None)
+        self._nvml = None
+        try:
+            import pynvml
+
+            pynvml.nvmlInit()
+            self._nvml = pynvml
+            self._handles = [pynvml.nvmlDeviceGetHandleByIndex(i) for i in range(pynvml.nvmlDeviceGetCount())]
+        except Exception:  # sin GPU NVIDIA, sin driver o sin el paquete: se omite
+            self._nvml = None
+
+    def collect(self) -> Iterator[Metric]:
+        cpu = GaugeMetricFamily("sv_system_cpu_percent", "CPU total del equipo (%)")
+        cpu.add_metric([], self._psutil.cpu_percent(None))
+        vm = self._psutil.virtual_memory()
+        mem = GaugeMetricFamily("sv_system_memory_used_bytes", "RAM usada del equipo")
+        mem.add_metric([], vm.total - vm.available)
+        yield from (cpu, mem)
+        if self._nvml is None:
+            return
+        n = self._nvml
+        util = GaugeMetricFamily("sv_gpu_utilization_percent", "Uso de la GPU (%)", labels=["gpu", "name"])
+        vram = GaugeMetricFamily("sv_gpu_memory_used_bytes", "VRAM usada", labels=["gpu", "name"])
+        temp = GaugeMetricFamily("sv_gpu_temperature_celsius", "Temperatura de la GPU", labels=["gpu", "name"])
+        pst = GaugeMetricFamily("sv_gpu_pstate", "Estado de energía (0 = máximo rendimiento)", labels=["gpu", "name"])
+        clk = GaugeMetricFamily("sv_gpu_clock_mhz", "Reloj actual", labels=["gpu", "name", "domain"])
+        thr = GaugeMetricFamily("sv_gpu_throttle_active", "Motivo de limitación activo (1/0)",
+                                labels=["gpu", "name", "reason"])
+        for i, h in enumerate(self._handles):
+            try:
+                name = n.nvmlDeviceGetName(h)
+                name = name.decode() if isinstance(name, bytes) else name
+                lab = [str(i), name]
+                util.add_metric(lab, n.nvmlDeviceGetUtilizationRates(h).gpu)
+                vram.add_metric(lab, n.nvmlDeviceGetMemoryInfo(h).used)
+                temp.add_metric(lab, n.nvmlDeviceGetTemperature(h, n.NVML_TEMPERATURE_GPU))
+                pst.add_metric(lab, n.nvmlDeviceGetPerformanceState(h))
+                clk.add_metric([*lab, "graphics"], n.nvmlDeviceGetClockInfo(h, n.NVML_CLOCK_GRAPHICS))
+                clk.add_metric([*lab, "memory"], n.nvmlDeviceGetClockInfo(h, n.NVML_CLOCK_MEM))
+                reasons = n.nvmlDeviceGetCurrentClocksEventReasons(h)
+                for r, bit in self.THROTTLE.items():
+                    thr.add_metric([*lab, r], 1.0 if reasons & bit else 0.0)
+            except Exception:  # una lectura fallida no tumba /metrics
+                continue
+        yield from (util, vram, temp, pst, clk, thr)
 
 
 def build_registry(runtime: WorkerRuntime) -> CollectorRegistry:
     reg = CollectorRegistry()
     reg.register(CameraCollector(runtime))
     reg.register(ProcessCollector())
+    reg.register(SystemCollector())
     return reg

@@ -1,38 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { request, type Camera } from "../lib/api";
+import { startWhep, type WhepSession } from "../lib/whep";
 import { CAMERA_STATUS_LABEL, containRect, MISSING_LABEL, STATUS_COLOR, STATUS_LABEL } from "../lib/format";
 import { useLiveFrame, type LiveFrame } from "../lib/live";
 import { CamDot } from "./ui";
 
 /** WHEP (WebRTC-HTTP Egress Protocol) contra MediaMTX: vídeo en directo de baja latencia. */
-async function startWhep(url: string, video: HTMLVideoElement): Promise<RTCPeerConnection> {
-  const pc = new RTCPeerConnection();
-  pc.addTransceiver("video", { direction: "recvonly" });
-  pc.ontrack = (e) => {
-    video.srcObject = e.streams[0] ?? new MediaStream([e.track]);
-  };
-  const offer = await pc.createOffer();
-  await pc.setLocalDescription(offer);
-  await new Promise<void>((resolve) => {
-    if (pc.iceGatheringState === "complete") return resolve();
-    const t = window.setTimeout(resolve, 2000);
-    pc.addEventListener("icegatheringstatechange", () => {
-      if (pc.iceGatheringState === "complete") {
-        window.clearTimeout(t);
-        resolve();
-      }
-    });
-  });
-  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/sdp" },
-    body: pc.localDescription!.sdp });
-  if (!r.ok) {
-    pc.close();
-    throw new Error(`WHEP ${r.status}`);
-  }
-  await pc.setRemoteDescription({ type: "answer", sdp: await r.text() });
-  return pc;
-}
-
 type Mode = "webrtc" | "snapshot" | "none";
 
 function useVideo(camera: Camera, video: React.RefObject<HTMLVideoElement | null>) {
@@ -40,6 +13,7 @@ function useVideo(camera: Camera, video: React.RefObject<HTMLVideoElement | null
   const [snapshot, setSnapshot] = useState<string | null>(null);
   useEffect(() => {
     let pc: RTCPeerConnection | null = null;
+    let session: WhepSession | null = null;
     let cancelled = false;
     let timer: number | undefined;
     let url: string | null = null;
@@ -59,11 +33,21 @@ function useVideo(camera: Camera, video: React.RefObject<HTMLVideoElement | null
     (async () => {
       if (camera.webrtc_url && video.current) {
         try {
-          pc = await startWhep(camera.webrtc_url, video.current);
-          if (cancelled) return pc.close();
+          const sess = await startWhep(camera.webrtc_url, video.current);
+          session = sess;
+          const conn = sess.pc;
+          pc = conn;
+          if (cancelled) return sess.close();
           setMode("webrtc");
-          pc.onconnectionstatechange = () => {
-            if (pc && ["failed", "disconnected", "closed"].includes(pc.connectionState) && !cancelled) {
+          const v = video.current;
+          const s0 = sess.startedAt;
+          v.addEventListener("playing", () => {
+            // Tiempo hasta la primera imagen (Fase 9): visible en la consola de depuración y en las pruebas
+            (window as unknown as { __svWhepMs?: Record<string, number> }).__svWhepMs ??= {};
+            (window as unknown as { __svWhepMs: Record<string, number> }).__svWhepMs[camera.id] = performance.now() - s0;
+          }, { once: true });
+          conn.onconnectionstatechange = () => {
+            if (["failed", "disconnected", "closed"].includes(conn.connectionState) && !cancelled) {
               setMode("none");
               void pollSnapshot();
             }
@@ -78,7 +62,8 @@ function useVideo(camera: Camera, video: React.RefObject<HTMLVideoElement | null
     return () => {
       cancelled = true;
       window.clearTimeout(timer);
-      pc?.close();
+      if (session) session.close();
+      else pc?.close();
       if (url) URL.revokeObjectURL(url);
     };
   }, [camera.id, camera.webrtc_url, video]);

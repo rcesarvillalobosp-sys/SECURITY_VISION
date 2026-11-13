@@ -62,7 +62,8 @@ def build_detection_service(settings: Settings, model_id: str | None = None) -> 
     engine.load_model(registered.artifact, DeviceRequest(preference=settings.inference_devices))
     model = reg.create(DetectionModel, registered.spec.architecture, registered.spec, engine)
     model.warmup()
-    return DetectionService(model)
+    return DetectionService(model, max_batch=settings.detection_max_batch,
+                            max_wait_ms=settings.detection_max_wait_ms)
 
 
 def build_tracking(settings: Settings):

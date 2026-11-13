@@ -73,6 +73,9 @@ async def _daily_retention(settings: Settings, engine: object) -> None:
 
 
 async def run(settings: Settings) -> None:
+    from security_vision.infrastructure.monitoring.tracing import setup_tracing
+
+    setup_tracing("security-vision-worker", settings.otel_endpoint, settings.otel_sample_ratio)
     runtime, engine, bus = build_runtime(settings)
     runtime.loop = asyncio.get_running_loop()
     start_http_server(settings.worker_metrics_port, addr="127.0.0.1", registry=build_registry(runtime))

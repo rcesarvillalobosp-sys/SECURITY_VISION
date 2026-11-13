@@ -142,7 +142,13 @@ class PyAVVideoSource(VideoSource):
             try:
                 self._container = av.open(target, mode="r", **kwargs)
                 stream = self._container.streams.video[0]
-                stream.thread_type = "AUTO"
+                # Hilos del decodificador: por defecto 1. Medido en Fase 9 (1080p a 15 fps): 15 % de CPU con
+                # un hilo frente a 22 % con "AUTO" (13 hilos por cámara). Para 4K: options.decode_threads=0.
+                threads = int(self.config.options.get("decode_threads", 1))
+                if threads == 0:
+                    stream.thread_type = "AUTO"
+                else:
+                    stream.codec_context.thread_count = threads
             except (av.error.FFmpegError, OSError, IndexError) as exc:
                 self._status = SourceStatus.ERROR
                 self._close()
@@ -193,8 +199,9 @@ class PyAVVideoSource(VideoSource):
         if self.config.width and self.config.height and urlsplit(self.config.uri).scheme != "usb":
             frame = frame.reformat(width=self.config.width, height=self.config.height)
         self._frame_id += 1
-        return Frame(data=frame.to_ndarray(format="rgb24"), frame_id=self._frame_id,
-                     captured_at=datetime.now(UTC), source_pts=frame.time)
+        # Conversión a RGB perezosa: solo se paga en los fotogramas que el análisis (o el snapshot) usa
+        return Frame.lazy(lambda f=frame: f.to_ndarray(format="rgb24"), frame.width, frame.height,
+                          frame_id=self._frame_id, captured_at=datetime.now(UTC), source_pts=frame.time)
 
     def _pace(self, pts: float) -> None:
         """Reproduce archivos a velocidad real (simula una cámara en vivo)."""

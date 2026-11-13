@@ -104,6 +104,8 @@ class DetectionModel(ABC):
     def __init__(self, spec: ModelSpec, engine: InferenceEngine) -> None:
         self.spec = spec
         self.engine = engine
+        # Tiempos (ms) de la última llamada a detect(), por etapa: preprocess, inference, postprocess
+        self.last_stage_ms: dict[str, float] = {}
 
     @abstractmethod
     def detect(self, frames: Sequence[Frame], camera_ids: Sequence[str]) -> list[list[Detection]]: ...

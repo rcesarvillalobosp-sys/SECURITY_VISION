@@ -33,6 +33,16 @@ Pesos entrenados sobre COCO: las imágenes de COCO tienen licencias Flickr heter
 | **aiosmtpd** 1.4.6 (+ atpublic, attrs) | Apache-2.0 (+ Apache-2.0, MIT) | Solo desarrollo y tests: servidor SMTP real para verificar el canal de correo |
 | Envío de correo | `smtplib` de la biblioteca estándar (PSF) | ✅ Sin dependencia adicional |
 
+**Actualización 2026-11-13 (Fase 9)** (`scripts/license_report.py --check`):
+
+| Componente | Licencia | Uso en el producto |
+|---|---|---|
+| **OpenTelemetry** SDK, exportador OTLP/HTTP, instrumentación FastAPI 1.45 / 0.66b2 (+ opentelemetry-proto, googleapis-common-protos, protobuf, wrapt) | Apache-2.0 (protobuf BSD-3, wrapt BSD-2) | ✅ Trazas opcionales (extra `otel`) |
+| **nvidia-ml-py** 13.615 | BSD | ✅ Métricas de GPU por NVML (extra `inference`) |
+| **TensorRT** 10.16 (`tensorrt-cu13-libs`) | **NVIDIA propietaria** | ⚠️ NO instalado ni dependencia del proyecto. Opcional; revisar su licencia antes de redistribuirlo |
+| Codificador `h264_nvenc` (FFmpeg + driver NVIDIA) | LGPL (envoltorio de FFmpeg) + driver propietario | Solo para generar el vídeo de las pruebas de carga; no se usa x264 (GPL) |
+| Jaeger | Apache-2.0 | Evaluado y descartado en esta fase (no se ejecutan binarios descargados); se usa `scripts/otlp_sink.py` |
+
 Leyenda de uso comercial: ✅ permitido · ⚠️ permitido con obligaciones o matices · ❌ no apto para el producto principal.
 
 ## Componentes del producto

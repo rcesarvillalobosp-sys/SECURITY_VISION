@@ -80,6 +80,13 @@ class Settings(BaseSettings):
     worker_reconcile_seconds: float = 30.0
     worker_snapshot_seconds: float = 5.0
 
+    # Trazas OpenTelemetry (opcional): OTLP/HTTP, p. ej. http://127.0.0.1:4318. Vacío = desactivadas.
+    otel_endpoint: str | None = None
+    otel_sample_ratio: float = Field(default=0.1, ge=0, le=1)  # fracción de fotogramas/peticiones trazadas
+    # Micro-batching de la detección (Fase 9)
+    detection_max_batch: int = Field(default=4, ge=1, le=32)
+    detection_max_wait_ms: float = Field(default=0.0, ge=0, le=100)
+
     # Alertas externas
     public_web_url: str | None = None  # p. ej. https://seguridad.ejemplo.com: enlaces en las alertas
     alerts_enabled: bool = True  # despachador de alertas en el proceso de la API

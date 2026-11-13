@@ -12,6 +12,7 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | anyio | 4.16.0 | MIT |  |
 | argon2-cffi | 25.1.0 | MIT |  |
 | argon2-cffi-bindings | 26.1.0 | MIT |  |
+| asgiref | 3.13.0 | BSD-3-Clause |  |
 | asyncpg | 0.32.0 | Apache-2.0 |  |
 | atpublic | 9.0.0 | Apache Software License |  |
 | attrs | 26.1.0 | MIT |  |
@@ -27,6 +28,7 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | filelock | 4.2.10 | MIT |  |
 | flatbuffers | 25.12.19 | Apache Software License |  |
 | fsspec | 2026.9.0 | BSD-3-Clause |  |
+| googleapis-common-protos | 1.76.0 | Apache-2.0 |  |
 | greenlet | 3.5.6 | MIT AND PSF-2.0 |  |
 | grimp | 3.19 | BSD License |  |
 | h11 | 0.16.0 | MIT License |  |
@@ -54,13 +56,26 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | nvidia-cudnn-cu13 | 9.24.0.43 | LicenseRef-NVIDIA-Proprietary | ⚠️ propietaria (EULA NVIDIA): revisar redistribución |
 | nvidia-cufft | 12.0.0.61 | Other/Proprietary License | ⚠️ propietaria (EULA NVIDIA): revisar redistribución |
 | nvidia-curand | 10.4.0.35 | Other/Proprietary License | ⚠️ propietaria (EULA NVIDIA): revisar redistribución |
+| nvidia-ml-py | 13.615.71 | BSD License |  |
 | nvidia-nvjitlink | 13.5.37 | LicenseRef-NVIDIA-Proprietary | ⚠️ propietaria (EULA NVIDIA): revisar redistribución |
 | onnx | 1.23.2 | Apache-2.0 |  |
 | onnx-ir | 1.1.0 | Apache-2.0 |  |
+| onnxconverter-common | 1.16.0 | MIT License |  |
 | onnxruntime-gpu | 1.31.1 | MIT License |  |
 | onnxscript | 0.7.2 | MIT License |  |
 | openpyxl | 3.1.5 | MIT License |  |
 | opentelemetry-api | 1.45.2 | Apache-2.0 |  |
+| opentelemetry-exporter-http-transport | 0.66b2 | Apache-2.0 |  |
+| opentelemetry-exporter-otlp-common | 0.66b2 | Apache-2.0 |  |
+| opentelemetry-exporter-otlp-proto-common | 1.45.2 | Apache-2.0 |  |
+| opentelemetry-exporter-otlp-proto-http | 1.45.2 | Apache-2.0 |  |
+| opentelemetry-instrumentation | 0.66b2 | Apache-2.0 |  |
+| opentelemetry-instrumentation-asgi | 0.66b2 | Apache-2.0 |  |
+| opentelemetry-instrumentation-fastapi | 0.66b2 | Apache-2.0 |  |
+| opentelemetry-proto | 1.45.2 | Apache-2.0 |  |
+| opentelemetry-sdk | 1.45.2 | Apache-2.0 |  |
+| opentelemetry-semantic-conventions | 0.66b2 | Apache-2.0 |  |
+| opentelemetry-util-http | 0.66b2 | Apache-2.0 |  |
 | openvino | 2026.4.1 | Apache-2.0 |  |
 | openvino-telemetry | 2025.2.0 | Apache Software License |  |
 | packaging | 26.3 | Apache-2.0 OR BSD-2-Clause |  |
@@ -81,6 +96,7 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | PyYAML | 6.0.3 | MIT License |  |
 | regex | 2026.11.9 | Apache-2.0 AND CNRI-Python |  |
 | reportlab | 5.1.0 | BSD License |  |
+| requests | 2.34.2 | Apache Software License |  |
 | rich | 15.0.0 | MIT License |  |
 | ruff | 0.17.5 | MIT |  |
 | safetensors | 0.8.0 | Apache Software License |  |
@@ -99,5 +115,7 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | typer | 0.29.1 | MIT |  |
 | typing-inspection | 0.4.5 | MIT |  |
 | typing_extensions | 4.16.0 | PSF-2.0 |  |
+| urllib3 | 2.8.0 | MIT |  |
 | uvicorn | 0.54.0 | BSD-3-Clause |  |
 | websockets | 17.4 | BSD-3-Clause |  |
+| wrapt | 2.5.2 | BSD-2-Clause |  |
