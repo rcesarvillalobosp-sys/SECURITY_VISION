@@ -50,6 +50,14 @@ class UserAuthenticated(DomainEvent):
 
 
 @register_event
+class RulesChanged(DomainEvent):
+    """Perfiles o zonas modificados: los workers recargan las reglas (sin reiniciar la captura)."""
+
+    event_type: ClassVar[str] = "rules.changed.v1"
+    camera_id: UUID | None = None  # None: puede afectar a varias cámaras
+
+
+@register_event
 class CameraConfigChanged(DomainEvent):
     """Alta/baja/modificación de una cámara: los workers reconcilian su configuración."""
 

@@ -49,6 +49,7 @@ class CameraInput:
     height: int | None = None
     target_fps: float | None = None
     location: dict[str, str] = field(default_factory=dict)
+    default_profile_id: UUID | None = None
 
 
 def provider_for(camera: Camera, policy: CameraPolicy) -> str:
@@ -148,7 +149,8 @@ class CameraService:
     @staticmethod
     def _audit_view(c: Camera) -> dict[str, Any]:
         return {"name": c.name, "source_type": c.source_type.value, "source_uri": c.source_uri,
-                "has_credentials": c.has_credentials, "enabled": c.enabled, "analysis_fps": c.analysis_fps}
+                "has_credentials": c.has_credentials, "enabled": c.enabled, "analysis_fps": c.analysis_fps,
+                "default_profile_id": str(c.default_profile_id) if c.default_profile_id else None}
 
     async def create(self, data: CameraInput, *, actor: Principal, ip: str | None = None) -> Camera:
         uri = self._validate(data)
@@ -156,10 +158,13 @@ class CameraService:
         cam = Camera(id=cid, name=data.name.strip(), source_type=data.source_type, source_uri=uri,
                      analysis_fps=data.analysis_fps, enabled=data.enabled, site_id=data.site_id, width=data.width,
                      height=data.height, target_fps=data.target_fps, location=data.location,
-                     credentials_encrypted=self._encrypt(cid, data.username, data.password))
+                     credentials_encrypted=self._encrypt(cid, data.username, data.password),
+                     default_profile_id=data.default_profile_id)
         if self._media and self._media_path_for:
             cam.mediamtx_path = self._media_path_for(str(cid))
         async with self._uow() as uow:
+            if cam.default_profile_id and await uow.rules.get_profile(cam.default_profile_id) is None:
+                raise ValidationError("perfil de seguridad inexistente")
             if await uow.cameras.name_exists(cam.name, cam.site_id):
                 raise ConflictError("ya existe una cámara con ese nombre en el sitio")
             await uow.cameras.add(cam)
@@ -187,15 +192,18 @@ class CameraService:
                 enabled=changes.get("enabled", current.enabled), site_id=changes.get("site_id", current.site_id),
                 width=changes.get("width", current.width), height=changes.get("height", current.height),
                 target_fps=changes.get("target_fps", current.target_fps),
-                location=changes.get("location", current.location))
+                location=changes.get("location", current.location),
+                default_profile_id=changes.get("default_profile_id", current.default_profile_id))
             uri = self._validate(merged)
+            if merged.default_profile_id and await uow.rules.get_profile(merged.default_profile_id) is None:
+                raise ValidationError("perfil de seguridad inexistente")
             if merged.name != current.name and await uow.cameras.name_exists(merged.name, merged.site_id,
                                                                                 exclude=camera_id):
                 raise ConflictError("ya existe una cámara con ese nombre en el sitio")
             updated = replace(current, name=merged.name.strip(), source_type=merged.source_type, source_uri=uri,
                               analysis_fps=merged.analysis_fps, enabled=merged.enabled, site_id=merged.site_id,
                               width=merged.width, height=merged.height, target_fps=merged.target_fps,
-                              location=merged.location,
+                              location=merged.location, default_profile_id=merged.default_profile_id,
                               credentials_encrypted=self._encrypt(camera_id, merged.username, merged.password))
             await uow.cameras.update(updated)
             await uow.audit.record("camera.updated", actor_id=actor.user_id, entity_type="camera",

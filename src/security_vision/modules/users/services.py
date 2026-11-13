@@ -260,5 +260,8 @@ async def bootstrap(uow_factory: Callable[[], UnitOfWork], hasher: PasswordHashe
         user = await UserService(uow_factory, hasher).create_user(
             email=admin_email, display_name="Administrador", password=admin_password, roles=["admin"], actor=None)
         created = user.email
+    from security_vision.modules.security_rules.service import ensure_default_profile
+
+    profile = await ensure_default_profile(uow_factory)
     return {"roles": sorted(roles), "permissions": len(Permission), "admin_created": created,
-            "users_existed": has_users}
+            "users_existed": has_users, "default_profile_created": profile}

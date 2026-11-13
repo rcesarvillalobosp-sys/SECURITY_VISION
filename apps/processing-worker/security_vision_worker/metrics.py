@@ -70,8 +70,26 @@ class CameraCollector(Collector):
                 tracked.add_metric(v, len(af.tracks))
                 unassigned.add_metric(v, len(af.associations.unassigned))
                 ambiguous.add_metric(v, sum(a.ambiguous for lst in af.associations.by_person.values() for a in lst))
+        by_status = GaugeMetricFamily("sv_camera_persons_by_status", "Personas por estado de cumplimiento",
+                                      labels=[*lbl, "status"])
+        for cid, (_fid, _dets, af) in list(self.rt.latest.items()):
+            w = self.rt.supervisor.worker(cid)
+            if w is None or af is None or af.evaluation is None:
+                continue
+            counts: dict[str, int] = {}
+            for p in af.evaluation.persons:
+                counts[p.status.value] = counts.get(p.status.value, 0) + 1
+            for st, n in counts.items():
+                by_status.add_metric([cid, w.spec.name, st], n)
+        confirmed = CounterMetricFamily("sv_violations_confirmed", "Incumplimientos confirmados",
+                                        labels=["camera_id", "ppe"])
+        for (cid, ppe), n in list(self.rt.violations_confirmed.items()):
+            confirmed.add_metric([cid, ppe], n)
+        closed = CounterMetricFamily("sv_violations_closed", "Incumplimientos cerrados", labels=["camera_id", "reason"])
+        for (cid, reason), n in list(self.rt.violations_closed.items()):
+            closed.add_metric([cid, reason], n)
         yield from (up, fps, read, stale, frames, dropped, conn_err, read_err, reconn, analyzed, age, published,
-                    persons, tracked, unassigned, ambiguous)
+                    persons, tracked, unassigned, ambiguous, by_status, confirmed, closed)
         det = self.rt.detector
         if det is not None:
             m = det.model.engine.get_metrics()

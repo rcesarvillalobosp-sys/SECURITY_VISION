@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import Any, Self
 from uuid import UUID
 
+from ..domain.compliance import CameraRules, SecurityProfile, ZoneRule
 from ..domain.identity import AuthSession, User
 from .cameras import CameraRepository
 
@@ -71,12 +72,46 @@ class AuditLog(ABC):
                      after: Mapping[str, Any] | None = None, ip: str | None = None) -> None: ...
 
 
+class RulesRepository(ABC):
+    @abstractmethod
+    async def list_profiles(self) -> list[SecurityProfile]: ...
+
+    @abstractmethod
+    async def get_profile(self, profile_id: UUID) -> SecurityProfile | None: ...
+
+    @abstractmethod
+    async def save_profile(self, profile: SecurityProfile, *, new: bool) -> None: ...
+
+    @abstractmethod
+    async def delete_profile(self, profile_id: UUID) -> None: ...
+
+    @abstractmethod
+    async def profile_in_use(self, profile_id: UUID) -> bool: ...
+
+    @abstractmethod
+    async def list_zones(self, camera_id: UUID) -> list[ZoneRule]: ...
+
+    @abstractmethod
+    async def get_zone(self, zone_id: UUID) -> tuple[UUID, ZoneRule] | None:
+        """(camera_id, zona)."""
+
+    @abstractmethod
+    async def save_zone(self, camera_id: UUID, zone: ZoneRule, *, enabled: bool, new: bool) -> None: ...
+
+    @abstractmethod
+    async def delete_zone(self, zone_id: UUID) -> None: ...
+
+    @abstractmethod
+    async def camera_rules(self, camera_id: UUID) -> CameraRules: ...
+
+
 class UnitOfWork(ABC):
     users: UserRepository
     roles: RoleRepository
     sessions: SessionRepository
     audit: AuditLog
     cameras: CameraRepository
+    rules: RulesRepository
 
     @abstractmethod
     async def __aenter__(self) -> Self: ...

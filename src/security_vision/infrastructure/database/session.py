@@ -12,6 +12,7 @@ from security_vision.core.interfaces.repositories import UnitOfWork
 
 from .repositories.cameras import SqlCameraRepository
 from .repositories.identity import SqlAuditLog, SqlRoleRepository, SqlSessionRepository, SqlUserRepository
+from .repositories.rules import SqlRulesRepository
 
 
 def create_engine(url: str, *, pool_size: int = 10, echo: bool = False) -> AsyncEngine:
@@ -36,6 +37,7 @@ class SqlUnitOfWork(UnitOfWork):
         self.sessions = SqlSessionRepository(self._session)
         self.audit = SqlAuditLog(self._session)
         self.cameras = SqlCameraRepository(self._session)
+        self.rules = SqlRulesRepository(self._session)
         return self
 
     async def __aexit__(self, *exc: object) -> None:

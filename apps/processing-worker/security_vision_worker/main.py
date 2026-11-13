@@ -66,7 +66,7 @@ async def run(settings: Settings) -> None:
     log.info("worker iniciado; métricas en http://127.0.0.1:%d/metrics", settings.worker_metrics_port)
     await runtime.reconcile()
     tasks = [asyncio.create_task(c) for c in (
-        runtime.status_writer(), runtime.snapshot_writer(), runtime.config_listener(),
+        runtime.status_writer(), runtime.snapshot_writer(), runtime.config_listener(), runtime.event_publisher(),
         runtime.periodic_reconcile(settings.worker_reconcile_seconds))]
     stop = asyncio.Event()
     for sig in (signal.SIGINT, signal.SIGTERM):

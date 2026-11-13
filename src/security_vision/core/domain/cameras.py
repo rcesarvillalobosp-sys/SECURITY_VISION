@@ -35,6 +35,7 @@ class Camera:
     location: dict[str, str] = field(default_factory=dict)
     mediamtx_path: str | None = None
     credentials_encrypted: bytes | None = None
+    default_profile_id: UUID | None = None
     last_status: str | None = None
     last_status_at: datetime | None = None
     last_error: str | None = None

@@ -24,7 +24,7 @@ from security_vision.core.domain.errors import (
 from security_vision.infrastructure.monitoring.logging import configure_logging, request_id_var
 
 from .container import Container, build_container
-from .routers import auth, cameras, system, users
+from .routers import auth, cameras, rules, system, users
 
 log = logging.getLogger("security_vision.api")
 
@@ -98,6 +98,7 @@ def create_app(settings: Settings | None = None, container: Container | None = N
     app.include_router(auth.router)
     app.include_router(users.router)
     app.include_router(cameras.router)
+    app.include_router(rules.router)
     return app
 
 

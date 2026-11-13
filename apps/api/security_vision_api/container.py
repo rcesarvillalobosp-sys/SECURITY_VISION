@@ -17,6 +17,7 @@ from security_vision.infrastructure.security.adapters import AesGcmCipher, Argon
 from security_vision.infrastructure.storage.local import LocalFileStorage
 from security_vision.infrastructure.video.probe import RegistryVideoProbe
 from security_vision.modules.cameras.service import CameraService
+from security_vision.modules.security_rules.service import RulesService
 from security_vision.modules.users.services import AuthPolicy, AuthService, UserService
 
 
@@ -27,6 +28,7 @@ class Container:
     auth: AuthService
     users: UserService
     cameras: CameraService
+    rules: RulesService
     hasher: Argon2PasswordHasher
     cipher: AesGcmCipher
     storage: LocalFileStorage
@@ -60,5 +62,6 @@ def build_container(settings: Settings) -> Container:
     cameras = CameraService(uow, cipher, RegistryVideoProbe(build_video_registry()), storage,
                             camera_policy(settings), bus=bus, media=media, media_path_for=path_name)
     return Container(settings=settings, engine=engine, auth=AuthService(uow, hasher, tokens, policy),
-                     users=UserService(uow, hasher), cameras=cameras, hasher=hasher, cipher=cipher,
+                     users=UserService(uow, hasher), cameras=cameras, rules=RulesService(uow, bus),
+                     hasher=hasher, cipher=cipher,
                      storage=storage, bus=bus, media=media, metrics=create_api_metrics())

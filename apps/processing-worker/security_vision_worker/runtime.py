@@ -17,8 +17,9 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from security_vision.core.domain.cameras import Camera, SourceType
+from security_vision.core.domain.compliance import CameraRules, ComplianceStatus
 from security_vision.core.domain.vision import Detection
-from security_vision.core.events.catalog import CameraStatusChanged
+from security_vision.core.events.catalog import CameraStatusChanged, PersonComplianceChanged
 from security_vision.core.interfaces.analysis import AnalyzedFrame, ObjectTracker, PPEAssociator
 from security_vision.core.interfaces.cameras import MediaServer
 from security_vision.core.interfaces.infrastructure import MessageBus, ObjectStorage, SecretCipher
@@ -41,6 +42,7 @@ from security_vision.modules.cameras.supervisor import (
     ReconnectPolicy,
 )
 from security_vision.modules.detection.service import DetectionService
+from security_vision.modules.security_rules.engine import RuleBasedSecurityEvaluator
 from security_vision.modules.tracking.analyzer import CameraAnalyzer
 
 log = logging.getLogger("security_vision.worker")
@@ -164,6 +166,15 @@ def encode_annotated_jpeg(rgb, detections: list[Detection], analyzed: AnalyzedFr
     return buf.getvalue()
 
 
+STATUS_COLORS = {
+    ComplianceStatus.CUMPLIMIENTO: (40, 200, 90),
+    ComplianceStatus.EN_REVISION: (240, 200, 0),
+    ComplianceStatus.POSIBLE_INCUMPLIMIENTO: (255, 140, 0),
+    ComplianceStatus.INCUMPLIMIENTO_CONFIRMADO: (230, 40, 40),
+    ComplianceStatus.NO_VERIFICABLE: (160, 160, 160),
+}
+
+
 def _encode_analyzed(rgb, af: AnalyzedFrame) -> bytes:
     import io
 
@@ -177,9 +188,13 @@ def _encode_analyzed(rgb, af: AnalyzedFrame) -> bytes:
     def box(b):
         return (b.x1 * width, b.y1 * height, b.x2 * width, b.y2 * height)
 
+    status = {p.track_id: p.status for p in af.evaluation.persons} if af.evaluation else {}
     for t in af.tracks:
-        d.rectangle(box(t.bbox), outline=COLORS["person"], width=lw)
-        d.text((t.bbox.x1 * width + 3, t.bbox.y1 * height + 2), f"P{t.track_id}", fill=COLORS["person"])
+        st = status.get(t.track_id)
+        pcol = STATUS_COLORS.get(st, COLORS["person"]) if st else COLORS["person"]
+        d.rectangle(box(t.bbox), outline=pcol, width=lw + 1)
+        label = f"P{t.track_id}" + (f" {st.value}" if st else "")
+        d.text((t.bbox.x1 * width + 3, t.bbox.y1 * height + 2), label, fill=pcol)
         for a in af.associations.by_person.get(t.track_id, []):
             col = (230, 40, 40) if a.item.class_name.startswith("no_") else (40, 200, 90)
             mark = "?" if a.ambiguous else ""
@@ -214,6 +229,11 @@ class WorkerRuntime:
         self.detector = detector
         self.tracker_factory = tracker_factory
         self.associator = associator
+        self.rules: dict[str, CameraRules] = {}
+        self.analyzers: dict[str, CameraAnalyzer] = {}
+        self.violations_confirmed: dict[tuple[str, str], int] = {}  # (cámara, epp) -> nº
+        self.violations_closed: dict[tuple[str, str], int] = {}  # (cámara, motivo) -> nº
+        self._events_q: asyncio.Queue = asyncio.Queue(maxsize=10_000)
         # cámara -> (frame_id, detecciones, análisis) del último fotograma analizado
         self.latest: dict[str, tuple[int, list[Detection], AnalyzedFrame | None]] = {}
         self.loop: asyncio.AbstractEventLoop | None = None
@@ -242,7 +262,14 @@ class WorkerRuntime:
     async def reconcile(self) -> dict[str, list[str]]:
         async with self.uow() as uow:
             cams = await uow.cameras.list(enabled_only=True)
+            new_rules = {str(c.id): await uow.rules.camera_rules(c.id) for c in cams}
         self.cameras = {str(c.id): c for c in cams}
+        for cid, rules in new_rules.items():
+            if self.rules.get(cid) != rules and cid in self.analyzers:
+                # Reglas nuevas: se sustituye el evaluador (estado temporal reiniciado), sin tocar la captura
+                self.analyzers[cid].evaluator = RuleBasedSecurityEvaluator(rules)
+                log.info("reglas recargadas", extra={"camera_id": cid})
+        self.rules = new_rules
         if self.media:
             for c in cams:
                 if c.mediamtx_path:
@@ -270,13 +297,19 @@ class WorkerRuntime:
         handle = None
         if self.detector is not None:
             det = self.detector
-            analyzer = (CameraAnalyzer(cid, self.tracker_factory(), self.associator)
-                        if self.tracker_factory and self.associator else None)
+            analyzer = None
+            if self.tracker_factory and self.associator:
+                rules = self.rules.get(cid)
+                evaluator = RuleBasedSecurityEvaluator(rules) if rules else None
+                analyzer = CameraAnalyzer(cid, self.tracker_factory(), self.associator, evaluator)
+                self.analyzers[cid] = analyzer
 
             def handle(frame: Frame, cid: str = cid) -> None:
                 dets = det.detect(frame, cid)
                 analyzed = analyzer.process(frame, dets) if analyzer else None
                 self.latest[cid] = (frame.frame_id, dets, analyzed)
+                if analyzed is not None and analyzed.evaluation is not None:
+                    self._on_evaluation(cid, analyzed)
 
         loop = AnalysisLoop(worker, handle)
         loop.start()
@@ -289,10 +322,49 @@ class WorkerRuntime:
             pub.start()
             self.publishers[cid] = pub
 
+    def _on_evaluation(self, cid: str, af: AnalyzedFrame) -> None:
+        """Hilo de análisis: contabiliza y encola eventos para el bucle asyncio."""
+        ev = af.evaluation
+        assert ev is not None
+        for v in ev.new_violations:
+            key = (cid, v.ppe_class)
+            self.violations_confirmed[key] = self.violations_confirmed.get(key, 0) + 1
+            log.warning("incumplimiento confirmado", extra={"camera_id": cid, "track": v.track_id,
+                                                            "ppe": v.ppe_class, "confidence": v.confidence})
+        for c in ev.closed_violations:
+            key = (cid, c.reason)
+            self.violations_closed[key] = self.violations_closed.get(key, 0) + 1
+        if self.loop is None or not ev.transitions:
+            return
+        by_track = {p.track_id: p for p in ev.persons}
+        for tr in ev.transitions:
+            p = by_track.get(tr.track_id)
+            event = PersonComplianceChanged(camera_id=UUID(cid), track_id=tr.track_id, previous=tr.previous,
+                                            current=tr.current,
+                                            ppe={k: v.value for k, v in (p.ppe if p else {}).items()})
+            self.loop.call_soon_threadsafe(self._put_event, event)
+
+    def _put_event(self, event: object) -> None:
+        try:
+            self._events_q.put_nowait(event)
+        except asyncio.QueueFull:
+            log.warning("cola de eventos llena: evento descartado")
+
+    async def event_publisher(self) -> None:
+        while True:
+            event = await self._events_q.get()
+            if self.bus is None:
+                continue
+            try:
+                await self.bus.publish(event)  # type: ignore[arg-type]
+            except Exception as exc:
+                log.warning("no se pudo publicar %s: %s", type(event).__name__, exc)
+
     def _stop_aux(self, cid: str) -> None:
         if loop := self.analysis.pop(cid, None):
             loop.stop()
         self.latest.pop(cid, None)  # el tracker de la cámara se descarta con ella
+        self.analyzers.pop(cid, None)
         if pub := self.publishers.pop(cid, None):
             pub.stop()
 
@@ -334,7 +406,8 @@ class WorkerRuntime:
             return
         while True:
             try:
-                async for _ev in self.bus.subscribe(["camera.config_changed.v1"], group="workers"):
+                async for _ev in self.bus.subscribe(["camera.config_changed.v1", "rules.changed.v1"],
+                                                    group="workers"):
                     await self.reconcile()
             except Exception as exc:
                 log.warning("escucha de configuración interrumpida (%s); reintento en 5s", exc)

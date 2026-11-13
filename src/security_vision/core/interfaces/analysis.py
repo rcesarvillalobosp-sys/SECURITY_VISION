@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Iterator, Mapping, Sequence
+from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import ClassVar
@@ -53,8 +53,6 @@ class EvaluationContext:
     camera_id: str
     frame_ts: datetime
     frame_size: Size
-    zones: Mapping[str, list[tuple[float, float]]] = field(default_factory=dict)
-    profile_id: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -66,13 +64,23 @@ class Transition:
 
 
 @dataclass(frozen=True, slots=True)
+class ClosedViolation:
+    violation: Violation
+    closed_at: datetime
+    reason: str  # "corrected" (EPP visto de nuevo de forma sostenida) | "track_lost"
+
+
+@dataclass(frozen=True, slots=True)
 class EvaluationResult:
     persons: list[PersonCompliance]
     transitions: list[Transition]
     new_violations: list[Violation]
+    closed_violations: list[ClosedViolation] = field(default_factory=list)
 
 
 class SecurityEvaluator(ABC):
+    """Evaluador con estado por cámara. Las reglas (perfiles y zonas) se inyectan al construirlo."""
+
     @abstractmethod
     def evaluate(self, tracks: Sequence[Track], associations: AssociationResult,
                  ctx: EvaluationContext) -> EvaluationResult: ...
@@ -93,6 +101,7 @@ class AnalyzedFrame:
     tracks: list[Track]
     associations: AssociationResult
     timings_ms: dict[str, float]
+    evaluation: EvaluationResult | None = None
 
 
 class AnalysisPipeline(ABC):

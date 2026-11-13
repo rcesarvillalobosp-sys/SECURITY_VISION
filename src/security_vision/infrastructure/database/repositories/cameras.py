@@ -14,6 +14,7 @@ from security_vision.core.interfaces.cameras import CameraRepository
 from ..models import CameraRow, CameraStatusEventRow
 
 _FIELDS = ("name", "site_id", "source_uri", "credentials_encrypted", "width", "height", "target_fps",
+           "default_profile_id",
            "analysis_fps", "enabled", "location", "mediamtx_path")
 
 
@@ -22,6 +23,7 @@ def _to_domain(r: CameraRow) -> Camera:
                   analysis_fps=r.analysis_fps, enabled=r.enabled, site_id=r.site_id, width=r.width,
                   height=r.height, target_fps=r.target_fps, location=dict(r.location or {}),
                   mediamtx_path=r.mediamtx_path, credentials_encrypted=r.credentials_encrypted,
+                  default_profile_id=r.default_profile_id,
                   last_status=r.last_status, last_status_at=r.last_status_at, last_error=r.last_error,
                   created_at=r.created_at, updated_at=r.updated_at)
 

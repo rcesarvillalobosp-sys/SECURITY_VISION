@@ -37,6 +37,7 @@ class CameraIn(BaseModel):
     height: int | None = Field(default=None, ge=16, le=8192)
     target_fps: float | None = Field(default=None, gt=0, le=120)
     location: dict[str, str] = Field(default_factory=dict, max_length=20)
+    default_profile_id: UUID | None = None
 
 
 class CameraPatch(BaseModel):
@@ -53,6 +54,7 @@ class CameraPatch(BaseModel):
     height: int | None = Field(default=None, ge=16, le=8192)
     target_fps: float | None = Field(default=None, gt=0, le=120)
     location: dict[str, str] | None = None
+    default_profile_id: UUID | None = None
 
 
 class CameraOut(BaseModel):
@@ -68,6 +70,7 @@ class CameraOut(BaseModel):
     height: int | None
     target_fps: float | None
     location: dict[str, str]
+    default_profile_id: UUID | None
     status: str | None
     status_at: datetime | None
     last_error: str | None
@@ -96,7 +99,8 @@ def _out(c: Camera, container: Container) -> CameraOut:
     return CameraOut(id=c.id, name=c.name, source_type=c.source_type, source_uri=c.source_uri,
                      has_credentials=c.has_credentials, analysis_fps=c.analysis_fps, enabled=c.enabled,
                      site_id=c.site_id, width=c.width, height=c.height, target_fps=c.target_fps,
-                     location=c.location, status=c.last_status, status_at=c.last_status_at,
+                     location=c.location, default_profile_id=c.default_profile_id, status=c.last_status,
+                     status_at=c.last_status_at,
                      last_error=c.last_error, webrtc_url=webrtc)
 
 

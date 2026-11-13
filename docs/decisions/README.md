@@ -67,5 +67,9 @@ Formato breve: contexto → decisión → consecuencias. Estado: **Aceptada** sa
 ## ADR-0017 Asociación EPP–persona por regiones con capacidad y algoritmo húngaro
 - **Decisión:** cada EPP solo puede asignarse dentro de su región corporal, cada región tiene capacidad (1 casco, 2 guantes…) y la asignación es global. Las asignaciones con un competidor cercano se marcan como `ambiguous`, y el motor de reglas las tratará como no verificables. Los EPP sin persona plausible se reportan como `unassigned`, nunca se fuerzan.
 
+## ADR-0018 Confirmar un incumplimiento exige evidencia positiva de ausencia
+- **Contexto:** el requisito exige no confundir la ausencia de detección con la ausencia del EPP. El detector tiene falsos negativos sistemáticos en algunas escenas.
+- **Decisión:** la ausencia implícita (región visible sin detección) solo puede llevar a `POSIBLE_INCUMPLIMIENTO`, que requiere revisión humana. `INCUMPLIMIENTO_CONFIRMADO` requiere además al menos 2 detecciones `no_*` en la ventana (configurable por perfil). Se prefiere perder algún incumplimiento a acusar falsamente a un trabajador.
+
 ## ADR-0009 Auditoría de solo inserción reforzada en la base de datos
 - **Decisión:** un trigger en PostgreSQL rechaza cualquier UPDATE o DELETE sobre `audit_log`. La única excepción es anonimizar al actor cuando se borra su usuario (`SET NULL`).
