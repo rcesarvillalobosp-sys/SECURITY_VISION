@@ -48,7 +48,9 @@ async def test_refresh_rotation_and_reuse_detection(client):
     new = client.cookies.get("sv_refresh")
     assert new and new != old
     access = r1.json()["access_token"]
-    # Reutilizar el token anterior (robado) revoca la sesión completa.
+    # Reutilizar el token anterior (robado) FUERA del margen de gracia revoca la sesión completa.
+    async with client.app.state.container.engine.begin() as conn:
+        await conn.execute(text("UPDATE sessions SET rotated_at = rotated_at - interval '1 minute'"))
     client.cookies.set("sv_refresh", old, path="/api/v1/auth")
     assert (await client.post("/api/v1/auth/refresh")).status_code == 401
     client.cookies.set("sv_refresh", new, path="/api/v1/auth")
@@ -115,3 +117,31 @@ async def test_camera_uri_cannot_embed_credentials(client):
             await conn.execute(text("INSERT INTO cameras (id, name, source_type, source_uri, analysis_fps, enabled, "
                                     "location) VALUES (gen_random_uuid(), 'c1', 'rtsp', "
                                     "'rtsp://admin:clave@10.0.0.5/stream', 2, true, '{}')"))
+
+
+async def test_concurrent_refresh_from_two_tabs_is_not_reuse(client):
+    """Dos pestañas comparten la cookie y renuevan a la vez: no debe interpretarse como robo."""
+    import asyncio
+
+    await login(client)
+    cookie = client.cookies.get("sv_refresh")
+    client.cookies.clear()
+
+    def refresh(value: str):
+        return client.post("/api/v1/auth/refresh", headers={"Cookie": f"sv_refresh={value}"})
+
+    r1, r2 = await asyncio.gather(refresh(cookie), refresh(cookie))
+    assert (r1.status_code, r2.status_code) == (200, 200)
+    t1, t2 = r1.cookies.get("sv_refresh"), r2.cookies.get("sv_refresh")
+    assert t1 and t2 and t1 != t2
+    client.cookies.clear()
+    # Cualquiera de las dos cookies (la que el navegador fijara en último lugar) sigue siendo válida
+    for t in (t1, t2):
+        ok = await refresh(t)
+        assert ok.status_code == 200, ok.text
+        client.cookies.clear()
+    assert (await client.get("/api/v1/auth/me", headers=auth(ok.json()["access_token"]))).status_code == 200
+    async with client.app.state.container.engine.connect() as conn:
+        reuse = (await conn.execute(text("SELECT count(*) FROM audit_log WHERE action = 'auth.refresh_reuse_detected'"))
+                 ).scalar_one()
+    assert reuse == 0

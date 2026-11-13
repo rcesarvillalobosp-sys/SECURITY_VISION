@@ -80,6 +80,19 @@ class Settings(BaseSettings):
     worker_reconcile_seconds: float = 30.0
     worker_snapshot_seconds: float = 5.0
 
+    # Alertas externas
+    public_web_url: str | None = None  # p. ej. https://seguridad.ejemplo.com: enlaces en las alertas
+    alerts_enabled: bool = True  # despachador de alertas en el proceso de la API
+    alert_webhook_allow_private: bool = False  # permitir webhooks a IPs privadas/locales (riesgo SSRF)
+    alert_webhook_timeout: float = Field(default=10.0, gt=0, le=60)
+    smtp_host: str | None = None  # vacío = canal email deshabilitado
+    smtp_port: int = 587
+    smtp_security: str = Field(default="starttls", pattern="^(starttls|ssl|none)$")
+    smtp_user: str | None = None
+    smtp_password: SecretStr | None = None
+    smtp_from: str | None = None
+    smtp_timeout: float = Field(default=15.0, gt=0, le=120)
+
     bootstrap_admin_email: str | None = None
     bootstrap_admin_password: SecretStr | None = None
 
@@ -94,6 +107,8 @@ class Settings(BaseSettings):
                 raise ValueError("CORS '*' no permitido en producción")
             if self.allow_test_sources:
                 raise ValueError("SV_ALLOW_TEST_SOURCES no se permite en producción")
+            if self.smtp_host and self.smtp_security == "none":
+                raise ValueError("SMTP sin cifrar no se permite en producción")
         return self
 
 

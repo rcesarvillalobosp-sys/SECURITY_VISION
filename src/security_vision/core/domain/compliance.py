@@ -171,3 +171,17 @@ class Violation:
 
 
 _ = CanonicalClass  # la taxonomía define los nombres válidos
+
+
+# Etiqueta legible de cada tipo de incumplimiento (falta del EPP correspondiente)
+VIOLATION_LABEL: dict[str, str] = {
+    "helmet": "Sin casco",
+    "safety_vest": "Sin chaleco",
+    "safety_boot": "Sin botas",
+    "gloves": "Sin guantes",
+    "goggles": "Sin gafas",
+}
+
+
+def violation_label(violation_type: str) -> str:
+    return VIOLATION_LABEL.get(violation_type, violation_type)

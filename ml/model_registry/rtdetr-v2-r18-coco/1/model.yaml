@@ -101,3 +101,8 @@ weights_source: PekingU/rtdetr_v2_r18vd@5650961749fa93567c0d46fc7f43ea4f9e914107
 dataset_ref: COCO train2017
 notes: 'Exportado con torch 2.14.1+cu130, opset 17; verificación sobre 59 detecciones
   ONNX vs PyTorch: max |Δ| = 1.2e-05.'
+metrics:
+  eval_set: val del dataset original (200 imágenes), solo clase person
+  person_AP50: 0.961
+  person_AP50_95: 0.822
+  source: docs/progress/fase-3.md

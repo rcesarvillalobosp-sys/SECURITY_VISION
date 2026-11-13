@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[2]
 ADMIN_EMAIL = "admin@test.local"
 ADMIN_PASSWORD = "Admin-Pruebas-2026!"
 TABLES = "audit_log, sessions, user_roles, users, zones, cameras, sites, security_profiles, detection_models, " \
-         "retention_policies"
+         "retention_policies, event_outbox, system_settings, alert_channels"
 
 
 def _test_db_url() -> str | None:

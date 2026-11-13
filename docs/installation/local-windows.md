@@ -25,3 +25,13 @@ Tras reiniciar el equipo: `uv run python scripts/dev_postgres.py start`.
    - `uv run sv-worker`
 4. Para probar sin cámaras, añade `SV_ALLOW_TEST_SOURCES=true` y da de alta una cámara `source_type: test` con `testpattern://?width=1280&height=720&fps=15`. El vídeo se ve en `http://127.0.0.1:8889/<ruta>/`; la URL WebRTC aparece en la respuesta de la API.
 5. Métricas del worker: `http://127.0.0.1:9101/metrics`.
+
+## Alertas por correo y webhook (Fase 8)
+
+- **Correo:** define `SV_SMTP_HOST`, `SV_SMTP_PORT`, `SV_SMTP_SECURITY` (`starttls`, `ssl` o `none`; `none` no se permite en producción), `SV_SMTP_USER`, `SV_SMTP_PASSWORD` y `SV_SMTP_FROM` en `.env`. Sin `SV_SMTP_HOST` el canal de correo aparece como no disponible.
+- **Enlaces:** con `SV_PUBLIC_WEB_URL` (por ejemplo `http://localhost:5173`) los avisos incluyen un enlace al incidente.
+- **Webhooks en la red local:** por seguridad (SSRF) se rechazan los destinos privados o locales. Para un receptor en la LAN, activa `SV_ALERT_WEBHOOK_ALLOW_PRIVATE=true`.
+- Los canales se crean en **Administración › Alertas**; el botón «Enviar prueba» comprueba la configuración sin crear incidentes.
+- **SMTP de pruebas local** (sin enviar correo real): `uv run python -m aiosmtpd -n -l 127.0.0.1:2525` y `SV_SMTP_HOST=127.0.0.1`, `SV_SMTP_PORT=2525`, `SV_SMTP_SECURITY=none`.
+
+Tras cambiar `.env`, reinicia la API (`svctl serve`): el despachador de alertas se ejecuta en su proceso.

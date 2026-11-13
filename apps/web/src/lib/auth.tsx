@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
-import { api, ApiError, refreshToken, setToken, type Me } from "./api";
+import { api, ApiError, getToken, refreshToken, setToken, type Me } from "./api";
 
 interface AuthState {
   me: Me | null;
@@ -33,7 +33,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!me) return;
     const id = window.setInterval(async () => {
-      if (!(await refreshToken())) setMe(null);
+      // Solo se cierra la sesión si el servidor la rechazó (token borrado), no por un corte transitorio
+      if (!(await refreshToken()) && !getToken()) setMe(null);
     }, REFRESH_EVERY_MS);
     return () => window.clearInterval(id);
   }, [me]);

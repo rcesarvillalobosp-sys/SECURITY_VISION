@@ -5,6 +5,7 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | Paquete | Versión | Licencia declarada | Estado |
 |---|---|---|---|
 | accelerate | 1.15.0 | Apache Software License |  |
+| aiosmtpd | 1.4.6 | OSI Approved; Apache Software License |  |
 | alembic | 1.20.1 | MIT |  |
 | annotated-doc | 0.0.6 | MIT |  |
 | annotated-types | 0.8.0 | MIT |  |
@@ -12,12 +13,16 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | argon2-cffi | 25.1.0 | MIT |  |
 | argon2-cffi-bindings | 26.1.0 | MIT |  |
 | asyncpg | 0.32.0 | Apache-2.0 |  |
+| atpublic | 9.0.0 | Apache Software License |  |
+| attrs | 26.1.0 | MIT |  |
 | av | 19.0.2 | BSD-3-Clause |  |
 | certifi | 2026.10.23 | Mozilla Public License 2.0 (MPL 2.0) |  |
 | cffi | 2.1.1 | MIT-0 |  |
+| charset-normalizer | 3.5.2 | MIT |  |
 | click | 8.5.1 | BSD-3-Clause |  |
 | colorama | 0.4.6 | BSD License |  |
 | cryptography | 50.0.2 | Apache-2.0 OR BSD-3-Clause |  |
+| et_xmlfile | 2.0.0 | MIT License |  |
 | fastapi | 0.162.5 | MIT |  |
 | filelock | 4.2.10 | MIT |  |
 | flatbuffers | 25.12.19 | Apache Software License |  |
@@ -54,6 +59,7 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | onnx-ir | 1.1.0 | Apache-2.0 |  |
 | onnxruntime-gpu | 1.31.1 | MIT License |  |
 | onnxscript | 0.7.2 | MIT License |  |
+| openpyxl | 3.1.5 | MIT License |  |
 | opentelemetry-api | 1.45.2 | Apache-2.0 |  |
 | openvino | 2026.4.1 | Apache-2.0 |  |
 | openvino-telemetry | 2025.2.0 | Apache Software License |  |
@@ -74,6 +80,7 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | python-multipart | 0.0.33 | Apache-2.0 |  |
 | PyYAML | 6.0.3 | MIT License |  |
 | regex | 2026.11.9 | Apache-2.0 AND CNRI-Python |  |
+| reportlab | 5.1.0 | BSD License |  |
 | rich | 15.0.0 | MIT License |  |
 | ruff | 0.17.5 | MIT |  |
 | safetensors | 0.8.0 | Apache Software License |  |

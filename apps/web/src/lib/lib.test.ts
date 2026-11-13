@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { api, getToken, setToken } from "./api";
+import { api, getToken, REFRESH_RETRY_MS, refreshToken, setToken } from "./api";
 import { containRect } from "./format";
 
 describe("containRect (superposición sobre vídeo con object-fit: contain)", () => {
@@ -47,5 +47,40 @@ describe("cliente de API", () => {
       headers: { "content-type": "application/json" } })));
     await expect(api.get("/api/v1/x")).rejects.toThrow("sesión inválida");
     expect(getToken()).toBeNull();
+  });
+});
+
+describe("renovación ante fallos transitorios", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+    setToken(null);
+  });
+
+  it("un 502 o la red caída se reintentan: reiniciar la API no cierra la sesión", async () => {
+    vi.useFakeTimers();
+    const replies: Array<() => Response> = [
+      () => { throw new TypeError("Failed to fetch"); },
+      () => new Response("Bad Gateway", { status: 502 }),
+      () => new Response(JSON.stringify({ access_token: "tok" }), { status: 200, headers: { "content-type": "application/json" } }),
+    ];
+    const f = vi.fn(async () => replies.shift()!());
+    vi.stubGlobal("fetch", f);
+    const p = refreshToken();
+    await vi.runAllTimersAsync();
+    expect(await p).toBe("tok");
+    expect(f).toHaveBeenCalledTimes(3);
+    expect(getToken()).toBe("tok");
+  });
+
+  it("si el servidor sigue sin responder, se rinde sin bucles infinitos", async () => {
+    vi.useFakeTimers();
+    setToken("previo");
+    const f = vi.fn(async () => new Response("", { status: 503 }));
+    vi.stubGlobal("fetch", f);
+    const p = refreshToken();
+    await vi.runAllTimersAsync();
+    expect(await p).toBeNull();
+    expect(f).toHaveBeenCalledTimes(REFRESH_RETRY_MS.length + 1);
   });
 });

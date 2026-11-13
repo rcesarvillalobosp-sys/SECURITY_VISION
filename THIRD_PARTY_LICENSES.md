@@ -22,6 +22,17 @@
 
 Pesos entrenados sobre COCO: las imágenes de COCO tienen licencias Flickr heterogéneas. Usar los pesos publicados como Apache-2.0 es práctica habitual, pero conviene revisarlo con el área legal antes de comercializar. El modelo EPP propio sustituirá a estos pesos base.
 
+**Actualización 2026-11-13 (Fase 8),** verificada en los metadatos de cada paquete (`scripts/license_report.py --check`):
+
+| Componente | Licencia | Uso en el producto |
+|---|---|---|
+| **ReportLab** 5.1.0 (edición open source) | BSD | ✅ Reportes PDF. Se elige frente a WeasyPrint para no depender de Pango/GTK (LGPL, delicado en Windows) |
+| **openpyxl** 3.1.5 + et_xmlfile 2.0.0 | MIT / MIT | ✅ Reportes Excel |
+| charset-normalizer 3.5.2 | MIT | ✅ Dependencia de ReportLab |
+| **httpx** 0.28.1 | BSD-3 | ✅ Envío de webhooks (antes solo en desarrollo) |
+| **aiosmtpd** 1.4.6 (+ atpublic, attrs) | Apache-2.0 (+ Apache-2.0, MIT) | Solo desarrollo y tests: servidor SMTP real para verificar el canal de correo |
+| Envío de correo | `smtplib` de la biblioteca estándar (PSF) | ✅ Sin dependencia adicional |
+
 Leyenda de uso comercial: ✅ permitido · ⚠️ permitido con obligaciones o matices · ❌ no apto para el producto principal.
 
 ## Componentes del producto
@@ -58,8 +69,8 @@ Leyenda de uso comercial: ✅ permitido · ⚠️ permitido con obligaciones o m
 | React / Vite / Tailwind CSS | Frontend | MIT | ✅ | | ⏳ |
 | TanStack Query | Frontend | MIT | ✅ | | ⏳ |
 | Apache ECharts | Gráficos | Apache-2.0 | ✅ | | ⏳ |
-| openpyxl | Excel | MIT | ✅ | | ⏳ |
-| WeasyPrint | PDF | BSD-3 | ✅ | Depende de Pango (LGPL), que en Windows es delicado; alternativa: ReportLab (BSD) | ⏳ |
+| openpyxl | Excel | MIT | ✅ | | ✅ (Fase 8) |
+| ReportLab | PDF | BSD | ✅ | Elegido en lugar de WeasyPrint (dependencia de Pango/LGPL) | ✅ (Fase 8) |
 | SeaweedFS | Almacenamiento S3 (futuro) | Apache-2.0 | ✅ | **MinIO es AGPL-3.0** → evitar como componente embebido | ⏳ |
 | import-linter | Reglas de arquitectura | BSD-2 | ✅ | Solo desarrollo | ⏳ |
 

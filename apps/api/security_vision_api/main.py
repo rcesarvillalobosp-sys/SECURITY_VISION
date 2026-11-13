@@ -25,7 +25,7 @@ from security_vision.core.domain.errors import (
 from security_vision.infrastructure.monitoring.logging import configure_logging, request_id_var
 
 from .container import Container, build_container
-from .routers import auth, cameras, dashboard, incidents, rules, system, users
+from .routers import admin, auth, cameras, dashboard, incidents, reports, rules, system, users
 
 log = logging.getLogger("security_vision.api")
 
@@ -55,11 +55,16 @@ def create_app(settings: Settings | None = None, container: Container | None = N
         from security_vision.infrastructure.messaging.outbox import OutboxRelay
 
         relay = asyncio.create_task(OutboxRelay(app.state.container.engine, app.state.container.bus).run_forever())
+        alerts_task = None
+        if settings.alerts_enabled and app.state.container.dispatcher is not None:
+            alerts_task = asyncio.create_task(app.state.container.dispatcher.run_forever())
         if app.state.container.live is not None:
             app.state.container.live.start()
         log.info("API iniciada", extra={"environment": settings.environment.value})
         yield
         relay.cancel()
+        if alerts_task is not None:
+            alerts_task.cancel()
         if app.state.container.live is not None:
             await app.state.container.live.stop()
         await app.state.container.close()
@@ -110,6 +115,8 @@ def create_app(settings: Settings | None = None, container: Container | None = N
     app.include_router(rules.router)
     app.include_router(incidents.router)
     app.include_router(dashboard.router)
+    app.include_router(admin.router)
+    app.include_router(reports.router)
     _mount_web(app, settings)
     return app
 

@@ -55,13 +55,10 @@ def build_runtime(settings: Settings) -> tuple[WorkerRuntime, object, PostgresMe
                             registry=build_video_registry(), storage=storage,
                             policy=camera_policy(settings), bus=bus, media=media,
                             publisher_factory=publisher_factory, snapshot_seconds=settings.worker_snapshot_seconds,
-                            detector=build_detection_service(settings),
                             tracker_factory=tracker_factory, associator=associator,
-                            incidents=IncidentService(uow, storage))
-    if runtime.detector is not None:
-        dev = runtime.detector.model.engine.get_device()
-        log.info("detección activa", extra={"model": runtime.detector.model_id, "engine": settings.inference_engine,
-                                            "device": dev.kind, "device_name": dev.name})
+                            incidents=IncidentService(uow, storage),
+                            model_loader=lambda mid: build_detection_service(settings, mid),
+                            default_model=settings.detection_model, engine_name=settings.inference_engine)
     return runtime, engine, bus
 
 
@@ -80,6 +77,7 @@ async def run(settings: Settings) -> None:
     runtime.loop = asyncio.get_running_loop()
     start_http_server(settings.worker_metrics_port, addr="127.0.0.1", registry=build_registry(runtime))
     log.info("worker iniciado; métricas en http://127.0.0.1:%d/metrics", settings.worker_metrics_port)
+    await runtime.ensure_model()  # modelo activo (ajuste de la administración o SV_DETECTION_MODEL)
     await runtime.reconcile()
     tasks = [asyncio.create_task(c) for c in (
         runtime.status_writer(), runtime.snapshot_writer(), runtime.config_listener(), runtime.event_publisher(),

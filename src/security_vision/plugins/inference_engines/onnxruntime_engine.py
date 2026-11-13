@@ -93,6 +93,9 @@ class OnnxRuntimeEngine(InferenceEngine):
         opts = ort.SessionOptions()
         opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
         opts.log_severity_level = 3  # solo errores: los avisos de ORT (ScatterND...) se repiten en cada inferencia
+        # Los kernels CUDA escriben en el registrador GLOBAL, no en el de la sesión: sin esto el aviso de
+        # ScatterND se imprime en cada inferencia y llena el log del worker.
+        ort.set_default_logger_severity(3)
         if self._threads:
             opts.intra_op_num_threads = self._threads
         avail = set(ort.get_available_providers())

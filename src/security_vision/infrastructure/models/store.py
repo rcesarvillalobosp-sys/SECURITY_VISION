@@ -10,7 +10,7 @@ from pathlib import Path
 
 import yaml
 
-from security_vision.core.interfaces.inference import ModelArtifact, ModelSpec
+from security_vision.core.interfaces.inference import ModelArtifact, ModelCatalog, ModelInfo, ModelSpec
 
 
 class ModelNotFoundError(LookupError):
@@ -56,3 +56,32 @@ class ModelStore:
             raise ModelNotFoundError(f"falta el artefacto {path.name} de {spec.model_id} (no se versiona: "
                                      "ejecutar el script de exportación)")
         return RegisteredModel(spec, ModelArtifact(path=path, sha256=spec.sha256), yml.parent)
+
+
+class RegistryModelCatalog(ModelCatalog):
+    """Catálogo para la administración: tolera artefactos ausentes (los informa en lugar de fallar)."""
+
+    def __init__(self, root: Path) -> None:
+        self.root = root
+
+    def _info(self, yml: Path) -> ModelInfo:
+        mid = f"{yml.parent.parent.name}@{yml.parent.name}"
+        try:
+            spec = ModelSpec.model_validate(yaml.safe_load(yml.read_text(encoding="utf-8")))
+        except Exception as exc:
+            return ModelInfo(model_id=mid, spec=None, artifact_present=False, error=f"model.yaml inválido: {exc}")
+        present = (yml.parent / spec.artifact).is_file()
+        err = None if present else "falta el artefacto (ejecutar el script de exportación)"
+        if spec.model_id != mid:
+            err = "nombre/versión no coinciden con la carpeta"
+        return ModelInfo(model_id=mid, spec=spec, artifact_present=present and err is None, error=err)
+
+    def list(self) -> list[ModelInfo]:
+        return [self._info(y) for y in sorted(self.root.glob("*/*/model.yaml"))]
+
+    def get(self, model_id: str) -> ModelInfo | None:
+        if "@" not in model_id or "/" in model_id or "\\" in model_id or ".." in model_id:
+            return None
+        name, version = model_id.split("@", 1)
+        yml = self.root / name / version / "model.yaml"
+        return self._info(yml) if yml.is_file() else None

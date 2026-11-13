@@ -47,6 +47,7 @@ from security_vision.modules.cameras.supervisor import (
 from security_vision.modules.detection.service import DetectionService
 from security_vision.modules.incidents.evidence import FrameSnapshot, build_evidence
 from security_vision.modules.incidents.service import IncidentService
+from security_vision.modules.models.service import ACTIVE_KEY, LOADED_KEY
 from security_vision.modules.security_rules.engine import RuleBasedSecurityEvaluator
 from security_vision.modules.tracking.analyzer import CameraAnalyzer
 
@@ -222,8 +223,15 @@ class WorkerRuntime:
                  detector: DetectionService | None = None,
                  tracker_factory: Callable[[], ObjectTracker] | None = None,
                  associator: PPEAssociator | None = None,
-                 incidents: IncidentService | None = None) -> None:
+                 incidents: IncidentService | None = None,
+                 model_loader: Callable[[str], DetectionService | None] | None = None,
+                 default_model: str | None = None, engine_name: str = "") -> None:
         self.uow = uow
+        self.model_loader = model_loader
+        self.default_model = default_model
+        self.engine_name = engine_name
+        self._failed_model: str | None = None
+        self.model_swaps = 0
         self.cipher = cipher
         self.registry = registry
         self.storage = storage
@@ -310,8 +318,7 @@ class WorkerRuntime:
         if worker is None or cam is None:
             return
         handle = None
-        if self.detector is not None:
-            det = self.detector
+        if self.detector is not None or self.model_loader is not None:
             analyzer = None
             if self.tracker_factory and self.associator:
                 rules = self.rules.get(cid)
@@ -320,6 +327,9 @@ class WorkerRuntime:
                 self.analyzers[cid] = analyzer
 
             def handle(frame: Frame, cid: str = cid) -> None:
+                det = self.detector  # se lee en cada fotograma: permite sustituir el modelo en caliente
+                if det is None:
+                    return
                 dets = det.detect(frame, cid)
                 analyzed = analyzer.process(frame, dets) if analyzer else None
                 self.latest[cid] = (frame.frame_id, dets, analyzed)
@@ -504,14 +514,66 @@ class WorkerRuntime:
                 except Exception:
                     log.exception("snapshot falló para %s", cid)
 
+    # --------------------------------------------------------------- modelo de detección
+    async def ensure_model(self) -> bool:
+        """Carga el modelo activo (ajuste de la administración o SV_DETECTION_MODEL) si no es el actual.
+
+        El nuevo modelo se carga y calienta en un hilo mientras el anterior sigue analizando; después se
+        sustituye de forma atómica. Si la carga falla, se conserva el anterior y se informa del error.
+        """
+        if self.model_loader is None:
+            return False
+        async with self.uow() as uow:
+            setting = await uow.settings.get(ACTIVE_KEY)
+        wanted = (setting or {}).get("model_id") or self.default_model
+        current = self.detector.model_id if self.detector else None
+        if not wanted or wanted == current or wanted == self._failed_model:
+            return False
+        log.info("cargando modelo de detección", extra={"model": wanted, "previous": current})
+        try:
+            new = await asyncio.to_thread(self.model_loader, wanted)
+        except Exception as exc:
+            self._failed_model = wanted
+            log.exception("no se pudo cargar el modelo %s; se mantiene %s", wanted, current)
+            await self._publish_loaded(requested=wanted, error=f"{type(exc).__name__}: {exc}"[:500])
+            return False
+        if new is None:
+            return False
+        old, self.detector = self.detector, new
+        self._failed_model = None
+        self.model_swaps += 1 if old is not None else 0
+        dev = new.model.engine.get_device()
+        log.info("detección activa", extra={"model": new.model_id, "engine": self.engine_name, "device": dev.kind,
+                                            "device_name": dev.name})
+        await self._publish_loaded(requested=wanted)
+        if old is not None:
+            await asyncio.to_thread(_unload, old)
+        return True
+
+    async def _publish_loaded(self, *, requested: str, error: str | None = None) -> None:
+        det = self.detector
+        dev = det.model.engine.get_device() if det else None
+        value = {"model_id": det.model_id if det else None, "requested": requested, "error": error,
+                 "engine": self.engine_name, "device": dev.kind if dev else None,
+                 "device_name": dev.name if dev else None, "at": datetime.now(UTC).isoformat()}
+        try:
+            async with self.uow() as uow:
+                await uow.settings.set(LOADED_KEY, value, actor_id=None)
+                await uow.commit()
+        except Exception as exc:
+            log.warning("no se pudo publicar el estado del modelo: %s", exc)
+
     async def config_listener(self) -> None:
         if not self.bus:
             return
         while True:
             try:
-                async for _ev in self.bus.subscribe(["camera.config_changed.v1", "rules.changed.v1"],
-                                                    group="workers"):
-                    await self.reconcile()
+                async for ev in self.bus.subscribe(["camera.config_changed.v1", "rules.changed.v1",
+                                                    "detection.model_changed.v1"], group="workers"):
+                    if ev.event_type == "detection.model_changed.v1":
+                        await self.ensure_model()
+                    else:
+                        await self.reconcile()
             except Exception as exc:
                 log.warning("escucha de configuración interrumpida (%s); reintento en 5s", exc)
                 await asyncio.sleep(5)
@@ -520,6 +582,7 @@ class WorkerRuntime:
         while True:
             await asyncio.sleep(seconds)
             try:
+                await self.ensure_model()  # por si se perdió el aviso del bus
                 await self.reconcile()
             except Exception:
                 log.exception("reconciliación periódica falló")
@@ -528,3 +591,12 @@ class WorkerRuntime:
         for cid in list(self.analysis) + list(self.publishers):
             self._stop_aux(cid)
         self.supervisor.stop_all()
+
+
+def _unload(old: DetectionService) -> None:
+    """Libera el modelo anterior cuando ya no hay inferencias en curso con él."""
+    with old._lock:
+        try:
+            old.model.engine.unload_model()
+        except Exception:
+            log.exception("no se pudo liberar el modelo anterior")

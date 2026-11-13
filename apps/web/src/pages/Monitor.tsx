@@ -63,7 +63,7 @@ export function Monitor() {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <div className="label">Centro de monitoreo</div>
-            <h1 className="text-lg font-semibold">{all.length} cámaras habilitadas</h1>
+            <h1 className="text-lg font-semibold">{all.length} {all.length === 1 ? "cámara habilitada" : "cámaras habilitadas"}</h1>
           </div>
           <div className="flex items-center gap-1">
             {focus && <button onClick={() => setFocus(null)} className="mr-2 rounded px-2 py-1 text-xs text-signal hover:bg-ink-800">← Todas</button>}
@@ -77,7 +77,7 @@ export function Monitor() {
           <div className={`grid gap-3 ${focus ? "grid-cols-1" : LAYOUTS[layout]}`}>
             {shown.map((c) => <CameraTile key={c.id} camera={c} focused={focus === c.id} onFocus={() => setFocus(c.id)} />)}
           </div>
-        ) : <Panel><Empty>No hay cámaras habilitadas. Se dan de alta en Administración (o por API).</Empty></Panel>}
+        ) : <Panel><Empty>No hay cámaras habilitadas. Se dan de alta en Administración › Cámaras y zonas.</Empty></Panel>}
         <div className="flex flex-wrap gap-3 text-[11px] text-ink-400">
           {Object.entries(STATUS_LABEL).map(([k, v]) => (
             <span key={k} className="flex items-center gap-1.5"><span className="size-2 rounded-sm" style={{ background: STATUS_COLOR[k] }} />{v}</span>

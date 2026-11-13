@@ -65,6 +65,7 @@ class AuthSession:
     revoked_at: datetime | None = None
     user_agent: str | None = None
     ip: str | None = None
+    rotated_at: datetime | None = None  # última rotación del refresh token (margen de carreras benignas)
 
 
 @dataclass(frozen=True, slots=True)

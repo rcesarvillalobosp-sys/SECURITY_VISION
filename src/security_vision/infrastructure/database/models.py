@@ -110,6 +110,7 @@ class SessionRow(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    rotated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class AuditLogRow(Base):
@@ -351,3 +352,55 @@ class CameraStatsRow(Base):
     confirmed: Mapped[int] = mapped_column(Integer, default=0)
     unverifiable: Mapped[int] = mapped_column(Integer, default=0)
     __table_args__ = (Index("ix_camera_stats_bucket", "bucket"),)
+
+
+# --- administración y alertas (Fase 8) ----------------------------------------------
+
+class SystemSettingRow(Base):
+    """Ajustes globales editables en caliente (p. ej. el modelo de detección activo) y estado publicado
+    por los procesos (p. ej. el modelo que el worker tiene cargado de verdad)."""
+
+    __tablename__ = "system_settings"
+    key: Mapped[str] = mapped_column(String(100), primary_key=True)
+    value: Mapped[dict[str, Any]] = mapped_column()
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(),
+                                                 onupdate=func.now())
+    updated_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+
+
+class AlertChannelRow(Timestamps, Base):
+    """Canal de alerta externo. Los secretos (firma del webhook) se guardan cifrados (AES-GCM)."""
+
+    __tablename__ = "alert_channels"
+    id: Mapped[UUID] = pk()
+    name: Mapped[str] = mapped_column(String(100), unique=True)
+    kind: Mapped[str] = mapped_column(String(20))
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    config: Mapped[dict[str, Any]] = mapped_column(default=dict)  # url / destinatarios (sin secretos)
+    secret_ciphertext: Mapped[bytes | None] = mapped_column(LargeBinary)
+    violation_types: Mapped[list[Any]] = mapped_column(default=list)  # vacío = todos
+    camera_ids: Mapped[list[Any]] = mapped_column(default=list)  # vacío = todas
+    attach_evidence: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_by: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    __table_args__ = (CheckConstraint("kind IN ('webhook','email')", name="kind_valid"),)
+
+
+class AlertDeliveryRow(Base):
+    """Una entrega de un incidente por un canal: idempotente (canal, incidente) y con reintentos."""
+
+    __tablename__ = "alert_deliveries"
+    id: Mapped[UUID] = pk()
+    channel_id: Mapped[UUID] = mapped_column(ForeignKey("alert_channels.id", ondelete="CASCADE"))
+    incident_id: Mapped[UUID] = mapped_column(ForeignKey("incidents.id", ondelete="CASCADE"))
+    status: Mapped[str] = mapped_column(String(20), default="pending")
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    next_attempt_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    last_error: Mapped[str | None] = mapped_column(Text)
+    response_code: Mapped[int | None] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    __table_args__ = (
+        UniqueConstraint("channel_id", "incident_id", name="uq_alert_deliveries_channel_incident"),
+        Index("ix_alert_deliveries_due", "next_attempt_at", postgresql_where="status = 'pending'"),
+        CheckConstraint("status IN ('pending','sent','failed')", name="status_valid"),
+    )

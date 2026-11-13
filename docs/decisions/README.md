@@ -89,3 +89,18 @@ Formato breve: contexto → decisión → consecuencias. Estado: **Aceptada** sa
 
 ## ADR-0023 Frontend: token en memoria, refresh en cookie httpOnly y recursos locales
 - **Decisión:** el token de acceso nunca se guarda en `localStorage`. Ante un 401 se hace una sola renovación compartida. Las fuentes y los recursos se empaquetan localmente (sin CDN), coherente con el procesamiento local. En producción, la API sirve el build desde el mismo origen.
+
+## ADR-0024 Alertas externas: cola persistente, idempotencia y firma
+- **Contexto:** un aviso de incidente no puede perderse si el proceso se reinicia ni duplicarse si dos procesos lo envían.
+- **Decisión:** la fuente de verdad es la tabla de incidentes, no el bus. El despachador crea una entrega por (canal, incidente) con restricción única y la envía con reintentos (30 s, 2 min, 8 min, 30 min, 2 h). El reparto entre procesos usa una concesión temporal (`next_attempt_at`) en lugar de bloqueos durante el envío. El evento `incident.confirmed` solo despierta al despachador. Un 4xx del webhook o un 5xx de SMTP son fallos permanentes; se pueden reintentar a mano desde la interfaz.
+- **Seguridad:** firma HMAC-SHA256 de `marca_temporal.cuerpo`; secreto cifrado con AES-GCM (AAD ligado al canal) y nunca devuelto por la API; protección SSRF (se rechazan IPs privadas, locales, multicast o reservadas salvo `SV_ALERT_WEBHOOK_ALLOW_PRIVATE`) y sin seguir redirecciones. Riesgo residual: re-resolución DNS entre la comprobación y la conexión (*DNS rebinding*).
+
+## ADR-0025 Reportes con ReportLab y openpyxl, sin estimaciones
+- **Decisión:** ReportLab (BSD) para PDF y openpyxl (MIT) para Excel, generados en un hilo para no bloquear la API. Todas las cifras salen de `incidents` y `camera_stats`; los días sin análisis se muestran vacíos, no como 0 %. Se informa la proporción de observaciones no verificables. Los textos de usuario se neutralizan frente a la inyección de fórmulas en Excel. Generar un PDF o un Excel se audita.
+
+## ADR-0026 Cambio de modelo de detección en caliente
+- **Decisión:** el modelo activo es un ajuste de la base de datos (`detection.active_model`) que prevalece sobre `SV_DETECTION_MODEL`. El worker recibe el cambio por el outbox y lo comprueba también en cada reconciliación. Carga y calienta el modelo nuevo en un hilo mientras el anterior sigue analizando, lo sustituye de forma atómica y libera el anterior cuando no tiene inferencias en curso. El worker publica lo que tiene cargado DE VERDAD (`detection.loaded_model`), para que la interfaz no confunda "pedido" con "en uso". Si la carga falla, conserva el anterior y publica el error.
+
+## ADR-0027 Rotación del refresh token con margen de gracia
+- **Contexto:** en la prueba real de la Fase 8, dos renovaciones simultáneas con la misma cookie se interpretaron como reutilización de un token robado y se revocó la sesión. En producción ocurre con dos pestañas abiertas.
+- **Decisión:** las renovaciones de una sesión se serializan con un bloqueo de fila. Presentar el token recién rotado dentro de los 10 s siguientes a la rotación se trata como una carrera benigna y se rota de nuevo. Fuera de ese margen sigue revocando la sesión. Además, el frontend reintenta la renovación si el servidor no responde (red o 5xx) en lugar de dar la sesión por cerrada.

@@ -10,6 +10,7 @@ from uuid import UUID
 
 from ..domain.compliance import CameraRules, SecurityProfile, ZoneRule
 from ..domain.identity import AuthSession, User
+from .alerts import AlertChannelRepository, SettingsRepository
 from .cameras import CameraRepository
 from .incidents import IncidentRepository
 
@@ -57,7 +58,8 @@ class SessionRepository(ABC):
     async def add(self, session: AuthSession) -> None: ...
 
     @abstractmethod
-    async def get(self, session_id: UUID) -> AuthSession | None: ...
+    async def get(self, session_id: UUID, *, for_update: bool = False) -> AuthSession | None:
+        """``for_update``: bloquea la fila hasta el fin de la transacción (serializa las renovaciones)."""
 
     @abstractmethod
     async def update(self, session: AuthSession) -> None: ...
@@ -71,6 +73,12 @@ class AuditLog(ABC):
     async def record(self, action: str, *, actor_id: UUID | None, entity_type: str | None = None,
                      entity_id: str | None = None, before: Mapping[str, Any] | None = None,
                      after: Mapping[str, Any] | None = None, ip: str | None = None) -> None: ...
+
+    @abstractmethod
+    async def query(self, *, action_prefix: str | None = None, entity_type: str | None = None,
+                    entity_id: str | None = None, actor_id: UUID | None = None, offset: int = 0,
+                    limit: int = 50) -> tuple[list[dict[str, Any]], int]:
+        """Lectura del registro de auditoría (más reciente primero)."""
 
 
 class RulesRepository(ABC):
@@ -114,6 +122,8 @@ class UnitOfWork(ABC):
     cameras: CameraRepository
     rules: RulesRepository
     incidents: IncidentRepository
+    alerts: AlertChannelRepository
+    settings: SettingsRepository
 
     @abstractmethod
     async def __aenter__(self) -> Self: ...

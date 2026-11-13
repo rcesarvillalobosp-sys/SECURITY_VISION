@@ -47,3 +47,9 @@ notes: 'Exportado con torch 2.14.1+cu130, opset 17; verificación sobre 67 detec
   (0 ejemplos de entrenamiento; pendiente corrección no_boots_relabel_v1). Datos de
   un único publicador, parte sintéticos, dominio construcción: NO validado con imágenes
   reales del despliegue.'
+metrics:
+  eval_set: test ppe_v1 (69 imágenes, misma fuente que el entrenamiento; evaluado una vez)
+  mAP50: 0.787
+  mAP50_95: 0.565
+  source: docs/progress/fase-3.md
+  caveat: no validado con imágenes reales del despliegue

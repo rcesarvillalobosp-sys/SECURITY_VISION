@@ -31,18 +31,35 @@ export function onTokenChange(l: TokenListener): () => void {
   return () => listeners.delete(l);
 }
 
+/** Esperas entre reintentos de la renovación cuando el servidor no responde (reinicio, 502...). */
+export const REFRESH_RETRY_MS = [1000, 2000, 4000];
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
 export async function refreshToken(): Promise<string | null> {
   if (!refreshing) {
     refreshing = (async () => {
       try {
-        const r = await fetch("/api/v1/auth/refresh", { method: "POST", credentials: "same-origin" });
-        if (!r.ok) {
-          setToken(null);
-          return null;
+        for (let attempt = 0; ; attempt++) {
+          let r: Response | null = null;
+          try {
+            r = await fetch("/api/v1/auth/refresh", { method: "POST", credentials: "same-origin" });
+          } catch {
+            r = null; // red caída o servidor reiniciándose
+          }
+          // Solo un rechazo explícito (4xx) significa "sesión no válida". Un fallo transitorio (sin
+          // respuesta o 5xx) se reintenta: si no, reiniciar la API sacaría a todos los usuarios.
+          if (r && r.status < 500) {
+            if (!r.ok) {
+              setToken(null);
+              return null;
+            }
+            const body = (await r.json()) as { access_token: string };
+            setToken(body.access_token);
+            return body.access_token;
+          }
+          if (attempt >= REFRESH_RETRY_MS.length) return null;
+          await sleep(REFRESH_RETRY_MS[attempt]);
         }
-        const body = (await r.json()) as { access_token: string };
-        setToken(body.access_token);
-        return body.access_token;
       } finally {
         refreshing = null;
       }
@@ -124,3 +141,79 @@ export interface SeriesPoint {
 }
 export interface Series { range: string; step: string; compliance: SeriesPoint[];
   incidents_by_day: Array<{ day: string; type: string; n: number }> }
+
+export const apiPut = <T>(p: string, body: unknown) => request<T>(p, { method: "PUT", body: JSON.stringify(body) });
+
+/** Descarga autenticada (el token no va en la URL): blob -> enlace temporal. */
+export async function download(path: string, fallbackName: string): Promise<void> {
+  const headers = new Headers();
+  const send = async () => {
+    const t = getToken();
+    if (t) headers.set("Authorization", `Bearer ${t}`);
+    return fetch(path, { headers, credentials: "same-origin" });
+  };
+  let r = await send();
+  if (r.status === 401 && (await refreshToken())) r = await send();
+  if (!r.ok) throw new ApiError(r.status, await detail(r));
+  const name = /filename="([^"]+)"/.exec(r.headers.get("content-disposition") ?? "")?.[1] ?? fallbackName;
+  const url = URL.createObjectURL(await r.blob());
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
+
+// ---------------------------------------------------------------- administración (Fase 8)
+export interface User {
+  id: string; email: string; display_name: string; is_active: boolean; roles: string[]; last_login_at: string | null;
+}
+export interface Role { name: string; description: string; permissions: string[] }
+export interface Profile { id: string; name: string; required_ppe: string[]; thresholds: Record<string, number | boolean>; version: number }
+export interface Zone { id: string; name: string; kind: "ppe" | "restricted"; polygon: number[][]; profile_id: string | null }
+export interface Catalog { evaluable_ppe: string[]; default_thresholds: Record<string, number | boolean> }
+export interface Probe { ok: boolean; elapsed_ms: number; error: string | null; codec?: string | null; width?: number | null;
+  height?: number | null; nominal_fps?: number | null }
+export interface ModelEntry {
+  model_id: string; architecture: string | null; labels: string[]; canonical_classes: string[]; input_size: number[] | null;
+  score_threshold: number | null; license: string | null; weights_license: string | null; weights_source: string | null;
+  dataset_ref: string | null; notes: string | null; metrics: Record<string, string | number>; artifact_present: boolean;
+  error: string | null; active: boolean;
+}
+export interface ModelsState {
+  active_model: string | null; models: ModelEntry[];
+  loaded: { model_id: string | null; requested: string; error: string | null; engine: string; device: string | null;
+    device_name: string | null; at: string } | null;
+}
+export interface AlertChannel {
+  id: string; name: string; kind: "webhook" | "email"; enabled: boolean; config: { url?: string; recipients?: string[] };
+  has_secret: boolean; violation_types: string[]; camera_ids: string[]; attach_evidence: boolean; created_at: string | null;
+}
+export interface AlertDelivery {
+  id: string; channel_id: string; incident_id: string; status: "pending" | "sent" | "failed"; attempts: number;
+  next_attempt_at: string; last_error: string | null; response_code: number | null; created_at: string | null;
+  sent_at: string | null;
+}
+export interface AlertsInfo { email_available: boolean; webhook_allow_private: boolean; public_web_url: string | null;
+  dispatcher: { sent: number; retried: number; failed: number } | null }
+export interface AuditEntry {
+  id: number; at: string; actor_id: string | null; actor_email: string | null; action: string; entity_type: string | null;
+  entity_id: string | null; before: Record<string, unknown> | null; after: Record<string, unknown> | null; ip: string | null;
+}
+export interface ReportCamera {
+  camera_id: string | null; camera_name: string; incidents: number; confirmed_by_review: number; discarded: number;
+  compliant: number; possible: number; confirmed: number; unverifiable: number; person_frames: number; max_persons: number;
+  compliance_pct: number | null;
+}
+export interface Report {
+  title: string; period: string; start: string; end: string; generated_at: string; generated_by: string;
+  cameras_filter: string[]; totals: { incidents: number; pending: number; confirmed_by_review: number; discarded: number };
+  by_type: Record<string, number>; by_status: Record<string, number>; cameras: ReportCamera[];
+  days: Array<{ day: string; incidents: number; compliant: number; possible: number; confirmed: number; unverifiable: number;
+    compliance_pct: number | null }>;
+  incidents: Array<{ id: string; confirmed_at: string; camera_name: string; violation_type: string; status: string;
+    confidence: number; ended_at: string | null; end_reason: string | null }>;
+  incidents_truncated: boolean; model_ids: string[]; compliance_pct: number | null; unverifiable_share_pct: number | null;
+}

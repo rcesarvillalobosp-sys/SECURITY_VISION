@@ -73,3 +73,11 @@ class CameraConfigChanged(DomainEvent):
     event_type: ClassVar[str] = "camera.config_changed.v1"
     camera_id: UUID
     action: str  # created | updated | deleted
+
+
+@register_event
+class DetectionModelChanged(DomainEvent):
+    """Se activó otro modelo de detección: los workers lo cargan y lo sustituyen en caliente."""
+
+    event_type: ClassVar[str] = "detection.model_changed.v1"
+    model_id: str

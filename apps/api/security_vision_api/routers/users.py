@@ -5,12 +5,13 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Request, status
+from fastapi import APIRouter, Depends, Query, Request, Response, status
+from pydantic import BaseModel, ConfigDict, Field
 
 from security_vision.core.domain.identity import Permission, Principal, User
 
 from ..container import Container
-from ..deps import client_ip, get_container, require
+from ..deps import CurrentPrincipal, client_ip, get_container, require
 from ..schemas import Page, RoleOut, RolesIn, UserCreateIn, UserOut
 
 router = APIRouter(prefix="/api/v1", tags=["users"])
@@ -55,3 +56,43 @@ async def set_roles(user_id: UUID, body: RolesIn, request: Request, container: C
 async def list_roles(container: C, _: Annotated[Principal, Depends(require(Permission.ROLES_READ))]
                      ) -> list[RoleOut]:
     return [RoleOut(name=n, description=d, permissions=p) for n, d, p in await container.users.list_roles()]
+
+
+class UserPatch(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    display_name: str | None = Field(default=None, min_length=1, max_length=200)
+    is_active: bool | None = None
+
+
+class PasswordResetIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    password: str = Field(min_length=12, max_length=1024)
+
+
+class PasswordChangeIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    current_password: str = Field(min_length=1, max_length=1024)
+    new_password: str = Field(min_length=12, max_length=1024)
+
+
+@router.patch("/users/{user_id}", response_model=UserOut)
+async def update_user(user_id: UUID, body: UserPatch, request: Request, container: C,
+                      principal: Annotated[Principal, Depends(require(Permission.USERS_WRITE))]) -> UserOut:
+    return _out(await container.users.update_user(user_id, display_name=body.display_name,
+                                                  is_active=body.is_active, actor=principal, ip=client_ip(request)))
+
+
+@router.post("/users/{user_id}/password", status_code=status.HTTP_204_NO_CONTENT)
+async def reset_password(user_id: UUID, body: PasswordResetIn, request: Request, container: C,
+                         principal: Annotated[Principal, Depends(require(Permission.USERS_WRITE))]) -> Response:
+    await container.users.reset_password(user_id, body.password, actor=principal, ip=client_ip(request))
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/me/password", status_code=status.HTTP_204_NO_CONTENT)
+async def change_password(body: PasswordChangeIn, request: Request, container: C,
+                          principal: CurrentPrincipal) -> Response:
+    """Cambia la contraseña propia. Cierra TODAS las sesiones del usuario (también la actual)."""
+    await container.users.change_own_password(principal, body.current_password, body.new_password,
+                                              ip=client_ip(request))
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

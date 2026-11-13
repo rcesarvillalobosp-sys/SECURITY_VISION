@@ -48,15 +48,16 @@ def build_inference_registry() -> ProviderRegistry:
     return reg
 
 
-def build_detection_service(settings: Settings) -> DetectionService | None:
-    """Carga el modelo configurado en el motor/dispositivo configurado. None si no hay modelo."""
-    if not settings.detection_model:
+def build_detection_service(settings: Settings, model_id: str | None = None) -> DetectionService | None:
+    """Carga el modelo (``model_id`` o el configurado) en el motor/dispositivo configurado. None si no hay modelo."""
+    model_id = model_id or settings.detection_model
+    if not model_id:
         return None
     from security_vision.core.interfaces.inference import DetectionModel, DeviceRequest, InferenceEngine
     from security_vision.infrastructure.models.store import ModelStore
 
     reg = build_inference_registry()
-    registered = ModelStore(Path(settings.model_registry_dir)).get(settings.detection_model)
+    registered = ModelStore(Path(settings.model_registry_dir)).get(model_id)
     engine = reg.create(InferenceEngine, settings.inference_engine)
     engine.load_model(registered.artifact, DeviceRequest(preference=settings.inference_devices))
     model = reg.create(DetectionModel, registered.spec.architecture, registered.spec, engine)

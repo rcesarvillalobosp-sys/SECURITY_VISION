@@ -16,8 +16,11 @@ from security_vision.infrastructure.monitoring.metrics import ApiMetrics, create
 from security_vision.infrastructure.security.adapters import AesGcmCipher, Argon2PasswordHasher, JwtTokenService
 from security_vision.infrastructure.storage.local import LocalFileStorage
 from security_vision.infrastructure.video.probe import RegistryVideoProbe
+from security_vision.modules.alerts.service import AlertDispatcher, AlertService
 from security_vision.modules.cameras.service import CameraService
 from security_vision.modules.incidents.service import IncidentService
+from security_vision.modules.models.service import ModelService
+from security_vision.modules.reports.service import ReportService
 from security_vision.modules.security_rules.service import RulesService
 from security_vision.modules.users.services import AuthPolicy, AuthService, UserService
 
@@ -41,6 +44,14 @@ class Container:
     metrics: ApiMetrics
     tokens: JwtTokenService | None = None
     live: LiveHub | None = None
+    alerts: AlertService | None = None
+    dispatcher: AlertDispatcher | None = None
+    reports: ReportService | None = None
+    models: ModelService | None = None
+
+    async def audit_query(self, **filters):
+        async with uow_factory(self.engine)() as uow:
+            return await uow.audit.query(**filters)
 
     def auth_token_expiry(self, token: str):
         assert self.tokens is not None
@@ -79,9 +90,48 @@ def build_container(settings: Settings) -> Container:
 
     cameras = CameraService(uow, cipher, RegistryVideoProbe(build_video_registry()), storage,
                             camera_policy(settings), bus=bus, media=media, media_path_for=path_name)
+    alerts, dispatcher = build_alerts(settings, engine, uow, cipher, storage, bus)
+    reports = build_reports(engine, uow)
+    from pathlib import Path
+
+    from security_vision.infrastructure.models.store import RegistryModelCatalog
+
+    models = ModelService(uow, RegistryModelCatalog(Path(settings.model_registry_dir)), settings.detection_model)
     return Container(settings=settings, engine=engine, auth=AuthService(uow, hasher, tokens, policy),
                      users=UserService(uow, hasher), cameras=cameras, rules=RulesService(uow, bus),
                      incidents=IncidentService(uow, storage),
                      hasher=hasher, cipher=cipher,
                      storage=storage, bus=bus, media=media, metrics=create_api_metrics(), tokens=tokens,
-                     live=LiveHub(bus))
+                     live=LiveHub(bus), alerts=alerts, dispatcher=dispatcher, reports=reports, models=models)
+
+
+def build_alerts(settings: Settings, engine: AsyncEngine, uow, cipher, storage, bus
+                 ) -> tuple[AlertService, AlertDispatcher]:
+    from security_vision.infrastructure.alerts.email import EmailSender, SmtpConfig, validate_recipients
+    from security_vision.infrastructure.alerts.webhook import WebhookSender, validate_webhook_url
+    from security_vision.infrastructure.database.repositories.alerts import SqlAlertQueue
+
+    smtp = None
+    if settings.smtp_host and settings.smtp_from:
+        smtp = SmtpConfig(host=settings.smtp_host, port=settings.smtp_port, security=settings.smtp_security,
+                          user=settings.smtp_user,
+                          password=settings.smtp_password.get_secret_value() if settings.smtp_password else None,
+                          sender=settings.smtp_from, timeout=settings.smtp_timeout)
+    senders = {"webhook": WebhookSender(timeout=settings.alert_webhook_timeout,
+                                        allow_private=settings.alert_webhook_allow_private),
+               "email": EmailSender(smtp)}
+    validators = {
+        "webhook": lambda c: {"url": validate_webhook_url(str(c.get("url", "")))},
+        "email": lambda c: {"recipients": validate_recipients(list(c.get("recipients") or []))},
+    }
+    service = AlertService(uow, cipher, senders, validators, storage, link_base=settings.public_web_url)
+    dispatcher = AlertDispatcher(service, SqlAlertQueue(engine), bus, link_base=settings.public_web_url)
+    return service, dispatcher
+
+
+def build_reports(engine: AsyncEngine, uow) -> ReportService:
+    from security_vision.infrastructure.database.repositories.reports import SqlReportSource
+    from security_vision.infrastructure.reports.pdf import PdfReportRenderer
+    from security_vision.infrastructure.reports.xlsx import XlsxReportRenderer
+
+    return ReportService(uow, SqlReportSource(engine), {"pdf": PdfReportRenderer(), "xlsx": XlsxReportRenderer()})

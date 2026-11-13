@@ -124,7 +124,7 @@ class SqlSessionRepository(SessionRepository):
     def _to_domain(r: SessionRow) -> AuthSession:
         return AuthSession(id=r.id, user_id=r.user_id, refresh_token_hash=r.refresh_token_hash,
                            previous_refresh_hash=r.previous_refresh_hash, expires_at=r.expires_at,
-                           revoked_at=r.revoked_at, user_agent=r.user_agent, ip=r.ip)
+                           revoked_at=r.revoked_at, user_agent=r.user_agent, ip=r.ip, rotated_at=r.rotated_at)
 
     async def add(self, session: AuthSession) -> None:
         self.s.add(SessionRow(id=session.id, user_id=session.user_id, refresh_token_hash=session.refresh_token_hash,
@@ -132,14 +132,15 @@ class SqlSessionRepository(SessionRepository):
                               user_agent=session.user_agent, ip=session.ip))
         await self.s.flush()
 
-    async def get(self, session_id: UUID) -> AuthSession | None:
-        row = await self.s.get(SessionRow, session_id)
+    async def get(self, session_id: UUID, *, for_update: bool = False) -> AuthSession | None:
+        q = select(SessionRow).where(SessionRow.id == session_id)
+        row = await self.s.scalar(q.with_for_update() if for_update else q)
         return self._to_domain(row) if row else None
 
     async def update(self, session: AuthSession) -> None:
         await self.s.execute(update(SessionRow).where(SessionRow.id == session.id).values(
             refresh_token_hash=session.refresh_token_hash, previous_refresh_hash=session.previous_refresh_hash,
-            expires_at=session.expires_at, revoked_at=session.revoked_at))
+            expires_at=session.expires_at, revoked_at=session.revoked_at, rotated_at=session.rotated_at))
 
     async def revoke_all_for_user(self, user_id: UUID, at: datetime) -> int:
         res = await self.s.execute(update(SessionRow).where(SessionRow.user_id == user_id,
@@ -158,3 +159,24 @@ class SqlAuditLog(AuditLog):
                                before=dict(before) if before else None, after=dict(after) if after else None,
                                ip=ip))
         await self.s.flush()
+
+    async def query(self, *, action_prefix: str | None = None, entity_type: str | None = None,
+                    entity_id: str | None = None, actor_id: UUID | None = None, offset: int = 0,
+                    limit: int = 50) -> tuple[list[dict[str, Any]], int]:
+        conds = []
+        if action_prefix:
+            esc = action_prefix.replace("!", "!!").replace("%", "!%").replace("_", "!_")
+            conds.append(AuditLogRow.action.like(f"{esc}%", escape="!"))
+        if entity_type:
+            conds.append(AuditLogRow.entity_type == entity_type)
+        if entity_id:
+            conds.append(AuditLogRow.entity_id == entity_id)
+        if actor_id:
+            conds.append(AuditLogRow.actor_id == actor_id)
+        total = (await self.s.execute(select(func.count()).select_from(AuditLogRow).where(*conds))).scalar_one()
+        rows = (await self.s.execute(
+            select(AuditLogRow, UserRow.email).outerjoin(UserRow, UserRow.id == AuditLogRow.actor_id)
+            .where(*conds).order_by(AuditLogRow.id.desc()).offset(offset).limit(limit))).all()
+        return [{"id": r.id, "at": r.at, "actor_id": r.actor_id, "actor_email": email, "action": r.action,
+                 "entity_type": r.entity_type, "entity_id": r.entity_id, "before": r.before, "after": r.after,
+                 "ip": r.ip} for r, email in rows], total

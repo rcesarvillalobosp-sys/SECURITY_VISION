@@ -90,6 +90,8 @@ class ModelSpec(BaseModel):
     weights_source: str
     dataset_ref: str | None = None
     notes: str | None = None
+    # Métricas MEDIDAS (no estimadas) con su conjunto y su fuente, p. ej. {"eval_set": ..., "mAP50": ...}
+    metrics: dict[str, Any] = {}
 
     @property
     def model_id(self) -> str:
@@ -111,3 +113,22 @@ class DetectionModel(ABC):
 
     def warmup(self) -> None:  # noqa: B027 - opcional para los adaptadores
         """Ejecución en vacío para estabilizar latencias (opcional)."""
+
+
+class ModelInfo(BaseModel):
+    """Modelo del registro tal como lo ve la administración (sin cargarlo)."""
+
+    model_id: str
+    spec: ModelSpec | None  # None si el model.yaml no es válido
+    artifact_present: bool
+    error: str | None = None
+
+
+class ModelCatalog(ABC):
+    """Consulta del registro de modelos (``ml/model_registry``)."""
+
+    @abstractmethod
+    def list(self) -> list[ModelInfo]: ...
+
+    @abstractmethod
+    def get(self, model_id: str) -> ModelInfo | None: ...

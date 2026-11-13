@@ -112,3 +112,8 @@ weights_source: rfdetr==1.12.1 RFDETRNano (pesos COCO)
 dataset_ref: COCO (preentrenamiento Objects365 según el autor)
 notes: 'Exportado con rfdetr 1.12.1 en entorno aislado; comprobación de clases: [''person'',
   ''person'', ''person'', ''person'']'
+metrics:
+  eval_set: val del dataset original (200 imágenes), solo clase person
+  person_AP50: 0.945
+  person_AP50_95: 0.777
+  source: docs/progress/fase-3.md

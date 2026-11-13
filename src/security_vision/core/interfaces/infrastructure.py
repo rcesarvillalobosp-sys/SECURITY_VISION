@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from collections.abc import AsyncIterator, Iterator, Sequence
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import BinaryIO, ClassVar
+from typing import BinaryIO
 
 from ..events.base import DomainEvent
 
@@ -54,26 +54,7 @@ class MessageBus(ABC):
     async def close(self) -> None: ...
 
 
-@dataclass(frozen=True, slots=True)
-class Alert:
-    incident_id: str
-    title: str
-    body: str
-    severity: str
-    url: str | None = None
-
-
-@dataclass(frozen=True, slots=True)
-class DeliveryResult:
-    ok: bool
-    detail: str = ""
-
-
-class AlertChannel(ABC):
-    channel_type: ClassVar[str]
-
-    @abstractmethod
-    async def send(self, alert: Alert) -> DeliveryResult: ...
+# Canales de alerta: ver core/interfaces/alerts.py (AlertSender).
 
 
 class PasswordHasher(ABC):

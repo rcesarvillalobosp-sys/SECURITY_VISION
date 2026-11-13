@@ -52,6 +52,9 @@ class AuthPolicy:
     refresh_token_ttl: timedelta = timedelta(days=7)
     max_failed_logins: int = 5
     lockout: timedelta = timedelta(minutes=15)
+    # Margen para carreras benignas: dos pestañas (comparten la cookie) que renuevan a la vez presentan el
+    # mismo token; el segundo llega ya rotado. Dentro de este margen NO es un robo: se rota de nuevo.
+    refresh_reuse_grace: timedelta = timedelta(seconds=10)
 
 
 @dataclass(frozen=True)
@@ -118,29 +121,38 @@ class AuthService:
             return pair
 
     async def refresh(self, refresh_token: str, *, ip: str | None = None) -> TokenPair:
-        """Rotación: cada refresh invalida el anterior. Reutilizar uno ya rotado revoca la sesión."""
+        """Rotación: cada refresh invalida el anterior. Reutilizar uno ya rotado revoca la sesión, salvo
+        dentro del margen de gracia (renovaciones simultáneas legítimas de varias pestañas)."""
         now = self._now()
         session_id, secret = self._split(refresh_token)
         async with self._uow() as uow:
-            session = await uow.sessions.get(session_id)
+            # Bloqueo de fila: dos renovaciones simultáneas se serializan en vez de pisarse
+            session = await uow.sessions.get(session_id, for_update=True)
             if session is None or session.revoked_at is not None or session.expires_at <= now:
                 raise AuthenticationError("sesión inválida")
             presented = _hash_refresh(secret)
-            if session.previous_refresh_hash and hmac.compare_digest(presented, session.previous_refresh_hash):
+            reused = bool(session.previous_refresh_hash
+                          and hmac.compare_digest(presented, session.previous_refresh_hash))
+            benign = reused and session.rotated_at is not None and \
+                now - session.rotated_at <= self._policy.refresh_reuse_grace
+            if reused and not benign:
                 session.revoked_at = now
                 await uow.sessions.update(session)
                 await uow.audit.record("auth.refresh_reuse_detected", actor_id=session.user_id,
                                        entity_type="session", entity_id=str(session.id), ip=ip)
                 await uow.commit()
                 raise AuthenticationError("sesión inválida")
-            if not hmac.compare_digest(presented, session.refresh_token_hash):
+            if not benign and not hmac.compare_digest(presented, session.refresh_token_hash):
                 raise AuthenticationError("sesión inválida")
             user = await uow.users.get(session.user_id)
             if user is None or not user.is_active:
                 raise AuthenticationError("sesión inválida")
             new_secret = secrets.token_urlsafe(32)
+            # También en la carrera benigna: así el token de la otra pestaña (que pudo fijar la cookie en último
+            # lugar) sigue siendo válido dentro del margen.
             session.previous_refresh_hash = session.refresh_token_hash
             session.refresh_token_hash = _hash_refresh(new_secret)
+            session.rotated_at = now
             await uow.sessions.update(session)
             pair = await self._issue(uow, user, session, new_secret, now)
             await uow.commit()
@@ -230,6 +242,65 @@ class UserService:
             await uow.commit()
             user.roles = sorted(set(roles))
             return user
+
+    async def update_user(self, user_id: UUID, *, display_name: str | None, is_active: bool | None,
+                          actor: Principal, ip: str | None = None) -> User:
+        async with self._uow() as uow:
+            user = await uow.users.get(user_id)
+            if user is None:
+                raise NotFoundError("usuario no encontrado")
+            before = {"display_name": user.display_name, "is_active": user.is_active}
+            if display_name is not None:
+                if not display_name.strip():
+                    raise ValidationError("el nombre no puede estar vacío")
+                user.display_name = display_name.strip()[:200]
+            if is_active is not None and is_active != user.is_active:
+                if user.id == actor.user_id and not is_active:
+                    raise ValidationError("no puedes desactivar tu propia cuenta")
+                user.is_active = is_active
+                if not is_active:
+                    await uow.sessions.revoke_all_for_user(user_id, utcnow())  # efecto inmediato
+                else:
+                    user.failed_logins, user.locked_until = 0, None
+            await uow.users.update(user)
+            await uow.audit.record("user.updated", actor_id=actor.user_id, entity_type="user", entity_id=str(user_id),
+                                   before=before, after={"display_name": user.display_name,
+                                                         "is_active": user.is_active}, ip=ip)
+            await uow.commit()
+            return user
+
+    async def reset_password(self, user_id: UUID, new_password: str, *, actor: Principal,
+                             ip: str | None = None) -> None:
+        """Un administrador fija una contraseña nueva: se cierran todas las sesiones y se desbloquea."""
+        validate_password(new_password)
+        async with self._uow() as uow:
+            user = await uow.users.get(user_id)
+            if user is None:
+                raise NotFoundError("usuario no encontrado")
+            user.password_hash = self._hasher.hash(new_password)
+            user.failed_logins, user.locked_until = 0, None
+            await uow.users.update(user)
+            await uow.sessions.revoke_all_for_user(user_id, utcnow())
+            await uow.audit.record("user.password_reset", actor_id=actor.user_id, entity_type="user",
+                                   entity_id=str(user_id), ip=ip)  # nunca se audita la contraseña
+            await uow.commit()
+
+    async def change_own_password(self, actor: Principal, current: str, new_password: str, *,
+                                  ip: str | None = None) -> None:
+        """El usuario cambia su contraseña: exige la actual; se cierran sus otras sesiones."""
+        async with self._uow() as uow:
+            user = await uow.users.get(actor.user_id)
+            if user is None or not self._hasher.verify(user.password_hash, current):
+                raise AuthenticationError("la contraseña actual no es correcta")
+            if current == new_password:
+                raise ValidationError("la contraseña nueva debe ser distinta de la actual")
+            validate_password(new_password)
+            user.password_hash = self._hasher.hash(new_password)
+            await uow.users.update(user)
+            n = await uow.sessions.revoke_all_for_user(user.id, utcnow())
+            await uow.audit.record("user.password_changed", actor_id=actor.user_id, entity_type="user",
+                                   entity_id=str(user.id), after={"sessions_closed": n}, ip=ip)
+            await uow.commit()
 
     async def list_users(self, offset: int, limit: int) -> tuple[list[User], int]:
         async with self._uow() as uow:
