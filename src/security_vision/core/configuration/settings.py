@@ -45,6 +45,9 @@ class Settings(BaseSettings):
     lockout_minutes: int = 15
 
     cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    # Redes desde las que se puede leer /metrics de la API (Prometheus). Fuera de ellas: 404.
+    metrics_allowed_networks: list[str] = ["127.0.0.0/8", "::1/128", "10.0.0.0/8", "172.16.0.0/12",
+                                           "192.168.0.0/16"]
     web_dist: str | None = None  # p. ej. apps/web/dist: la API sirve el frontend compilado
 
     # Vídeo y almacenamiento
@@ -62,6 +65,9 @@ class Settings(BaseSettings):
     mediamtx_api_password: SecretStr | None = None
     mediamtx_publish_user: str | None = None
     mediamtx_publish_password: SecretStr | None = None
+    # Autenticación HTTP de MediaMTX contra la API (lectura desde otros equipos con el token de sesión).
+    # Clave compartida que MediaMTX envía en la URL de autenticación. Vacío = endpoint desactivado.
+    mediamtx_auth_key: SecretStr | None = None
 
     # Inferencia (criterios 13 y 14: modelo y motor se cambian solo por configuración)
     detection_model: str | None = None  # "nombre@versión" del registro de modelos; vacío = sin detección
@@ -77,6 +83,7 @@ class Settings(BaseSettings):
 
     # Worker de procesamiento
     worker_metrics_port: int = 9101
+    worker_metrics_host: str = "127.0.0.1"  # 0.0.0.0 solo en una red privada (p. ej. la del compose)
     worker_reconcile_seconds: float = 30.0
     worker_snapshot_seconds: float = 5.0
 

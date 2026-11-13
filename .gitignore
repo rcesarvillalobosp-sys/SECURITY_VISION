@@ -34,3 +34,7 @@ ml/training/runs/
 ml/evaluation/results/*.json
 !ml/evaluation/results/.gitkeep
 
+# Certificados autofirmados que MediaMTX genera en su directorio de trabajo
+auto.crt
+auto.key
+

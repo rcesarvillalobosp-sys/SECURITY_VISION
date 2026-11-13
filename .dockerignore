@@ -1,0 +1,22 @@
+# Contexto de construcción mínimo: sin entornos, datos, secretos ni artefactos pesados.
+.git
+.venv
+.env
+.env.*
+!.env.example
+**/__pycache__
+**/*.pyc
+**/node_modules
+apps/web/dist
+var
+ml/datasets
+ml/training
+ml/evaluation/results
+# Los modelos .onnx no se versionan y se montan como volumen (los model.yaml sí se copian)
+ml/model_registry/**/*.onnx
+ml/model_registry/**/*.onnx.data
+tests
+docs
+*.log
+auto.crt
+auto.key

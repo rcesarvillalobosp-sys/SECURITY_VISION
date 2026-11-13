@@ -43,6 +43,18 @@ Pesos entrenados sobre COCO: las imágenes de COCO tienen licencias Flickr heter
 | Codificador `h264_nvenc` (FFmpeg + driver NVIDIA) | LGPL (envoltorio de FFmpeg) + driver propietario | Solo para generar el vídeo de las pruebas de carga; no se usa x264 (GPL) |
 | Jaeger | Apache-2.0 | Evaluado y descartado en esta fase (no se ejecutan binarios descargados); se usa `scripts/otlp_sink.py` |
 
+**Actualización 2026-11-13 (Fase 10), despliegue.** Imágenes y binarios de terceros referenciados (no se redistribuyen: se descargan en el despliegue):
+
+| Componente | Licencia | Uso |
+|---|---|---|
+| `python:3.12-slim-bookworm`, `node:26.13.0-bookworm-slim` | PSF / MIT (más paquetes Debian, varias licencias libres) | Imágenes base del `Dockerfile` |
+| `ghcr.io/astral-sh/uv:0.13.7` | MIT / Apache-2.0 | Instalación de dependencias en la imagen |
+| `postgres:17.12-bookworm` | PostgreSQL License | Base de datos en Docker |
+| `bluenviron/mediamtx:1.21.3` | MIT | Vídeo en directo |
+| `prom/prometheus:v3.5.0` | Apache-2.0 | Perfil `monitoring` |
+| `grafana/grafana-oss:12.1.0` | **AGPL-3.0** | Perfil `monitoring`: servicio aparte y sin modificar, no forma parte del producto |
+| Caddy (ejemplo `deploy/Caddyfile.example`) | Apache-2.0 | Proxy HTTPS opcional |
+
 Leyenda de uso comercial: ✅ permitido · ⚠️ permitido con obligaciones o matices · ❌ no apto para el producto principal.
 
 ## Componentes del producto

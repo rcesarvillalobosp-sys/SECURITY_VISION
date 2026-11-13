@@ -78,8 +78,9 @@ async def run(settings: Settings) -> None:
     setup_tracing("security-vision-worker", settings.otel_endpoint, settings.otel_sample_ratio)
     runtime, engine, bus = build_runtime(settings)
     runtime.loop = asyncio.get_running_loop()
-    start_http_server(settings.worker_metrics_port, addr="127.0.0.1", registry=build_registry(runtime))
-    log.info("worker iniciado; métricas en http://127.0.0.1:%d/metrics", settings.worker_metrics_port)
+    start_http_server(settings.worker_metrics_port, addr=settings.worker_metrics_host, registry=build_registry(runtime))
+    log.info("worker iniciado; métricas en http://%s:%d/metrics", settings.worker_metrics_host,
+             settings.worker_metrics_port)
     await runtime.ensure_model()  # modelo activo (ajuste de la administración o SV_DETECTION_MODEL)
     await runtime.reconcile()
     tasks = [asyncio.create_task(c) for c in (

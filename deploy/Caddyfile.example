@@ -1,0 +1,13 @@
+# Proxy inverso con HTTPS (Caddy, Apache-2.0) delante de la API/web y de WebRTC (WHEP).
+# Las contraseñas del login viajan en la petición: fuera de un equipo de pruebas, SIEMPRE con HTTPS.
+seguridad.ejemplo.com {
+	encode gzip
+	# Señalización WebRTC (WHEP) hacia MediaMTX; el vídeo va por UDP 8189 directo
+	handle_path /whep/* {
+		reverse_proxy 127.0.0.1:8889
+	}
+	reverse_proxy 127.0.0.1:8000
+	header {
+		Strict-Transport-Security "max-age=31536000"
+	}
+}

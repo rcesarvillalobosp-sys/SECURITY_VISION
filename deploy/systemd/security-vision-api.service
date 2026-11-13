@@ -1,0 +1,25 @@
+# /etc/systemd/system/security-vision-api.service — API + web (guía: docs/installation/linux-gpu.md)
+[Unit]
+Description=Security Vision API
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+User=security-vision
+Group=security-vision
+WorkingDirectory=/opt/security-vision
+EnvironmentFile=/etc/security-vision/env
+ExecStart=/opt/security-vision/.venv/bin/uvicorn security_vision_api.main:app_factory --factory --host 127.0.0.1 --port 8000 --no-access-log --proxy-headers
+Restart=on-failure
+RestartSec=3
+# Aislamiento
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/security-vision
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

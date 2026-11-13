@@ -1,5 +1,18 @@
 # Arquitectura — Security Vision
 
+> **Diseño frente a lo implementado (revisado en la Fase 10).** Este documento es el diseño de la V1. Lo que se construyó y verificó difiere en estos puntos; el resto se implementó como está descrito:
+>
+> | Diseño | Implementado | Motivo |
+> |---|---|---|
+> | Bus de eventos en Valkey Streams | **PostgreSQL LISTEN/NOTIFY + outbox transaccional** (ADR-0011, ADR-0019) | Menos piezas; entrega fiable con el outbox. El puerto `MessageBus` permite cambiarlo |
+> | Adaptadores de vídeo PyAV **y GStreamer** | Solo **PyAV/FFmpeg** (RTSP, USB, archivo) y un patrón de prueba | PyAV cubre Windows y Linux. GStreamer queda como adaptador futuro |
+> | Almacenamiento S3 compatible (escala intermedia) | Solo **almacenamiento local** con URL firmadas | Puerto `ObjectStorage` preparado |
+> | Varios workers con asignación de cámaras (`processing_nodes`) | **Un worker** con micro-batching (Fase 9) | Capacidad medida suficiente para el hardware disponible |
+> | TensorRT | Proveedor soportado en el motor, **sin medir** (descarga no completada, Fase 9) | Ver docs/progress/fase-9.md |
+> | MediaMTX con usuarios internos | **Autorización HTTP contra la API** (Fase 10, ADR-0032) | Vídeo en directo con la sesión web, auditado |
+> | DeepStream / Jetson | No implementado | Escala avanzada, fuera de la V1 |
+
+
 Plataforma modular de videovigilancia con análisis de seguridad (EPP) mediante IA. Nombre de trabajo: `security-vision`. No está ligada a ningún sector.
 
 ## 1. Principios aplicados

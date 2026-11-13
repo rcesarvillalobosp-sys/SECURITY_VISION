@@ -1,0 +1,26 @@
+# /etc/systemd/system/security-vision-worker.service — captura + IA (necesita acceso a la GPU y a las cámaras)
+[Unit]
+Description=Security Vision worker
+After=network-online.target postgresql.service mediamtx.service security-vision-api.service
+Wants=network-online.target
+
+[Service]
+User=security-vision
+Group=security-vision
+# video: cámaras USB (/dev/video*); render: GPU
+SupplementaryGroups=video render
+WorkingDirectory=/opt/security-vision
+EnvironmentFile=/etc/security-vision/env
+ExecStart=/opt/security-vision/.venv/bin/sv-worker
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/security-vision
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+
+[Install]
+WantedBy=multi-user.target

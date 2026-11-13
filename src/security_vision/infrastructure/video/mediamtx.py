@@ -25,7 +25,9 @@ def path_name(camera_id: str) -> str:
 
 class MediaMtxServer(MediaServer):
     def __init__(self, api_url: str, rtsp_url: str, webrtc_url: str, api_user: str | None = None,
-                 api_password: str | None = None, timeout: float = 5.0) -> None:
+                 api_password: str | None = None, timeout: float = 5.0, read_user: str | None = None,
+                 read_password: str | None = None) -> None:
+        self._read = (read_user, read_password)
         auth = (api_user, api_password or "") if api_user else None
         self._http = httpx.AsyncClient(base_url=api_url.rstrip("/"), auth=auth, timeout=timeout)
         self._rtsp = rtsp_url.rstrip("/")
@@ -61,6 +63,9 @@ class MediaMtxServer(MediaServer):
 
     def read_url(self, name: str) -> str:
         return f"{self._rtsp}/{name}"
+
+    def read_credentials(self) -> tuple[str | None, str | None]:
+        return self._read
 
     def webrtc_url(self, name: str) -> str:
         return f"{self._webrtc}/{name}/whep"

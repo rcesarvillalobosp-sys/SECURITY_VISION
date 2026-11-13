@@ -1,0 +1,21 @@
+# /etc/systemd/system/mediamtx.service — configuración generada con scripts/dev_mediamtx.py config [--lan]
+[Unit]
+Description=MediaMTX (vídeo en directo para Security Vision)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=security-vision
+Group=security-vision
+WorkingDirectory=/var/lib/security-vision/mediamtx
+ExecStart=/opt/mediamtx/mediamtx /var/lib/security-vision/mediamtx/security-vision.yml
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/security-vision/mediamtx
+
+[Install]
+WantedBy=multi-user.target

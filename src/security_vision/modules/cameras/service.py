@@ -79,7 +79,9 @@ def source_config(camera: Camera, cipher: SecretCipher, policy: CameraPolicy,
     if camera.source_type in (SourceType.FILE,):
         options |= {"loop": True, "realtime": True}  # un archivo se comporta como cámara en vivo
     if via_media and media and camera.mediamtx_path and camera.source_type is SourceType.RTSP:
-        return VideoSourceConfig(uri=media.read_url(camera.mediamtx_path), width=camera.width,
+        ru, rp = media.read_credentials()
+        return VideoSourceConfig(uri=media.read_url(camera.mediamtx_path), username=ru,
+                                 password=SecretStr(rp) if rp else None, width=camera.width,
                                  height=camera.height, fps=camera.target_fps, options=options)
     return VideoSourceConfig(uri=uri, username=user, password=SecretStr(pwd) if pwd else None,
                              width=camera.width, height=camera.height, fps=camera.target_fps, options=options)

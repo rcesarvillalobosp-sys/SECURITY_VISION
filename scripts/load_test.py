@@ -79,6 +79,17 @@ def find_procs() -> dict[str, psutil.Process]:
     return found
 
 
+def sim_credentials() -> dict[str, str]:
+    """Las cámaras simuladas se publican en el propio MediaMTX: se leen con credenciales (como una cámara
+    IP real), necesarias con la autorización HTTP de MediaMTX (Fase 10)."""
+    from security_vision.core.configuration.settings import get_settings
+
+    s = get_settings()
+    if s.mediamtx_publish_user and s.mediamtx_publish_password:
+        return {"username": s.mediamtx_publish_user, "password": s.mediamtx_publish_password.get_secret_value()}
+    return {}
+
+
 def stages(m: dict) -> dict[str, dict[str, float]]:
     out: dict[str, dict[str, float]] = {}
     for lab, v in m.get("sv_stage_ms", []):
@@ -107,7 +118,7 @@ def run_level(client: httpx.Client, h: dict, n: int, fps: float, warmup: float, 
     for i in range(n):
         r = client.post("/api/v1/cameras", headers=h, json={
             "name": f"carga-{i}", "source_type": "rtsp", "source_uri": f"rtsp://127.0.0.1:8554/sim-{i}",
-            "analysis_fps": fps, "default_profile_id": profile_id})
+            "analysis_fps": fps, "default_profile_id": profile_id, **sim_credentials()})
         r.raise_for_status()
         cams.append(r.json()["id"])
     ids = set(cams)

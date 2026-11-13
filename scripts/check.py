@@ -15,6 +15,7 @@ STEPS = [
     ("alembic check (modelo == migraciones)", ["alembic", "check"]),
     ("pytest", ["pytest", "-q", "-p", "no:cacheprovider"]),
     ("licencias de dependencias", [sys.executable, "scripts/license_report.py", "--check"]),
+    ("documentación de la API (OpenAPI)", [sys.executable, "scripts/export_openapi.py", "--check"]),
 ]
 # Frontend (si está instalado): tipos, tests y licencias de las dependencias empaquetadas
 if Path("apps/web/node_modules").exists():

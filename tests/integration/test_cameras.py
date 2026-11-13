@@ -202,8 +202,9 @@ def mediamtx(tmp_path):
     cfg = tmp_path / "mtx.yml"
     cfg.write_text(render_config(rtsp_port=ports["rtsp"], webrtc_port=ports["webrtc"], api_port=ports["api"],
                                  ice_udp_port=ports["ice"], publish_user="pub", publish_pwd="pub-pass",
-                                 api_user="api", api_pwd="api-pass"), encoding="utf-8")
-    proc = subprocess.Popen([str(exe), str(cfg)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                                 api_user="api", api_pwd="api-pass", auth="internal"), encoding="utf-8")
+    # cwd temporal: MediaMTX no debe dejar archivos (p. ej. certificados) en el repositorio
+    proc = subprocess.Popen([str(exe), str(cfg)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, cwd=tmp_path)
     try:
         for _ in range(50):
             with socket.socket() as s:

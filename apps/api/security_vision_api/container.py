@@ -49,6 +49,12 @@ class Container:
     reports: ReportService | None = None
     models: ModelService | None = None
 
+    async def audit_media(self, user_id, path: str, protocol: str, ip: str | None) -> None:
+        async with uow_factory(self.engine)() as uow:
+            await uow.audit.record("media.read_granted", actor_id=user_id, entity_type="media_path", entity_id=path,
+                                   after={"protocol": protocol}, ip=ip or None)
+            await uow.commit()
+
     async def audit_query(self, **filters):
         async with uow_factory(self.engine)() as uow:
             return await uow.audit.query(**filters)

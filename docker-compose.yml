@@ -1,75 +1,105 @@
-# Security Vision — entorno local con Docker.
-# Requiere: virtualización activada + Docker Desktop (WSL2). Copiar .env.example a .env y completar.
-#   docker compose up -d                       # postgres + api
-#   docker compose --profile media up -d       # + mediamtx + valkey
-#   docker compose --profile monitoring up -d  # + prometheus + grafana
-# Todos los puertos se publican solo en 127.0.0.1.
+# Security Vision con Docker. Guía: docs/installation/docker.md
+#
+#   cp .env.example .env            # y completar las variables marcadas como obligatorias
+#   docker compose up -d --build                                   # todo, inferencia en CPU
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d --build   # worker con GPU NVIDIA
+#   docker compose --profile monitoring up -d                      # + Prometheus y Grafana
+#
+# Red: solo se publican la web/API (8000) y WebRTC (8889/tcp y 8189/udp), en SV_BIND_IP (127.0.0.1 por
+# defecto; la IP del equipo para servir a la red local). PostgreSQL, la API de MediaMTX, RTSP y las métricas
+# quedan dentro de la red del compose.
 
 name: security-vision
 
 x-restart: &restart
   restart: unless-stopped
 
+x-app-env: &app-env
+  SV_ENVIRONMENT: ${SV_ENVIRONMENT:-production}
+  SV_LOG_JSON: "true"
+  SV_DATABASE_URL: postgresql+asyncpg://security_vision:${SV_DB_PASSWORD:?definir SV_DB_PASSWORD}@postgres:5432/security_vision
+  SV_JWT_SECRET: ${SV_JWT_SECRET:?generar con svctl gen-secrets --docker}
+  SV_SECRETS_KEY: ${SV_SECRETS_KEY:?generar con svctl gen-secrets --docker}
+  SV_CORS_ORIGINS: '["http://${SV_PUBLIC_HOST:-127.0.0.1}:8000"]'
+  SV_MEDIAMTX_API_URL: http://mediamtx:9997
+  SV_MEDIAMTX_RTSP_URL: rtsp://mediamtx:8554
+  SV_MEDIAMTX_WEBRTC_URL: http://${SV_PUBLIC_HOST:-127.0.0.1}:8889
+  SV_MEDIAMTX_API_USER: svapi
+  SV_MEDIAMTX_API_PASSWORD: ${SV_MEDIAMTX_API_PASSWORD:?definir SV_MEDIAMTX_API_PASSWORD}
+  SV_MEDIAMTX_PUBLISH_USER: svpublisher
+  SV_MEDIAMTX_PUBLISH_PASSWORD: ${SV_MEDIAMTX_PUBLISH_PASSWORD:?definir SV_MEDIAMTX_PUBLISH_PASSWORD}
+  SV_MEDIAMTX_AUTH_KEY: ${SV_MEDIAMTX_AUTH_KEY:?definir SV_MEDIAMTX_AUTH_KEY}
+  SV_DETECTION_MODEL: ${SV_DETECTION_MODEL:-rtdetr-v2-r18-ppe-pilot@1}
+  SV_VIDEO_FILES_DIR: /data/videos
+  SV_INFERENCE_DEVICES: ${SV_INFERENCE_DEVICES:-["cuda","cpu"]}
+  SV_PUBLIC_WEB_URL: ${SV_PUBLIC_WEB_URL:-}
+  SV_SMTP_HOST: ${SV_SMTP_HOST:-}
+  SV_SMTP_PORT: ${SV_SMTP_PORT:-587}
+  SV_SMTP_SECURITY: ${SV_SMTP_SECURITY:-starttls}
+  SV_SMTP_USER: ${SV_SMTP_USER:-}
+  SV_SMTP_PASSWORD: ${SV_SMTP_PASSWORD:-}
+  SV_SMTP_FROM: ${SV_SMTP_FROM:-}
+  SV_OTEL_ENDPOINT: ${SV_OTEL_ENDPOINT:-}
+  SV_BOOTSTRAP_ADMIN_EMAIL: ${SV_BOOTSTRAP_ADMIN_EMAIL:-}
+  SV_BOOTSTRAP_ADMIN_PASSWORD: ${SV_BOOTSTRAP_ADMIN_PASSWORD:-}
+
 services:
   postgres:
     <<: *restart
-    image: postgres:17.6-alpine
+    image: postgres:17.12-bookworm
     environment:
       POSTGRES_DB: security_vision
       POSTGRES_USER: security_vision
-      POSTGRES_PASSWORD: ${SV_DB_PASSWORD:?definir SV_DB_PASSWORD en .env}
+      POSTGRES_PASSWORD: ${SV_DB_PASSWORD:?definir SV_DB_PASSWORD}
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
     volumes: [pgdata:/var/lib/postgresql/data]
-    ports: ["127.0.0.1:5433:5432"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U security_vision -d security_vision"]
       interval: 5s
-      retries: 10
+      retries: 20
 
   migrate:
-    build: {context: ., dockerfile: docker/api.Dockerfile}
-    command: ["/app/.venv/bin/svctl", "migrate"]
-    environment: &api-env
-      SV_ENVIRONMENT: ${SV_ENVIRONMENT:-development}
-      SV_DATABASE_URL: postgresql+asyncpg://security_vision:${SV_DB_PASSWORD}@postgres:5432/security_vision
-      SV_JWT_SECRET: ${SV_JWT_SECRET:?generar con: uv run svctl gen-secrets}
-      SV_SECRETS_KEY: ${SV_SECRETS_KEY:?generar con: uv run svctl gen-secrets}
-      SV_BOOTSTRAP_ADMIN_EMAIL: ${SV_BOOTSTRAP_ADMIN_EMAIL:-}
-      SV_BOOTSTRAP_ADMIN_PASSWORD: ${SV_BOOTSTRAP_ADMIN_PASSWORD:-}
+    build: {context: ., dockerfile: docker/app.Dockerfile, target: api}
+    image: security-vision-api:local
+    command: ["sh", "-c", "svctl migrate && svctl bootstrap"]
+    environment: *app-env
     depends_on: {postgres: {condition: service_healthy}}
 
   api:
     <<: *restart
-    build: {context: ., dockerfile: docker/api.Dockerfile}
-    environment: *api-env
-    ports: ["127.0.0.1:8000:8000"]
+    build: {context: ., dockerfile: docker/app.Dockerfile, target: api}
+    image: security-vision-api:local
+    environment: *app-env
+    volumes: [storage:/data/storage]
+    ports: ["${SV_BIND_IP:-127.0.0.1}:8000:8000"]
     depends_on: {migrate: {condition: service_completed_successfully}}
 
   worker:
     <<: *restart
-    build: {context: ., dockerfile: docker/api.Dockerfile}
-    command: ["/app/.venv/bin/sv-worker"]
-    environment:
-      <<: *api-env
-      SV_MEDIAMTX_API_URL: ${SV_MEDIAMTX_API_URL:-}
-      SV_MEDIAMTX_RTSP_URL: rtsp://mediamtx:8554
-    depends_on: {migrate: {condition: service_completed_successfully}}
-
-  valkey:
-    <<: *restart
-    profiles: [media]
-    image: valkey/valkey:8.1-alpine
-    command: ["valkey-server", "--save", "", "--appendonly", "no"]
-    ports: ["127.0.0.1:6379:6379"]
+    build: {context: ., dockerfile: docker/app.Dockerfile, target: worker}
+    image: security-vision-worker:local
+    environment: *app-env
+    volumes:
+      - storage:/data/storage
+      # Modelos ONNX (no se versionan): carpeta del registro en el equipo anfitrión
+      - ${SV_MODELS_DIR:-./ml/model_registry}:/app/ml/model_registry:ro
+      - ${SV_VIDEOS_DIR:-./var/videos}:/data/videos:ro
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      mediamtx: {condition: service_started}
 
   mediamtx:
     <<: *restart
-    profiles: [media]
-    image: bluenviron/mediamtx:1.13.1
+    image: bluenviron/mediamtx:1.21.3
+    environment:
+      # Autorización contra la API (ver apps/api/security_vision_api/routers/media.py)
+      MTX_AUTHHTTPADDRESS: http://api:8000/api/v1/media/auth?key=${SV_MEDIAMTX_AUTH_KEY:?definir SV_MEDIAMTX_AUTH_KEY}
+      MTX_WEBRTCALLOWORIGINS: http://${SV_PUBLIC_HOST:-127.0.0.1}:8000
+      MTX_WEBRTCADDITIONALHOSTS: ${SV_PUBLIC_HOST:-127.0.0.1}
     volumes: ["./docker/mediamtx/mediamtx.yml:/mediamtx.yml:ro"]
     ports:
-      - "127.0.0.1:8554:8554"        # RTSP
-      - "127.0.0.1:8889:8889"        # WebRTC (WHEP)
-      - "127.0.0.1:8189:8189/udp"    # WebRTC ICE
+      - "${SV_BIND_IP:-127.0.0.1}:8889:8889"        # WebRTC (WHEP)
+      - "${SV_BIND_IP:-127.0.0.1}:8189:8189/udp"    # WebRTC ICE
 
   prometheus:
     <<: *restart
@@ -86,7 +116,9 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${SV_GRAFANA_ADMIN_PASSWORD:?definir SV_GRAFANA_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_ANALYTICS_REPORTING_ENABLED: "false"
+    volumes: ["./docker/grafana/provisioning:/etc/grafana/provisioning:ro"]
     ports: ["127.0.0.1:3000:3000"]
 
 volumes:
   pgdata:
+  storage:

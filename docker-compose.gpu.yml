@@ -1,0 +1,11 @@
+# Worker con GPU NVIDIA (Linux con NVIDIA Container Toolkit, o Docker Desktop + WSL2 con GPU).
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d --build
+services:
+  worker:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

@@ -3,7 +3,9 @@
     svctl migrate            # alembic upgrade head
     svctl bootstrap          # sincroniza roles/permisos y crea el primer admin (SV_BOOTSTRAP_ADMIN_*)
     svctl serve [--reload]   # arranca la API
-    svctl gen-secrets        # genera valores para SV_JWT_SECRET y SV_SECRETS_KEY
+    svctl gen-secrets        # genera valores para SV_JWT_SECRET y SV_SECRETS_KEY (--docker: y los del compose)
+    svctl doctor             # comprueba BD, migraciones, modelo, GPU, almacenamiento, MediaMTX y seguridad
+    svctl purge              # aplica la política de retención
 """
 
 from __future__ import annotations
@@ -66,7 +68,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     sv.add_argument("--host", default="127.0.0.1")
     sv.add_argument("--port", type=int, default=8000)
     sv.add_argument("--reload", action="store_true")
-    sub.add_parser("gen-secrets")
+    gs = sub.add_parser("gen-secrets")
+    gs.add_argument("--docker", action="store_true", help="también las contraseñas de PostgreSQL, MediaMTX y Grafana")
+    sub.add_parser("doctor", help="comprobación previa al arranque")
     sub.add_parser("purge", help="aplica la política de retención (evidencias, historial, huérfanos)")
     args = ap.parse_args(argv)
 
@@ -86,6 +90,16 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         print(f"SV_JWT_SECRET={secrets.token_urlsafe(48)}")
         print(f"SV_SECRETS_KEY={AesGcmCipher.generate_key()}")
+        if args.docker:
+            for name in ("SV_DB_PASSWORD", "SV_MEDIAMTX_API_PASSWORD", "SV_MEDIAMTX_PUBLISH_PASSWORD",
+                         "SV_MEDIAMTX_AUTH_KEY", "SV_GRAFANA_ADMIN_PASSWORD"):
+                print(f"{name}={secrets.token_urlsafe(24)}")
+    elif args.cmd == "doctor":
+        from security_vision.core.configuration.settings import get_settings
+
+        from .doctor import main as doctor_main
+
+        return doctor_main(get_settings())
     return 0
 
 

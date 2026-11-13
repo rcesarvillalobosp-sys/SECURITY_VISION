@@ -114,8 +114,12 @@ def build_media(settings: Settings) -> MediaServer | None:
     from security_vision.infrastructure.video.mediamtx import MediaMtxServer
 
     pwd = settings.mediamtx_api_password.get_secret_value() if settings.mediamtx_api_password else None
+    pub = settings.mediamtx_publish_password.get_secret_value() if settings.mediamtx_publish_password else None
+    # El worker lee con el usuario de publicación (tiene permiso de lectura): funciona también fuera de
+    # localhost (Docker, otro equipo), donde la lectura anónima está prohibida.
     return MediaMtxServer(settings.mediamtx_api_url, settings.mediamtx_rtsp_url, settings.mediamtx_webrtc_url,
-                          settings.mediamtx_api_user, pwd)
+                          settings.mediamtx_api_user, pwd, read_user=settings.mediamtx_publish_user,
+                          read_password=pub)
 
 
 def camera_policy(settings: Settings) -> CameraPolicy:

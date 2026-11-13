@@ -1,20 +1,32 @@
-# Para Docker, generar la configuración real (con credenciales) a partir de la misma plantilla
-# que en desarrollo:  uv run python -c "import sys; sys.path.insert(0,'scripts'); ..."
-# Ver scripts/dev_mediamtx.py (render_config). Este archivo es un marcador seguro por defecto:
-# sin API, sin publicación y lectura solo desde la red del compose.
+# MediaMTX dentro del compose. Misma política que scripts/dev_mediamtx.py (autorización HTTP contra la API).
+# Valores que dependen del despliegue, por variables de entorno (docker-compose.yml):
+#   MTX_AUTHHTTPADDRESS        http://api:8000/api/v1/media/auth?key=<SV_MEDIAMTX_AUTH_KEY>
+#   MTX_WEBRTCALLOWORIGINS     origen de la web
+#   MTX_WEBRTCADDITIONALHOSTS  IP/nombre del equipo que verán los navegadores (candidatos ICE)
 logLevel: info
-api: no
+logDestinations: [stdout]
+api: yes
+apiAddress: :9997          # solo en la red del compose (no se publica)
+metrics: no
+pprof: no
+playback: no
 rtsp: yes
-webrtc: yes
-hls: no
+rtspAddress: :8554         # solo en la red del compose (worker)
+rtspTransports: [tcp]
 rtmp: no
+hls: no
 srt: no
-authMethod: internal
-authInternalUsers:
-  - user: any
-    pass:
-    ips: ["127.0.0.1", "::1", "172.16.0.0/12"]
-    permissions:
-      - action: read
+moq: no                    # activo por defecto desde 1.21: se apaga
+webrtc: yes
+webrtcAddress: :8889
+webrtcLocalUDPAddress: :8189
+# Las IPs internas del contenedor no son alcanzables por los navegadores: se anuncian solo las de
+# MTX_WEBRTCADDITIONALHOSTS
+webrtcIPsFromInterfaces: no
+webrtcAllowOrigins: ['http://127.0.0.1:8000']
+webrtcAdditionalHosts: []
+authMethod: http
+authHTTPAddress: http://api:8000/api/v1/media/auth
+authHTTPExclude: []
 paths:
   all_others:

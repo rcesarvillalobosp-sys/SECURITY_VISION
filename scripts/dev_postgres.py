@@ -22,7 +22,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ENV_FILE = ROOT / ".env"
 DEFAULT_BASE = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "security-vision"
-PORT = int(os.environ.get("SV_PG_PORT", "5433"))
 
 
 def read_env() -> dict[str, str]:
@@ -46,6 +45,10 @@ def write_env(updates: dict[str, str]) -> None:
     ENV_FILE.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
+# Puerto: variable de entorno, .env (lo guarda `init`) o 5433
+PORT = int(os.environ.get("SV_PG_PORT") or read_env().get("SV_PG_PORT") or "5433")
+
+
 def pg_home() -> Path:
     home = os.environ.get("SV_PG_HOME") or read_env().get("SV_PG_HOME") or str(DEFAULT_BASE / "pg17" / "pgsql")
     p = Path(home)
@@ -55,7 +58,7 @@ def pg_home() -> Path:
 
 
 def data_dir() -> Path:
-    return Path(read_env().get("SV_PG_DATA", str(DEFAULT_BASE / "pgdata")))
+    return Path(os.environ.get("SV_PG_DATA") or read_env().get("SV_PG_DATA") or str(DEFAULT_BASE / "pgdata"))
 
 
 def run(*args: str, env: dict[str, str] | None = None, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -89,7 +92,8 @@ def cmd_init() -> None:
         os.unlink(pwfile)
     with (d / "postgresql.conf").open("a", encoding="utf-8") as fh:
         fh.write(f"\nlisten_addresses = '127.0.0.1'\nport = {PORT}\n")
-    write_env({"SV_PG_DATA": str(d), "SV_PG_HOME": str(pg_home()), "SV_PG_SUPERUSER_PASSWORD": su_pwd})
+    write_env({"SV_PG_DATA": str(d), "SV_PG_HOME": str(pg_home()), "SV_PG_PORT": str(PORT),
+               "SV_PG_SUPERUSER_PASSWORD": su_pwd})
     cmd_start()
     psql(f"CREATE ROLE security_vision LOGIN PASSWORD '{app_pwd}'", su_pwd)
     for db in ("security_vision", "security_vision_test"):

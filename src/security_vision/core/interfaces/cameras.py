@@ -75,3 +75,7 @@ class MediaServer(ABC):
 
     @abstractmethod
     def webrtc_url(self, name: str) -> str: ...
+
+    def read_credentials(self) -> tuple[str | None, str | None]:
+        """Credenciales con las que el worker lee del servidor (None = lectura anónima)."""
+        return None, None

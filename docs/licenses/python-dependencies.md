@@ -60,7 +60,6 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | nvidia-nvjitlink | 13.5.37 | LicenseRef-NVIDIA-Proprietary | ⚠️ propietaria (EULA NVIDIA): revisar redistribución |
 | onnx | 1.23.2 | Apache-2.0 |  |
 | onnx-ir | 1.1.0 | Apache-2.0 |  |
-| onnxconverter-common | 1.16.0 | MIT License |  |
 | onnxruntime-gpu | 1.31.1 | MIT License |  |
 | onnxscript | 0.7.2 | MIT License |  |
 | openpyxl | 3.1.5 | MIT License |  |
