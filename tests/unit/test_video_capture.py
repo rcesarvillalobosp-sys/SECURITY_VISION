@@ -182,3 +182,13 @@ def test_supervisor_apply_reconciles():
         assert set(sup.workers()) == {"b", "c"}
     finally:
         sup.stop_all()
+
+
+def test_parse_dshow_devices_handles_fragmented_ffmpeg_output():
+    """FFmpeg reciente trocea cada línea del listado de DirectShow; antes no se encontraba ninguna cámara."""
+    from security_vision.plugins.video_sources.pyav_source import parse_dshow_devices
+
+    fragments = ['"Camo"', " (video", ")", "\n", '  Alternative name "@device_pnp_\\?\root#camera#0000"\n',
+                 '"Microphone (Camo)"', " (audio", ")", "\n", '"Integrated Webcam" (video)\n']
+    assert parse_dshow_devices("".join(fragments)) == ["Camo", "Integrated Webcam"]
+    assert parse_dshow_devices("") == []

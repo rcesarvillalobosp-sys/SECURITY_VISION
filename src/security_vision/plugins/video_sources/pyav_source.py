@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import contextlib
 import logging
+import re
 import sys
 import threading
 import time
@@ -60,20 +61,29 @@ def usb_input(device: str) -> tuple[str, str]:
     return (f"/dev/video{device}" if device.isdigit() else device), "v4l2"
 
 
+def parse_dshow_devices(log_text: str) -> list[str]:
+    """Nombres de las cámaras en la salida de ``list_devices`` de DirectShow.
+
+    FFmpeg reciente emite cada dispositivo en trozos (``'"Camo"'``, ``' (video'``, ``')'``): se analiza el
+    texto completo, no mensaje a mensaje. Se ignoran los micrófonos (``(audio)``) y los nombres alternativos.
+    """
+    return list(dict.fromkeys(re.findall(r'"([^"]+)"\s*\(video\)', log_text)))
+
+
 def list_usb_cameras() -> list[str]:
     """Nombres de cámaras DirectShow (Windows). En otros SO devuelve los /dev/video* existentes."""
     if not sys.platform.startswith("win"):
         from pathlib import Path
 
         return sorted(str(p) for p in Path("/dev").glob("video*"))
-    names: list[str] = []
-    with av.logging.Capture() as logs, contextlib.suppress(av.error.FFmpegError, OSError):
-        av.open("dummy", format="dshow", options={"list_devices": "true"})
-    for _level, _name, message in logs:
-        # Formato FFmpeg: '"Nombre de la cámara" (video)'
-        if "(video)" in message and '"' in message:
-            names.append(message.split('"')[1])
-    return names
+    prev = av.logging.get_level()
+    av.logging.set_level(av.logging.INFO)  # FFmpeg lista los dispositivos con nivel INFO
+    try:
+        with av.logging.Capture() as logs, contextlib.suppress(av.error.FFmpegError, OSError):
+            av.open("dummy", format="dshow", options={"list_devices": "true"})
+    finally:
+        av.logging.set_level(prev)
+    return parse_dshow_devices("".join(message for _level, _name, message in logs))
 
 
 class PyAVVideoSource(VideoSource):
