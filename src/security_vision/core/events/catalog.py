@@ -47,3 +47,12 @@ class UserAuthenticated(DomainEvent):
     event_type: ClassVar[str] = "user.authenticated.v1"
     user_id: UUID
     session_id: UUID
+
+
+@register_event
+class CameraConfigChanged(DomainEvent):
+    """Alta/baja/modificación de una cámara: los workers reconcilian su configuración."""
+
+    event_type: ClassVar[str] = "camera.config_changed.v1"
+    camera_id: UUID
+    action: str  # created | updated | deleted

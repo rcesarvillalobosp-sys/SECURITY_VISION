@@ -44,6 +44,16 @@ services:
     ports: ["127.0.0.1:8000:8000"]
     depends_on: {migrate: {condition: service_completed_successfully}}
 
+  worker:
+    <<: *restart
+    build: {context: ., dockerfile: docker/api.Dockerfile}
+    command: ["/app/.venv/bin/sv-worker"]
+    environment:
+      <<: *api-env
+      SV_MEDIAMTX_API_URL: ${SV_MEDIAMTX_API_URL:-}
+      SV_MEDIAMTX_RTSP_URL: rtsp://mediamtx:8554
+    depends_on: {migrate: {condition: service_completed_successfully}}
+
   valkey:
     <<: *restart
     profiles: [media]

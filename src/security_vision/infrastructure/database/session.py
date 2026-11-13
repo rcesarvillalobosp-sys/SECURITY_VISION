@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from security_vision.core.interfaces.repositories import UnitOfWork
 
+from .repositories.cameras import SqlCameraRepository
 from .repositories.identity import SqlAuditLog, SqlRoleRepository, SqlSessionRepository, SqlUserRepository
 
 
@@ -34,6 +35,7 @@ class SqlUnitOfWork(UnitOfWork):
         self.roles = SqlRoleRepository(self._session)
         self.sessions = SqlSessionRepository(self._session)
         self.audit = SqlAuditLog(self._session)
+        self.cameras = SqlCameraRepository(self._session)
         return self
 
     async def __aexit__(self, *exc: object) -> None:

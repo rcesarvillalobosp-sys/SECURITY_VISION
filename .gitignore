@@ -26,3 +26,6 @@ node_modules/
 .vscode/
 .idea/
 
+# Datos de ejecución locales
+var/
+

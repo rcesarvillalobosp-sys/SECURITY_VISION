@@ -14,3 +14,14 @@ Tras reiniciar el equipo: `uv run python scripts/dev_postgres.py start`.
 
 - El clúster no se registra como servicio de Windows. Arranca con `start` y se detiene con `stop`.
 - Los tests de integración usan **exclusivamente** `SV_TEST_DATABASE_URL`, que debe terminar en `_test`, y la vacían en cada test.
+
+## MediaMTX y worker (Fase 2)
+
+1. Descargar `mediamtx_vX.Y.Z_windows_amd64.zip` de https://github.com/bluenviron/mediamtx/releases, verificar su sha256 con `checksums.sha256` y extraerlo en `%LOCALAPPDATA%\security-vision\mediamtx`.
+2. `uv run python scripts/dev_mediamtx.py config`: genera la configuración autenticada y las variables `SV_MEDIAMTX_*` en `.env`.
+3. En terminales separados:
+   - `uv run python scripts/dev_mediamtx.py run`
+   - `uv run svctl serve`
+   - `uv run sv-worker`
+4. Para probar sin cámaras, añade `SV_ALLOW_TEST_SOURCES=true` y da de alta una cámara `source_type: test` con `testpattern://?width=1280&height=720&fps=15`. El vídeo se ve en `http://127.0.0.1:8889/<ruta>/`; la URL WebRTC aparece en la respuesta de la API.
+5. Métricas del worker: `http://127.0.0.1:9101/metrics`.

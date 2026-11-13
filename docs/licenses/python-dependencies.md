@@ -11,6 +11,7 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | argon2-cffi | 25.1.0 | MIT |  |
 | argon2-cffi-bindings | 26.1.0 | MIT |  |
 | asyncpg | 0.32.0 | Apache-2.0 |  |
+| av | 19.0.2 | BSD-3-Clause |  |
 | certifi | 2026.10.23 | Mozilla Public License 2.0 (MPL 2.0) |  |
 | cffi | 2.1.1 | MIT-0 |  |
 | click | 8.5.1 | BSD-3-Clause |  |
@@ -35,6 +36,7 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | pillow | 13.0.0 | MIT-CMU |  |
 | pluggy | 1.7.0 | MIT License |  |
 | prometheus_client | 0.26.0 | Apache-2.0 AND BSD-2-Clause |  |
+| psutil | 7.2.2 | BSD-3-Clause |  |
 | pycparser | 3.12 | BSD-3-Clause |  |
 | pydantic | 2.14.3 | MIT |  |
 | pydantic-settings | 2.16.2 | MIT |  |

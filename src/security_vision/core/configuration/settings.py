@@ -46,6 +46,27 @@ class Settings(BaseSettings):
 
     cors_origins: list[str] = ["http://localhost:5173"]
 
+    # Vídeo y almacenamiento
+    video_provider: str = "pyav"  # adaptador VideoSource por defecto (pyav | gstreamer)
+    allow_test_sources: bool = False  # fuentes testpattern:// (solo desarrollo)
+    video_files_dir: str | None = None  # raíz permitida para cámaras de tipo archivo
+    storage_dir: str = "var/storage"
+    camera_probe_timeout: float = Field(default=15.0, ge=1, le=120)
+
+    # MediaMTX (opcional). Vacío = sin servidor de medios.
+    mediamtx_api_url: str | None = None  # p. ej. http://127.0.0.1:9997
+    mediamtx_rtsp_url: str = "rtsp://127.0.0.1:8554"
+    mediamtx_webrtc_url: str = "http://127.0.0.1:8889"
+    mediamtx_api_user: str | None = None
+    mediamtx_api_password: SecretStr | None = None
+    mediamtx_publish_user: str | None = None
+    mediamtx_publish_password: SecretStr | None = None
+
+    # Worker de procesamiento
+    worker_metrics_port: int = 9101
+    worker_reconcile_seconds: float = 30.0
+    worker_snapshot_seconds: float = 5.0
+
     bootstrap_admin_email: str | None = None
     bootstrap_admin_password: SecretStr | None = None
 
@@ -58,6 +79,8 @@ class Settings(BaseSettings):
                     raise ValueError(f"SV_{name.upper()} parece un valor de ejemplo")
             if "*" in self.cors_origins:
                 raise ValueError("CORS '*' no permitido en producción")
+            if self.allow_test_sources:
+                raise ValueError("SV_ALLOW_TEST_SOURCES no se permite en producción")
         return self
 
 

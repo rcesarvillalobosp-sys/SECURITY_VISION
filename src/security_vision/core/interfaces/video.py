@@ -97,3 +97,13 @@ class VideoSource(ABC):
 
     @abstractmethod
     def get_status(self) -> SourceStatus: ...
+
+
+class VideoPublisher(ABC):
+    """Publica fotogramas hacia un servidor de medios (p. ej. cámara USB -> MediaMTX)."""
+
+    @abstractmethod
+    def publish(self, frame: Frame) -> None: ...
+
+    @abstractmethod
+    def close(self) -> None: ...

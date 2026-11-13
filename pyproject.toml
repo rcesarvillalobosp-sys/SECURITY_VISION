@@ -20,6 +20,9 @@ dependencies = [
     "prometheus-client>=0.21",
     "python-multipart>=0.0.18",
     "numpy>=2.0",
+    "av>=14",
+    "pillow>=13.0.0",
+    "psutil>=7.2.2",
 ]
 
 [project.optional-dependencies]
@@ -33,6 +36,12 @@ ml = [
 [project.scripts]
 svds = "security_vision_ml.datasets.cli:main"
 svctl = "security_vision_api.cli:main"
+sv-worker = "security_vision_worker.main:main"
+
+[project.entry-points."security_vision.video_sources"]
+# Proveedores incluidos; plugins de terceros se declaran igual en su propio paquete.
+pyav = "security_vision.plugins.video_sources.pyav_source:PyAVVideoSource"
+testpattern = "security_vision.plugins.video_sources.test_pattern:TestPatternSource"
 
 [dependency-groups]
 dev = [
@@ -47,7 +56,7 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/security_vision", "src/security_vision_ml", "apps/api/security_vision_api"]
+packages = ["src/security_vision", "src/security_vision_ml", "apps/api/security_vision_api", "apps/processing-worker/security_vision_worker"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -67,7 +76,7 @@ select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
 known-first-party = ["security_vision", "security_vision_ml", "security_vision_api"]
 
 [tool.importlinter]
-root_packages = ["security_vision", "security_vision_ml", "security_vision_api"]
+root_packages = ["security_vision", "security_vision_ml", "security_vision_api", "security_vision_worker"]
 include_external_packages = true
 
 [[tool.importlinter.contracts]]
@@ -80,7 +89,7 @@ forbidden_modules = ["security_vision_ml"]
 name = "El producto no depende de la capa de composición (apps)"
 type = "forbidden"
 source_modules = ["security_vision"]
-forbidden_modules = ["security_vision_api"]
+forbidden_modules = ["security_vision_api", "security_vision_worker"]
 
 [[tool.importlinter.contracts]]
 name = "Capas: modules -> core; infrastructure -> core; core no depende de nadie"

@@ -28,6 +28,10 @@ class ObjectStorage(ABC):
     def get(self, key: str) -> bytes: ...
 
     @abstractmethod
+    def stat(self, key: str) -> tuple[int, datetime, str]:
+        """(tamaño, última modificación UTC, content-type). ``FileNotFoundError`` si no existe."""
+
+    @abstractmethod
     def delete(self, key: str) -> None: ...
 
     @abstractmethod

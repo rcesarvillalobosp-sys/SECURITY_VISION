@@ -37,5 +37,18 @@ Formato breve: contexto → decisión → consecuencias. Estado: **Aceptada** sa
 - **Contexto:** la virtualización está desactivada en este equipo y no hay permisos de administrador garantizados.
 - **Decisión:** usar los binarios zip oficiales de EDB, con el clúster en el espacio del usuario, gestionado por `scripts/dev_postgres.py`. Docker Compose queda como vía estándar en cuanto Docker esté disponible.
 
+## ADR-0010 PyAV: licencia de las ruedas binarias
+- **Contexto (verificado el 2026-11-12):** la rueda de PyPI `av 19.0.2` incluye FFmpeg 9.0.2. `avcodec_license()` devuelve "LGPL version 3 or later", pero la configuración incluye `--enable-libx264` y la rueda trae `libx264-165.dll` y `libx265.dll`, que son **GPL**.
+- **Decisión:**
+  - Uso permitido en desarrollo y en uso interno.
+  - El código solo decodifica con PyAV y publica con codificadores no GPL (NVENC, QSV, Media Foundation o libvpx). `libx264`/`libx265` están en una lista de prohibidos.
+  - **Antes de distribuir el producto** hay que compilar PyAV contra un FFmpeg LGPL sin x264/x265, o usar el adaptador GStreamer. Como FFmpeg es LGPLv3, en appliances hay que revisar además las obligaciones de "User Products" (instrucciones de instalación).
+
+## ADR-0011 Bus de control sobre PostgreSQL LISTEN/NOTIFY
+- **Decisión:** las notificaciones de control (cambios de cámara, estado) viajan por NOTIFY, sin infraestructura adicional. Es difusión "como mucho una vez", así que el worker además reconcilia contra la BD cada 30 s. Los eventos que necesitan durabilidad (incidentes) usarán outbox + Valkey Streams detrás del mismo puerto `MessageBus`.
+
+## ADR-0012 MediaMTX como punto único de conexión a cada cámara
+- **Decisión:** si hay MediaMTX, las cámaras RTSP se leen a través de su proxy: la cámara sirve una sola conexión, y navegador y worker leen de MediaMTX. Las cámaras locales (USB) las publica el worker. MediaMTX escucha solo en localhost y exige usuario para publicar y para su API.
+
 ## ADR-0009 Auditoría de solo inserción reforzada en la base de datos
 - **Decisión:** un trigger en PostgreSQL rechaza cualquier UPDATE o DELETE sobre `audit_log`. La única excepción es anonimizar al actor cuando se borra su usuario (`SET NULL`).

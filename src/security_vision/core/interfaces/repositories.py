@@ -9,6 +9,7 @@ from typing import Any, Self
 from uuid import UUID
 
 from ..domain.identity import AuthSession, User
+from .cameras import CameraRepository
 
 
 class UserRepository(ABC):
@@ -75,6 +76,7 @@ class UnitOfWork(ABC):
     roles: RoleRepository
     sessions: SessionRepository
     audit: AuditLog
+    cameras: CameraRepository
 
     @abstractmethod
     async def __aenter__(self) -> Self: ...
