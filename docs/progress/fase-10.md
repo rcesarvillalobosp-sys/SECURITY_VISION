@@ -54,10 +54,12 @@ Fecha: 2026-11-13.
   | Puertos de MediaMTX | solo 127.0.0.1, sin MoQ ✅ |
 
 - **Copia de seguridad real:** 0,2 MB de base de datos y 458 evidencias, restaurada en `security_vision_test`. 12 de 13 tablas idénticas. `camera_stats` tenía una fila más en el origen porque el worker siguió escribiendo durante la copia; el script lo señala en lugar de ocultarlo.
-- **Tests:** 153 (8 nuevos):
+- **Tests:** 155 (10 nuevos):
   - autorización de MediaMTX: publicar, leer, API, clave, auditoría y sesión cerrada;
   - `/metrics` según la red de origen;
-  - validación estática del despliegue: compose, Dockerfile, `.dockerignore`, MediaMTX endurecido, Prometheus y métricas del panel de Grafana.
+  - validación estática del despliegue: compose, Dockerfile, `.dockerignore`, MediaMTX endurecido, Prometheus y métricas del panel de Grafana;
+  - dependencias declaradas frente a imports reales;
+  - secretos con valores de ejemplo rechazados.
 
   CI local en verde, incluida la documentación de la API al día.
 
@@ -69,9 +71,43 @@ Fecha: 2026-11-13.
 4. **El simulador de cámaras dejó de funcionar con la autorización nueva.** La ruta de la cámara tiraba del propio MediaMTX sin credenciales; ahora las cámaras simuladas llevan credenciales, como una cámara IP real. Es lo correcto: la autorización no debe dejar pasar lecturas anónimas.
 5. **El rol de la aplicación no puede crear bases de datos**, así que la primera versión de `backup.py verify` fallaba. Ahora restaura en una base desechable existente, sin necesitar ese privilegio.
 
-## Instalación limpia
+## Instalación limpia (criterio de salida de la fase)
 
-(Se completa abajo con el resultado de seguir la guía en una copia nueva del repositorio.)
+Se siguió la [guía de Windows](../installation/local-windows.md) paso a paso en un **clon nuevo del repositorio**, con un clúster de PostgreSQL y una carpeta de MediaMTX nuevos (la instalación de desarrollo, parada).
+
+- Solo se reutilizaron los binarios ya descargados de PostgreSQL y MediaMTX: equivale a extraer los zip del paso 3.
+- Los `.onnx` se copiaron, como indica el paso 6.
+
+**Primer intento: aparecieron 3 fallos reales**, que no se habían visto en desarrollo porque ese entorno tenía más cosas instaladas o configuradas:
+
+1. **El worker no arrancaba: `No module named 'scipy'`.** La asociación EPP–persona usa `scipy`, que solo estaba declarado en el extra `train`. En producción, y en la imagen Docker del worker, **no habría funcionado**. Ahora es una dependencia principal, y un test nuevo (`test_dependencies_declared.py`) compara cada import de terceros del producto con las dependencias declaradas.
+2. **MediaMTX lo rechazaba todo (`svctl doctor` → error 401).**
+   - `.env.example` traía sin comentar los marcadores de Docker, como `SV_MEDIAMTX_AUTH_KEY=<solo docker-compose>`.
+   - `dev_mediamtx.py config` reutilizaba ese valor como clave real, y su espacio rompía la URL de autorización.
+   - Correcciones:
+     - las variables de Docker van comentadas;
+     - los scripts ignoran los valores `<...>` y la clave va codificada en la URL;
+     - la configuración **rechaza cualquier secreto que siga con el valor de ejemplo**.
+3. **`test_inference.py` se saltaba** sin el extra `train` (le faltaba `onnx`): ahora `onnx` está en el grupo de desarrollo.
+
+`svctl doctor` cumplió su función: detectó el error de MediaMTX en el primer intento, con un mensaje que apuntaba a la causa.
+
+**Segundo intento, desde cero con las correcciones** (commits `e974e45` y `154be93`):
+
+| Paso de la guía | Resultado |
+|---|---|
+| 1–2 `uv sync`, `npm ci`, `npm run build` | ✅ |
+| 4 `.env` desde `.env.example` + `gen-secrets` | ✅ |
+| 5 `dev_postgres.py init` (otra carpeta de datos), `migrate`, `bootstrap` | ✅ administrador y perfil por defecto creados |
+| 7 `dev_mediamtx.py config` | ✅ modo `http` |
+| 8 API + MediaMTX + worker; `svctl doctor` | ✅ 0 errores (solo avisos esperados: entorno de desarrollo, contraseña inicial en `.env`) |
+| Web servida por la API, login, alta de una cámara RTSP H.264 desde la UI | ✅ |
+| Monitor: vídeo **WebRTC 1920×1080 autorizado con el token de la sesión** | ✅ primera imagen en 1,8 s; superposición en vivo con 3 personas |
+| Análisis | ✅ cámara `streaming`, 109 fotogramas analizados, 0 errores de inferencia |
+| Auditoría | ✅ `media.read_granted`, `camera.created`, `auth.login`… |
+| «Mi cuenta» › cambiar la contraseña | ✅ cierra la sesión; la contraseña antigua se rechaza y la nueva entra |
+| Quitar `SV_BOOTSTRAP_ADMIN_PASSWORD` → `svctl doctor` | ✅ desaparece el aviso |
+| «Verificación del desarrollo» (`check.py`) en la copia limpia | ✅ **155 tests pasados, 0 saltados**; ruff, arquitectura, `alembic check`, licencias, API al día y web |
 
 ## Limitaciones
 
