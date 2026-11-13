@@ -70,6 +70,29 @@ class YoloDataset:
         return x, target
 
 
+def gpu_temperature() -> int | None:
+    import subprocess
+
+    try:
+        out = subprocess.run(["nvidia-smi", "--query-gpu=temperature.gpu", "--format=csv,noheader,nounits"],
+                             capture_output=True, text=True, timeout=5)
+        return int(out.stdout.strip().splitlines()[0])
+    except Exception:
+        return None
+
+
+def cool_down(max_temp: int) -> None:
+    """Protección térmica para portátiles: pausa si la GPU supera ``max_temp`` °C."""
+    t = gpu_temperature()
+    waited = 0
+    while t is not None and t >= max_temp and waited < 300:
+        if waited == 0:
+            print(json.dumps({"thermal_pause": True, "gpu_temp_c": t}), flush=True)
+        time.sleep(10)
+        waited += 10
+        t = gpu_temperature()
+
+
 def collate(batch):
     import torch
 
@@ -122,6 +145,11 @@ def main() -> int:
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--max-train-images", type=int, default=0, help="0 = todas (solo para pruebas rápidas)")
+    ap.add_argument("--resume", action="store_true", help="reanuda EXACTAMENTE desde <out>/last.pt")
+    ap.add_argument("--init-from", type=Path, default=None,
+                    help="inicializa los pesos desde un checkpoint save_pretrained (continuación aproximada)")
+    ap.add_argument("--max-gpu-temp", type=int, default=87,
+                    help="si la GPU supera esta temperatura (°C) se pausa entre lotes hasta enfriar")
     a = ap.parse_args()
 
     if not (a.data / "ATTRIBUTION.md").exists() or not (a.data / "data.yaml").exists():
@@ -140,9 +168,11 @@ def main() -> int:
     if a.max_train_images:
         train_items = train_items[: a.max_train_images]
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    source = str(a.init_from) if a.init_from else a.base
     model = AutoModelForObjectDetection.from_pretrained(
-        a.base, revision=a.base_revision, num_labels=len(names), ignore_mismatched_sizes=True,
-        id2label=dict(enumerate(names)), label2id={n: i for i, n in enumerate(names)}).to(device)
+        source, revision=None if a.init_from else a.base_revision, num_labels=len(names),
+        ignore_mismatched_sizes=True, id2label=dict(enumerate(names)),
+        label2id={n: i for i, n in enumerate(names)}).to(device)
 
     backbone = [p for n, p in model.named_parameters() if "backbone" in n]
     rest = [p for n, p in model.named_parameters() if "backbone" not in n]
@@ -162,13 +192,35 @@ def main() -> int:
            "images": {"train": len(train_items), "val": len(val_items), "test": len(test_items)},
            "attribution": (a.data / "ATTRIBUTION.md").read_text(encoding="utf-8"), "epochs": []}
     best = -1.0
+    start_epoch = 1
+    last_ckpt = a.out / "last.pt"
+    if a.init_from:
+        run["initialized_from"] = str(a.init_from)
+    if a.resume:
+        if not last_ckpt.exists():
+            sys.exit(f"--resume: no existe {last_ckpt}")
+        ck = torch.load(last_ckpt, map_location="cpu", weights_only=False)  # RNG debe quedar en CPU
+        model.load_state_dict(ck["model"])
+        opt.load_state_dict(ck["optimizer"])
+        sched.load_state_dict(ck["scheduler"])
+        scaler.load_state_dict(ck["scaler"])
+        random.setstate(ck["rng"]["python"])
+        np.random.set_state(ck["rng"]["numpy"])
+        torch.set_rng_state(ck["rng"]["torch"])
+        if device.type == "cuda" and ck["rng"].get("cuda") is not None:
+            torch.cuda.set_rng_state(ck["rng"]["cuda"])
+        best, start_epoch, run = ck["best"], ck["epoch"] + 1, ck["run"]
+        run.setdefault("resumed_at_epochs", []).append(start_epoch)
+        print(f"reanudando en la época {start_epoch} (mejor val mAP50:95 = {best:.4f})", flush=True)
     gts_val = ground_truth(val_items)
-    for epoch in range(1, a.epochs + 1):
+    for epoch in range(start_epoch, a.epochs + 1):
         model.train()
         t0 = time.time()
         total, n = 0.0, 0
         opt.zero_grad()
         for step, (x, targets) in enumerate(tl, 1):
+            if step % 20 == 0:
+                cool_down(a.max_gpu_temp)
             targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
             with torch.autocast(device_type=device.type, dtype=torch.float16, enabled=device.type == "cuda"):
                 loss = model(pixel_values=x.to(device), labels=targets).loss / a.accum
@@ -185,7 +237,8 @@ def main() -> int:
             n += 1
         metrics = evaluate_detections(predict(model, vl, device, len(names)), gts_val, names)
         rec = {"epoch": epoch, "train_loss": total / max(1, n), "val_mAP50": metrics["mAP50"],
-               "val_mAP50_95": metrics["mAP50_95"], "seconds": round(time.time() - t0, 1)}
+               "val_mAP50_95": metrics["mAP50_95"], "seconds": round(time.time() - t0, 1),
+               "gpu_temp_c": gpu_temperature()}
         run["epochs"].append(rec)
         print(json.dumps(rec), flush=True)
         if metrics["mAP50_95"] > best:
@@ -193,6 +246,14 @@ def main() -> int:
             model.save_pretrained(a.out / "best")
             run["best"] = {"epoch": epoch, "val": metrics}
         (a.out / "run.json").write_text(json.dumps(run, indent=1, ensure_ascii=False), encoding="utf-8")
+        # Checkpoint completo (escritura atómica): un corte de luz no pierde más de una época.
+        tmp = last_ckpt.with_suffix(".tmp")
+        torch.save({"model": model.state_dict(), "optimizer": opt.state_dict(), "scheduler": sched.state_dict(),
+                    "scaler": scaler.state_dict(), "epoch": epoch, "best": best, "run": run,
+                    "rng": {"python": random.getstate(), "numpy": np.random.get_state(),
+                            "torch": torch.get_rng_state(),
+                            "cuda": torch.cuda.get_rng_state() if device.type == "cuda" else None}}, tmp)
+        tmp.replace(last_ckpt)
 
     # Evaluación final ÚNICA sobre test con el mejor checkpoint elegido en val.
     if test_items:

@@ -1,0 +1,49 @@
+name: rtdetr-v2-r18-ppe-pilot
+version: '1'
+architecture: rtdetr
+artifact: model.onnx
+sha256: 9bb6aab1d0a898fbee3e32f076414539c984fac30fcc5ddfd59ee4a8a2cd17cc
+input_size:
+- 640
+- 640
+labels:
+- person
+- helmet
+- no_helmet
+- safety_vest
+- no_vest
+- safety_boot
+- no_safety_boot
+- gloves
+- no_gloves
+- goggles
+- no_goggles
+class_map:
+  person: person
+  helmet: helmet
+  no_helmet: no_helmet
+  safety_vest: safety_vest
+  no_vest: no_vest
+  safety_boot: safety_boot
+  gloves: gloves
+  no_gloves: no_gloves
+  goggles: goggles
+  no_goggles: no_goggles
+score_threshold: 0.4
+params:
+  input_name: pixel_values
+  logits_name: logits
+  boxes_name: pred_boxes
+  activation: sigmoid
+license: Apache-2.0 (arquitectura y código)
+weights_license: 'Derivado: pesos base Apache-2.0 (PekingU/rtdetr_v2_r18vd) afinados
+  con datos CC BY 4.0 (Ultralytics Construction-PPE) — atribución obligatoria'
+weights_source: entrenamiento local ml/training/runs/ppe-v1-pilot-cont (mejor época
+  16 por val) inicializado desde ml/training/runs/ppe-v1-pilot (época 9); base PekingU/rtdetr_v2_r18vd@5650961749fa93567c0d46fc7f43ea4f9e914107
+dataset_ref: svds split ppe_v1 (ultralytics_construction_ppe 2026-11; 547/69/69; sin
+  no_safety_boot)
+notes: 'Exportado con torch 2.14.1+cu130, opset 17; verificación sobre 67 detecciones
+  ONNX vs PyTorch: max |Δ| = 3.7e-05. PILOTO: no_safety_boot excluida del class_map
+  (0 ejemplos de entrenamiento; pendiente corrección no_boots_relabel_v1). Datos de
+  un único publicador, parte sintéticos, dominio construcción: NO validado con imágenes
+  reales del despliegue.'
