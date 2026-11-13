@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Entorno
+.env
+
+# Datos: nunca se versionan (originales, copias de trabajo, salidas)
+ml/datasets/raw/
+ml/datasets/work/
+ml/datasets/exports/
+ml/datasets/reports/samples/
+*.onnx
+*.pt
+
+# Node
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+

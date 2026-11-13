@@ -1,0 +1,20 @@
+id: roboflow_ppe_sheperd_v0
+name: Roboflow Universe gimuuniud/ppe_sheperd_v0
+version: "unknown"
+license:
+  name: Desconocida
+  evidence_url: https://universe.roboflow.com/gimuuniud/ppe_sheperd_v0
+  status: unverified
+  commercial_use: unknown
+  notes: >
+    La página devolvió HTTP 403 a la consulta automática y no fue posible leer la licencia
+    (2026-11-12). En Roboflow Universe la licencia la elige quien sube el proyecto y las
+    imágenes pueden proceder de terceros. Verificación manual pendiente.
+provenance:
+  publisher: gimuuniud (Roboflow Universe)
+  homepage: https://universe.roboflow.com/gimuuniud/ppe_sheperd_v0
+allowed_purposes: []
+class_mapping: {}
+known_limitations:
+  - "Licencia, clases y volumen sin verificar."
+  - "La descarga desde Roboflow requiere cuenta/API key: la realiza el usuario, no el sistema."

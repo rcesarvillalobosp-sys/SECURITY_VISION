@@ -1,0 +1,39 @@
+id: cognisightlabs_ppe_detection
+name: Hugging Face cognisightlabs/PPE_Detection
+version: "hf-main"
+license:
+  name: Creative Commons Attribution 4.0 International (declarada)
+  spdx: CC-BY-4.0
+  url: https://creativecommons.org/licenses/by/4.0/
+  evidence_url: https://huggingface.co/datasets/cognisightlabs/PPE_Detection
+  verified_on: 2026-11-12
+  status: unclear_provenance
+  commercial_use: unknown
+  attribution_required: true
+  notes: >
+    La tarjeta declara cc-by-4.0, pero indica que es un duplicado de 51ddhesh/PPE_Detection,
+    que tampoco documenta el origen de las imágenes. Un tercero no puede licenciar imágenes de
+    las que no es titular: hasta conocer el origen, el uso comercial es incierto.
+provenance:
+  publisher: cognisightlabs (Hugging Face)
+  homepage: https://huggingface.co/datasets/cognisightlabs/PPE_Detection
+  upstream: ["https://huggingface.co/datasets/51ddhesh/PPE_Detection"]
+  notes: "Origen de imágenes no documentado. Tamaño ~668 MB, 16.014 objetos."
+allowed_purposes: []
+class_mapping:
+  Vest:
+    target: safety_vest
+    status: needs_visual_review
+    reason: "Verificar que son chalecos de alta visibilidad."
+  Safety Shoe:
+    target: safety_boot
+    status: needs_visual_review
+    reason: "Verificar visualmente que es calzado de protección."
+  Mask: {status: excluded, reason: "Mascarilla: fuera de la taxonomía inicial."}
+  Helmet: {target: helmet, status: direct}
+  Goggles: {target: goggles, status: direct}
+  Gloves: {target: gloves, status: direct}
+known_limitations:
+  - "No anota personas: no sirve para asociar EPP a persona sin re-etiquetado."
+  - "Sin clases negativas (no_*)."
+  - "Procedencia de imágenes desconocida: BLOQUEADO hasta aclararla con el publicador."

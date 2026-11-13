@@ -1,0 +1,53 @@
+id: sh17
+name: SH17 — Safety and Health PPE dataset
+version: "2024"
+license:
+  name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+  spdx: CC-BY-NC-SA-4.0
+  url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+  evidence_url: https://github.com/ahmadmughees/SH17dataset
+  verified_on: 2026-11-12
+  status: verified
+  commercial_use: forbidden
+  share_alike: true
+  attribution_required: true
+  attribution_text: >
+    H. M. Ahmad and A. Rahimi, "SH17: A dataset for human safety and personal protective
+    equipment detection in manufacturing industry", Journal of Safety Science and Resilience, 2024,
+    doi:10.1016/j.jnlssr.2024.09.002
+  notes: >
+    No comercial y share-alike. El README limita el uso a fines educativos, de investigación y
+    análisis. Las imágenes provienen de Pexels, cuyos términos también aplican.
+provenance:
+  publisher: Hafiz Mughees Ahmad, Afshin Rahimi
+  homepage: https://github.com/ahmadmughees/SH17dataset
+  upstream:
+    - https://www.kaggle.com/datasets/mugheesahmad/sh17-dataset-for-ppe-detection
+    - https://www.pexels.com
+  image_origin: "Pexels"
+# Producto comercial: no se autoriza ningún uso. Un uso académico requeriría un proyecto separado.
+allowed_purposes: []
+class_mapping:
+  Person: {target: person, status: direct}
+  Helmet: {target: helmet, status: direct}
+  Safety-vest: {target: safety_vest, status: direct}
+  Gloves: {target: gloves, status: direct}
+  Glasses:
+    target: goggles
+    status: needs_visual_review
+    reason: "Incluye gafas comunes; no equivalen a gafas de protección."
+  Shoes: {status: excluded, reason: "Calzado genérico: NO equivale a safety_boot."}
+  Foot: {status: excluded, reason: "Parte del cuerpo, no EPP."}
+  Head: {status: excluded, reason: "Parte del cuerpo."}
+  Face: {status: excluded, reason: "Parte del cuerpo; dato biométrico sensible."}
+  Ear: {status: excluded, reason: "Parte del cuerpo."}
+  Hands: {status: excluded, reason: "Parte del cuerpo."}
+  Earmuffs: {status: excluded, reason: "Fuera de la taxonomía inicial."}
+  Face-mask-medical: {status: excluded, reason: "Fuera de la taxonomía inicial."}
+  Face-guard: {status: excluded, reason: "Fuera de la taxonomía inicial."}
+  Tools: {status: excluded, reason: "No es EPP."}
+  Medical-suit: {status: excluded, reason: "Fuera de la taxonomía inicial."}
+  Safety-suit: {status: excluded, reason: "Fuera de la taxonomía inicial."}
+known_limitations:
+  - "Licencia no comercial: EXCLUIDO del producto."
+  - "La clase 'Shoes' no distingue calzado de protección."

@@ -1,0 +1,1270 @@
+{
+ "correction_id": "no_boots_relabel_v1",
+ "source_id": "ultralytics_construction_ppe",
+ "source_version": "2026-11",
+ "scope_class": "no_boots",
+ "created_at": "2026-11-13T00:28:12.899550+00:00",
+ "images": {
+  "construction-ppe__images__train__source-012007571544d108ad62099e53b8a827.jpg": {
+   "rel_path": "construction-ppe/images/train/source-012007571544d108ad62099e53b8a827.jpg",
+   "sha256": "c01f98b97d0d9ca25253424259db6df3f99e3a81988c79d4135599758ad0f8fc"
+  },
+  "construction-ppe__images__train__source-0736c04fa3c777e89006eff256fe0a81.jpg": {
+   "rel_path": "construction-ppe/images/train/source-0736c04fa3c777e89006eff256fe0a81.jpg",
+   "sha256": "78372ce000f6e9e6d75ed98af7111d65b6e48572d365467e12c3759240f2f691"
+  },
+  "construction-ppe__images__train__source-0c7d19330f0099fccf0318900a24806c.jpg": {
+   "rel_path": "construction-ppe/images/train/source-0c7d19330f0099fccf0318900a24806c.jpg",
+   "sha256": "f611ae8f631f9d6df090e10c8df9d9330b8c164e6dc1db1053082a868fa17d10"
+  },
+  "construction-ppe__images__train__source-122e66278827dc8846c75fb8c7a7a01b.jpg": {
+   "rel_path": "construction-ppe/images/train/source-122e66278827dc8846c75fb8c7a7a01b.jpg",
+   "sha256": "e11094d72174a6d973190f835e5c3767b87e2aa1a5255195a015a0b1eb104266"
+  },
+  "construction-ppe__images__train__source-14bd7cec4f45ba3526e8219b69f10d7a.jpg": {
+   "rel_path": "construction-ppe/images/train/source-14bd7cec4f45ba3526e8219b69f10d7a.jpg",
+   "sha256": "29dbc094ca7bbb3c9d755017d2eada9230aabfffcb86f7247ed00cf87660607a"
+  },
+  "construction-ppe__images__train__source-170f0215ae2fb7f1bc4b26a6895fd581.jpg": {
+   "rel_path": "construction-ppe/images/train/source-170f0215ae2fb7f1bc4b26a6895fd581.jpg",
+   "sha256": "937bc9337aa3887ef68e44d9bc8810116b95b0d5e74557efd19dadab76030b2d"
+  },
+  "construction-ppe__images__train__source-1c8626623e2e2e48edca6fc399cd4823.jpg": {
+   "rel_path": "construction-ppe/images/train/source-1c8626623e2e2e48edca6fc399cd4823.jpg",
+   "sha256": "96ac7bbcaf3d8f4c9efa60d6e2a1cf4870dc2eb11ec6ed6affd8fa3b5bf634a8"
+  },
+  "construction-ppe__images__train__source-1cf7cb3866d943a954bc8e591591e519.jpg": {
+   "rel_path": "construction-ppe/images/train/source-1cf7cb3866d943a954bc8e591591e519.jpg",
+   "sha256": "aae9b689baed494beee5f39a239ece2c640f223ae3931e519c36e3e9d21f50bc"
+  },
+  "construction-ppe__images__train__source-27176328432a33d9e94c4f2b9e5493ce.jpg": {
+   "rel_path": "construction-ppe/images/train/source-27176328432a33d9e94c4f2b9e5493ce.jpg",
+   "sha256": "9d28d6d0679bc8d8752989d0dd02f6863a47ec0bf8042fd40fdc0ae162badc76"
+  },
+  "construction-ppe__images__train__source-29a54f6e5e66462bbcbec90273e92a51.jpg": {
+   "rel_path": "construction-ppe/images/train/source-29a54f6e5e66462bbcbec90273e92a51.jpg",
+   "sha256": "3cf4fd51597392d0123e5afab93afaade174f6f09bf1b5d5699b29b3628e9916"
+  },
+  "construction-ppe__images__train__source-2a25de377f5cf19de1c739d785e6e86f.jpg": {
+   "rel_path": "construction-ppe/images/train/source-2a25de377f5cf19de1c739d785e6e86f.jpg",
+   "sha256": "a8858072728bb0a5f4a9af7d1be192115223cfff36ae86f21663584c80de96e0"
+  },
+  "construction-ppe__images__train__source-2edf4fdf4d031044f1130ef13ef129cc.jpg": {
+   "rel_path": "construction-ppe/images/train/source-2edf4fdf4d031044f1130ef13ef129cc.jpg",
+   "sha256": "67a425097a86fe2e7130c9b0a9970bd2a9c989e14169b94316e0fb803b6cba7e"
+  },
+  "construction-ppe__images__train__source-3195fd14699725afdd2906e7293cc3c6.jpg": {
+   "rel_path": "construction-ppe/images/train/source-3195fd14699725afdd2906e7293cc3c6.jpg",
+   "sha256": "6446ef2abf84f68e940efc8d97782e8fb62ce32fd583ba4b53e41ddd54acef71"
+  },
+  "construction-ppe__images__train__source-3383996b96e48e373b1850ee643584ba.jpg": {
+   "rel_path": "construction-ppe/images/train/source-3383996b96e48e373b1850ee643584ba.jpg",
+   "sha256": "36d599593bad700d28ffdaa249ae27613625eb92d31b43a298b76b66d7fd8120"
+  },
+  "construction-ppe__images__train__source-3403f252ac25e929eef3aa6978ad32b4.jpg": {
+   "rel_path": "construction-ppe/images/train/source-3403f252ac25e929eef3aa6978ad32b4.jpg",
+   "sha256": "dcf0dabaa62c1e6260a4d2cc5ceeb21dde67840b7e0e1aebc78b8ce1a85d7127"
+  },
+  "construction-ppe__images__train__source-3bd82a5b9825c418d3fc978d4f3fb443.jpg": {
+   "rel_path": "construction-ppe/images/train/source-3bd82a5b9825c418d3fc978d4f3fb443.jpg",
+   "sha256": "cd60cc9d247a4a42f69ddc25da4f338700f7515a7a04b7c90966d76c7d6a7bfe"
+  },
+  "construction-ppe__images__train__source-449d7c49b40597a87fd789730bc14f43.jpg": {
+   "rel_path": "construction-ppe/images/train/source-449d7c49b40597a87fd789730bc14f43.jpg",
+   "sha256": "3b057f416e2d79699c1ecc0288f020340dd490598bc48515a3d5b9e7ffaee222"
+  },
+  "construction-ppe__images__train__source-46bf35b89356017177174a7dd0b35186.jpg": {
+   "rel_path": "construction-ppe/images/train/source-46bf35b89356017177174a7dd0b35186.jpg",
+   "sha256": "328cdf9c78b46db58f98f7aaedf0dfa395ec371ae73eb9a569d1b0bf1009e4dc"
+  },
+  "construction-ppe__images__train__source-473c9faf0e4f5803ad615ecc681b2a2e.jpg": {
+   "rel_path": "construction-ppe/images/train/source-473c9faf0e4f5803ad615ecc681b2a2e.jpg",
+   "sha256": "8026eb59c9f84122de489b1f201562a4da6c43a6b17075dd012b5b92bc57791a"
+  },
+  "construction-ppe__images__train__source-47cec49260025d5f8072cd082ab1d015.jpg": {
+   "rel_path": "construction-ppe/images/train/source-47cec49260025d5f8072cd082ab1d015.jpg",
+   "sha256": "e41b21052e3b563597f9d6c950566c9af31db05094f6f4afce3f8ed40810c4bd"
+  },
+  "construction-ppe__images__train__source-48e807e0a9dac5ff23128d8ebe6406ab.jpg": {
+   "rel_path": "construction-ppe/images/train/source-48e807e0a9dac5ff23128d8ebe6406ab.jpg",
+   "sha256": "2fe7f8eaf0b7c3ab7345c131a1117e244c6b37cd9f1a0afa7da6b31fd6b8e295"
+  },
+  "construction-ppe__images__train__source-4c8b02d254dd8190897f4ce0e54ef9f7.jpg": {
+   "rel_path": "construction-ppe/images/train/source-4c8b02d254dd8190897f4ce0e54ef9f7.jpg",
+   "sha256": "5d52b9d29b5ff25bdaee3deef1072959bffb862dfaf3ca15995d3cbcf8f356b9"
+  },
+  "construction-ppe__images__train__source-4d6af6d0fce09bd9d6228c8525c2f2c5.jpg": {
+   "rel_path": "construction-ppe/images/train/source-4d6af6d0fce09bd9d6228c8525c2f2c5.jpg",
+   "sha256": "8d44c5c0ae2a485fbe873bd97c1a38ac53975d0d4c7f95fcdb67d892266506ea"
+  },
+  "construction-ppe__images__train__source-4e950f5884ceede2ad9753aaa490ecae.jpg": {
+   "rel_path": "construction-ppe/images/train/source-4e950f5884ceede2ad9753aaa490ecae.jpg",
+   "sha256": "f93414674d2ff0a517e00ef01ab60534f2aca25969f29d5594de71022e268c08"
+  },
+  "construction-ppe__images__train__source-5245a69eda05ca8afade22f08bfbdce7.jpg": {
+   "rel_path": "construction-ppe/images/train/source-5245a69eda05ca8afade22f08bfbdce7.jpg",
+   "sha256": "25f7ea4da427da0555e51aac883deb01e2a64ba05bbe662c80d68c44a3531f19"
+  },
+  "construction-ppe__images__train__source-528674ae692e3fb5d0a35692aca2b9cd.jpg": {
+   "rel_path": "construction-ppe/images/train/source-528674ae692e3fb5d0a35692aca2b9cd.jpg",
+   "sha256": "b8a9163de947694fbac61739a71eeafafb2cbc8fede48b000cff487680ff1e93"
+  },
+  "construction-ppe__images__train__source-5aef8f03a221e1d0f7dc1df4501dda5e.jpg": {
+   "rel_path": "construction-ppe/images/train/source-5aef8f03a221e1d0f7dc1df4501dda5e.jpg",
+   "sha256": "e530a0c49ac3db7a37da8321e3bce5259ad09929b5efb9df4e1edf2013caf759"
+  },
+  "construction-ppe__images__train__source-5b6157b76d4cbbf7c549b77632814ace.jpg": {
+   "rel_path": "construction-ppe/images/train/source-5b6157b76d4cbbf7c549b77632814ace.jpg",
+   "sha256": "8a758cfcb32192384fb98529171703a61f2fd7c82800f59c5d2fcda4f2ae1b54"
+  },
+  "construction-ppe__images__train__source-6b6114dea7ecbe5997f1f0393824508b.jpg": {
+   "rel_path": "construction-ppe/images/train/source-6b6114dea7ecbe5997f1f0393824508b.jpg",
+   "sha256": "4ec160a6b2e1ff58b75bdcae78fad16537b640584e2f411ca70cd5a79fb73fc5"
+  },
+  "construction-ppe__images__train__source-76c5536c698f0876c67f76c14c3c2e96.jpg": {
+   "rel_path": "construction-ppe/images/train/source-76c5536c698f0876c67f76c14c3c2e96.jpg",
+   "sha256": "49b5c327196e0e427a92601e7e7ec3f5c52ad745079f28a73ebf828eac7b8963"
+  },
+  "construction-ppe__images__train__source-780e7e97f694e83abcc1b08020b98069.jpg": {
+   "rel_path": "construction-ppe/images/train/source-780e7e97f694e83abcc1b08020b98069.jpg",
+   "sha256": "89bdabec77dbcf50b8f6b985fc2a05105249a0f8d1f29b59b2b0c7f541e4c530"
+  },
+  "construction-ppe__images__train__source-8c4bd5367bc76d76cd877bc769fbd70a.jpg": {
+   "rel_path": "construction-ppe/images/train/source-8c4bd5367bc76d76cd877bc769fbd70a.jpg",
+   "sha256": "908f6b6c3e07fc3108db38e5b3eb13b0a1332302b19708b536713e37f34145a4"
+  },
+  "construction-ppe__images__train__source-8ead761447ba33e51dc962d76ef2e676.jpg": {
+   "rel_path": "construction-ppe/images/train/source-8ead761447ba33e51dc962d76ef2e676.jpg",
+   "sha256": "c167ec6777fdf7abfcc5d34d7f21804db987b2e6e1b74d380ea92f6d4f46f8e7"
+  },
+  "construction-ppe__images__train__source-93168c9434209cfd03d41783e32cd24a.jpg": {
+   "rel_path": "construction-ppe/images/train/source-93168c9434209cfd03d41783e32cd24a.jpg",
+   "sha256": "a9b7d86c249486f60e95d9b20cf1efef585d8d1111eff254fa241d9e04b1ebbb"
+  },
+  "construction-ppe__images__train__source-94e6c9c9971c3352b61271256f014daf.jpg": {
+   "rel_path": "construction-ppe/images/train/source-94e6c9c9971c3352b61271256f014daf.jpg",
+   "sha256": "17631f85c5c84500996243448c9151c793ef86f8483a899b8a8da5a8a2315a7b"
+  },
+  "construction-ppe__images__train__source-a1ece465e78a1f9c1cd68d6b57d5a8a2.jpg": {
+   "rel_path": "construction-ppe/images/train/source-a1ece465e78a1f9c1cd68d6b57d5a8a2.jpg",
+   "sha256": "973f46718739ecb41d512961366f6c09abc8343a8322d2449e0ec2fb6d8587df"
+  },
+  "construction-ppe__images__train__source-a28a006708943ec327e46b51d2fd3da4.jpg": {
+   "rel_path": "construction-ppe/images/train/source-a28a006708943ec327e46b51d2fd3da4.jpg",
+   "sha256": "62e8500c57e5da7e9c29c6a5e6b3efd21d01ae733477fb5cad8a2f587fa0aedb"
+  },
+  "construction-ppe__images__train__source-a50e703435d59ea2b4c4177dfda28ae4.jpg": {
+   "rel_path": "construction-ppe/images/train/source-a50e703435d59ea2b4c4177dfda28ae4.jpg",
+   "sha256": "0c0d91909c0f4d41ce9731936a2bfd9be4c5471f71b76849407dc99fe42ffac0"
+  },
+  "construction-ppe__images__train__source-a917bb6d3c3f80d335915770de6c5612.jpg": {
+   "rel_path": "construction-ppe/images/train/source-a917bb6d3c3f80d335915770de6c5612.jpg",
+   "sha256": "2c15637ce4f41d7a59de23d925749c880d764c367db6a183b30700ee3ac85bb8"
+  },
+  "construction-ppe__images__train__source-a9654697f4739d0834ce644ae8a0ca79.jpg": {
+   "rel_path": "construction-ppe/images/train/source-a9654697f4739d0834ce644ae8a0ca79.jpg",
+   "sha256": "c5a55dfd48c3578f71fff79dbdd1939659d83693bab5e76ffb0d2dbd73af1a67"
+  },
+  "construction-ppe__images__train__source-b00988e2aaa1dbda2f1f956b137afc0e.jpg": {
+   "rel_path": "construction-ppe/images/train/source-b00988e2aaa1dbda2f1f956b137afc0e.jpg",
+   "sha256": "9abe55278ee4ebe80063916cbe2088643180ed11a97dfb10dc8d32e7815a3f24"
+  },
+  "construction-ppe__images__train__source-b1fefd20600e005c88cb47ae2e41b8a6.jpg": {
+   "rel_path": "construction-ppe/images/train/source-b1fefd20600e005c88cb47ae2e41b8a6.jpg",
+   "sha256": "624e1b4438c9f9187c5326e1b85e022aeadbff5209b49f59108d93e574efa60c"
+  },
+  "construction-ppe__images__train__source-b389d7e14d9086cef980ae814b3c2bb1.jpg": {
+   "rel_path": "construction-ppe/images/train/source-b389d7e14d9086cef980ae814b3c2bb1.jpg",
+   "sha256": "f98abd62ff0ac7ab8d732b747ff9b5ebc88fa1b9de71ceb58180d18c7a823a37"
+  },
+  "construction-ppe__images__train__source-b712bf5e26b27b52d69a8b0274708cfc.jpg": {
+   "rel_path": "construction-ppe/images/train/source-b712bf5e26b27b52d69a8b0274708cfc.jpg",
+   "sha256": "bf500489b771332820f6086a5b94c31f08c6b1f13df0cb87f3d6c71631dd080e"
+  },
+  "construction-ppe__images__train__source-b7365710e3f2d090a30fae7678bef407.jpg": {
+   "rel_path": "construction-ppe/images/train/source-b7365710e3f2d090a30fae7678bef407.jpg",
+   "sha256": "ed16ab148a13f2c106eaee6dcc2318f1f9de41cd2c8195f39608e245b9e8b4ad"
+  },
+  "construction-ppe__images__train__source-ba3aa5d1715142e5e962c3376ceca1a6.jpg": {
+   "rel_path": "construction-ppe/images/train/source-ba3aa5d1715142e5e962c3376ceca1a6.jpg",
+   "sha256": "c4ec226a0d4b289b28c8278259768e3b6813a58b54bd29b2c2ca252968a95d1d"
+  },
+  "construction-ppe__images__train__source-c2733b5e92b8e910dc4688e6fd3c51fc.jpg": {
+   "rel_path": "construction-ppe/images/train/source-c2733b5e92b8e910dc4688e6fd3c51fc.jpg",
+   "sha256": "e1249bf75ecb5d46b1dec1be1a61d0040dbed8fed1a8ec71ed1d117b22d569d8"
+  },
+  "construction-ppe__images__train__source-c715790ce68e51f46da3fef5c618486a.jpg": {
+   "rel_path": "construction-ppe/images/train/source-c715790ce68e51f46da3fef5c618486a.jpg",
+   "sha256": "14b60296f00a3a13c557d0d003f59efc0819cc7d14b6d16899e2ad417dff1dd3"
+  },
+  "construction-ppe__images__train__source-d4bc2317d648708109fa99ccee349f2b.jpg": {
+   "rel_path": "construction-ppe/images/train/source-d4bc2317d648708109fa99ccee349f2b.jpg",
+   "sha256": "1feb690c44151d259c539e7eac0ff415577041fcc778f2a17de0f9a2531aeaac"
+  },
+  "construction-ppe__images__train__source-d9f9c995d964d8a06df134b5637ad554.jpg": {
+   "rel_path": "construction-ppe/images/train/source-d9f9c995d964d8a06df134b5637ad554.jpg",
+   "sha256": "79d3a508bca0e5cd39e579fab30a51ab85f02abfb489d5fab58ac97ed044ef50"
+  },
+  "construction-ppe__images__train__source-db390cc643102a3fb2fb87110f4f2d39.jpg": {
+   "rel_path": "construction-ppe/images/train/source-db390cc643102a3fb2fb87110f4f2d39.jpg",
+   "sha256": "b29fc4c43c0b6cd7f02369bd103f8b18be8efd1cf8d034b46b61a45620dce5fe"
+  },
+  "construction-ppe__images__train__source-dc125a4ffedb396482636c744abd555e.jpg": {
+   "rel_path": "construction-ppe/images/train/source-dc125a4ffedb396482636c744abd555e.jpg",
+   "sha256": "1a5623c41287384666b3a8c8096fd254e0a4f6d8ff1f2f29d8e0e24d73ec4025"
+  },
+  "construction-ppe__images__train__source-dc39994159adfb8e9c6bdafba4841c4b.jpg": {
+   "rel_path": "construction-ppe/images/train/source-dc39994159adfb8e9c6bdafba4841c4b.jpg",
+   "sha256": "86e055d079144491712733bb98100bb4ca9b813a905471d8ffb2bc7082c741ee"
+  },
+  "construction-ppe__images__train__source-dc88190bce7892a4d55146b602f24288.jpg": {
+   "rel_path": "construction-ppe/images/train/source-dc88190bce7892a4d55146b602f24288.jpg",
+   "sha256": "85d5f7d94b648c0a98b5eb5233bcc6e4f1ee549f916ec3ba184f4a7a94305808"
+  },
+  "construction-ppe__images__train__source-e0cec4c78375ee55bfb9350a4d1a385e.jpg": {
+   "rel_path": "construction-ppe/images/train/source-e0cec4c78375ee55bfb9350a4d1a385e.jpg",
+   "sha256": "e60b7f4d1b01ab33f1f44d5b8928e69b4d7e1003e402fca6a85db593eb469664"
+  },
+  "construction-ppe__images__train__source-e32b16f1f50be861a165bdfdfcf4c520.jpg": {
+   "rel_path": "construction-ppe/images/train/source-e32b16f1f50be861a165bdfdfcf4c520.jpg",
+   "sha256": "03d48a2a6ae4e193f8f6368d85018a175014129f31ed36573a793cd5c4b774c2"
+  },
+  "construction-ppe__images__train__source-e459eb61dde6db49ddc16578bb8ceda7.jpg": {
+   "rel_path": "construction-ppe/images/train/source-e459eb61dde6db49ddc16578bb8ceda7.jpg",
+   "sha256": "99eae0ced01cdfeaf8f9b62aa45779fa68a3ad9cb7a4bcc0cb6b3a66a9548489"
+  },
+  "construction-ppe__images__train__source-e497834ebd715d706366646daeb2269e.jpg": {
+   "rel_path": "construction-ppe/images/train/source-e497834ebd715d706366646daeb2269e.jpg",
+   "sha256": "a9e5f1adcbe2ba51fe1ac97a576152b99dab8ffd2b1919b7d1a51e4b40d06e0a"
+  },
+  "construction-ppe__images__train__source-eabef86b2cecf0e9ffe06787e0298a38.jpg": {
+   "rel_path": "construction-ppe/images/train/source-eabef86b2cecf0e9ffe06787e0298a38.jpg",
+   "sha256": "1de04b2c00e90ab7c4fa6e01e8aa579f6b514d4255c8389121d350cec7c485ea"
+  },
+  "construction-ppe__images__train__source-efc23273c04e007083114c0f217335f0.jpg": {
+   "rel_path": "construction-ppe/images/train/source-efc23273c04e007083114c0f217335f0.jpg",
+   "sha256": "188bbd722904407ee6af5e65c2b61ab8e56949c1fba4630a3a0a7bf8b4ef4be0"
+  },
+  "construction-ppe__images__train__source-fbb201fd66f289e3ad4e6f1a71c2a282.jpg": {
+   "rel_path": "construction-ppe/images/train/source-fbb201fd66f289e3ad4e6f1a71c2a282.jpg",
+   "sha256": "e3c2b06a7e7b514394264942d94c928894b20cfd9b29e1c3377a36c1ff0a9e8e"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-001.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-001.jpg",
+   "sha256": "ce470875b92482856d6fbc0615e2a6e06ee989c975718d46ff3641647917325b"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-003.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-003.jpg",
+   "sha256": "e479dbdfa587a564e9b2757ac8b415b98c6aa706d9aaf736da00ec3bf650fa97"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-010.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-010.jpg",
+   "sha256": "e272ce74e7b6a56accd6c50492173bc42b0df35b9059df687cf2f81837b2a54a"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-014.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-014.jpg",
+   "sha256": "304462d02d7479fc9a0af15819e1c59e6921099b09eb5d7720f7a2339ba7e408"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-018.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-018.jpg",
+   "sha256": "82294a87d90728d75063da32e81ece1b1675a2033ebacd8f4fd0df205f8065ef"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-026.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-026.jpg",
+   "sha256": "90e32c1d26e6c70bbdfde45fe95cf2119fc00725a981361b0f1ecebdccee7c6f"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-028.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-028.jpg",
+   "sha256": "8cd668ec8afa0c2a41e2f5e187207f6aa057a7dc43660cb6e0db6c01e27446bb"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-036.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-036.jpg",
+   "sha256": "782271976ec1ff1217fd9d573ae49200530c58376331c61ab6bf8cf89573efc2"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-039.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-039.jpg",
+   "sha256": "428223177f0f133396a0995f04edc2264acdf4bd014580972e1de6767934c902"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-043.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-043.jpg",
+   "sha256": "c645d1ff5bf3646a1f0eb2ba8daa237ce291a619a524c250a43dac06fec3d4fd"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-045.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-045.jpg",
+   "sha256": "020ed909813d1140afa4240cf30ba07b3e3876bd7b20754ec4611842ed0689d2"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-053.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-053.jpg",
+   "sha256": "8ea9877ccdada935ccfd59686c2e99602bfb9931154bce70586e5eb764114c9a"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-054.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-054.jpg",
+   "sha256": "d540a2820b7dff2647fe8b7d4d383c00e909ecf01546353fc8ce78fa6a651f4a"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-056.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-056.jpg",
+   "sha256": "ccbd74d7e6fbde51c99e4caac1f59bd49e10aaf79ea4a8cd92ba4274946a985b"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-062.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-062.jpg",
+   "sha256": "ecaf4a4212ad0732356c787c5df70f09b3ad7ee9772f8a82ce6a4038daa98004"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-067.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-067.jpg",
+   "sha256": "1a3f2db27d1588971776fecd70cd9e38ad66b2fa5f8ddf377f101ce26ebe3def"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-068.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-068.jpg",
+   "sha256": "051e47f543b683d1ffc143210276614dac657e24099a3c9b059bfdb7d6f82769"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-070.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-070.jpg",
+   "sha256": "1fdf15662c681ec9dff3e93c3467c35fd314b42278d8f219c77eb4ead63d5c75"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-076.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-076.jpg",
+   "sha256": "f77fc6166c9bf839d3c4cce892b094b5268e3e9badf624f88c1503e83f37e1ad"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-078.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-078.jpg",
+   "sha256": "1fcff64c2e6412284520821f06a5ed3efb223128dcf1900b8da863457c055453"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-081.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-081.jpg",
+   "sha256": "d1d0736582c878fe5b84ff4eb475280607c02a9457f083df48803ef68012f683"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-082.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-082.jpg",
+   "sha256": "f2802c8761bcfe71655ea79fb757ad115bc28cf04c643c033dab440ab36929da"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-084.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-084.jpg",
+   "sha256": "7c3b954ec0e615f2610cbcf4649f5cad5db9d4df63666658226f4446ae344753"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-089.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-089.jpg",
+   "sha256": "bc3179f36525c884b31b1429bc1207cc0bc41a3934941d800a4ffe03fe4f9a88"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-090.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-090.jpg",
+   "sha256": "d228caf67fb3182ee07837b9af2602f3774a854e0277e420305183e3450fb3a7"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-103.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-103.jpg",
+   "sha256": "801be88dd29588ae7a547ca3a6272f495ef37ce9c12fe2263b55d75ed82572b2"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-104.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-104.jpg",
+   "sha256": "96ee71771b59efb3d51948435ab653151077b49f1e10f11dbe46114dfbf81b4a"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-112.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-112.jpg",
+   "sha256": "ecf401a52435760ab154344c42557c39abe86c5911cf7ef33c1d6b91c96f2ba9"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-117.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-117.jpg",
+   "sha256": "90e45ff38b435f46ae6fdabba1f3819263fe615bd7f3ca11774700b3c4decdeb"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-118.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-118.jpg",
+   "sha256": "87c374046d7e3dac208574e3ed9c4ecc5e60f56d222741cbfb8409df8b65416c"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-119.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-119.jpg",
+   "sha256": "f34dd9836f1484fdb9d6ade41cb27e826780286e287aed05c79dc7915cb6b711"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-120.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-120.jpg",
+   "sha256": "d267a7515f377e9c9e0dce50a4962ff103e9773b25133b286492da2bbfb0f370"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-126.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-126.jpg",
+   "sha256": "105505bc56236b6a34bf63e6fbfae86db7926507a0c87a7f1cd0b8d20b062b99"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-131.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-131.jpg",
+   "sha256": "721cd6739ecd26d494f6c1cd3be4ef9d1c0b318a38b9975ea87a8bdb8390e306"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-132.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-132.jpg",
+   "sha256": "69da5f40923e7d4c9155fb318c28eceadeef5247d7e2f3b64d4daf9615ac43a6"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-134.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-134.jpg",
+   "sha256": "b1ac0719ac44bc8f47b79c3d332ba18c0f404220150e3272deaa14f822a24f41"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-135.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-135.jpg",
+   "sha256": "1cc5e6df52842690fda42dd2191e7ef819e1eec04fcc7eaebb89bbc2847b4e8b"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-139.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-139.jpg",
+   "sha256": "d25f5a83df3c02583fc0054f187576c3947258a2a793838b710ce3cc08fd9544"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-140.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-140.jpg",
+   "sha256": "fdbae6ca448c9f87283eb950cacd6dfdf8509c9882fff80accc791efe40dc191"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-153.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-153.jpg",
+   "sha256": "561248c8fae43d9c11ff52f0f427fed26f3b4e1c7dae3e72effa2f3213d4a231"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-154.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-154.jpg",
+   "sha256": "07f4b4ba64f2eb2eaf12de60abf6ae7ecc0d3de68782c1f30631200e4d84cf63"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-156.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-156.jpg",
+   "sha256": "627b6dfb57c7d060cc8947245848891d196768562d0165f7cc017847ff25aedd"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-162.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-162.jpg",
+   "sha256": "e08890f7be785777cb048b61e6c6d01a88e885dc7e0091517bd50d96d53f4019"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-167.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-167.jpg",
+   "sha256": "ed8ff28a48f7f687a072ef6d5835e597ed6ddf428d58c10124951b09e97ce516"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-168.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-168.jpg",
+   "sha256": "b3e79dd7e6cc93d914625aacffdb1508bd8ebfba9a91a5ef1fa4a8a127c76dd4"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-170.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-170.jpg",
+   "sha256": "ad5df5c782db4f35c697a9b3116477d792012aa714d8699d9339d53d89204141"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-176.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-176.jpg",
+   "sha256": "96923f502c907ab804223a0cce1c8c73d2b01bf5cce8646ce95297574371996f"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-178.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-178.jpg",
+   "sha256": "670e1ccefa85c3c70c8e4b314ab9877d86af44abcdda84314ddbfad3ce5a1f62"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-181.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-181.jpg",
+   "sha256": "78d5292b3d5e4ecfa3bf6096b7bf2007a5c4b81b71cd991a7b5de67354d154d8"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-182.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-182.jpg",
+   "sha256": "6cd9efae69c7f6e0cc8c148fe6db1b542724090ae35e7c7815f8d83ffa6513fe"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-184.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-184.jpg",
+   "sha256": "cd887d5efbc8214cfe91e82a8f123ff4204a726f59f33c3e895785fe02232ba2"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-185.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-185.jpg",
+   "sha256": "89bd633ed95baa1434a68cbe7eeae6f2b161d176d296bc9f82b53c78831cf679"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-189.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-189.jpg",
+   "sha256": "fb26a44512292bfb14ab545b1299b03644573ff92f216cfc8b384f9f2164fa8e"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-190.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-190.jpg",
+   "sha256": "6a5c4dfa2dc9f44ff2465b8d6a0b0db35376bd088cd019a25a503e6044bbeb98"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-203.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-203.jpg",
+   "sha256": "98b094b211f19b2f9943feb02c6161a61819a575cf5678a4451812cc01e7be31"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-204.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-204.jpg",
+   "sha256": "cede337eceb346f87969634e3210b954315fba2928f89ecff1d7fbcb5dc48ae4"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-211.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-211.jpg",
+   "sha256": "e95352af541609c5f48a589c3c4773a2c72a2a056aed0fd444380456800be852"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-212.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-212.jpg",
+   "sha256": "4eea167c618212c27243999ecd5efd76e07b9fb330a9a3c9b8564b8588b3d4f8"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-218.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-218.jpg",
+   "sha256": "438dca4c359b8006cd144e059ccb032a0bd79ff66bf92b5ecd527446c1ef2bf0"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-219.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-219.jpg",
+   "sha256": "80044a617db7d79399f9b7926b555057c5356173ba7a9f09d56cac15e78fa26b"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-220.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-220.jpg",
+   "sha256": "3859d8cd0f49fb4d2647db0c16ad8b2716954b52da1925ffab3e445e731f0626"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-232.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-232.jpg",
+   "sha256": "a4974534758531d038a30df7d51f78bb66fdb45cc6062b9fcd33006a89db54a4"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-234.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-234.jpg",
+   "sha256": "071d6795f0fef3a4510b225dbaee38e73f547e1ba860e3ef8d49d7652c1fe930"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-253.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-253.jpg",
+   "sha256": "2487fe24f6bc569a7156dcf53a1f131e497e50bf68b4b1dec696b00902af236b"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-254.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-254.jpg",
+   "sha256": "42eddcc30a60847869b9da083ecbcea447de01e9e0aa390ea2cc32b349d5caad"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-256.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-256.jpg",
+   "sha256": "9ad240ca80771dbf0446ff512e518a0fd18995a4ab1fa2dca8daecb9ad82ad40"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-262.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-262.jpg",
+   "sha256": "8da6fc9877a010ceb1688bde691f8c51a8e47813fd8f9d52c6d8cf4f119e7537"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-267.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-267.jpg",
+   "sha256": "a8a727b0fdcb625aeb473e3a1969421afdd6fe0d8d4eeb7b11fce18e5cf06483"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-268.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-268.jpg",
+   "sha256": "a3d19e13b3424e3798bb5bac66f89bcbbbf43943d9d2428c0b803e3122778d36"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-270.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-270.jpg",
+   "sha256": "1ac31bc4d3ff5cd66111f6ad220fa8366610e5604bcb0f632e2bd8fe7b4be0e4"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-276.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-276.jpg",
+   "sha256": "75214d5d0b4d82aa4371d0c3557d0858116011eedaf1bb490fb2731b809bf818"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-278.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-278.jpg",
+   "sha256": "4c6d8ff0d088a76253f78aeadc98ce96417fc5b7f0b506321d71ea6f79e20774"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-281.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-281.jpg",
+   "sha256": "5d446fc005364a95c4c1f3fb0f72f7f8b2a6faafb89fd8680b6555a2311485ea"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-282.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-282.jpg",
+   "sha256": "0621494e85470c7938d664e59c61e6b7633833104bae4554776ea3022ee13a09"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-284.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-284.jpg",
+   "sha256": "851e3251a08298f7c18da76383c1e3bf1bb3de92d85cf736e5c9cf203ae113fe"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-290.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-290.jpg",
+   "sha256": "0068a008b72071244704cdc8ffeb422454284e5503350c3bb7d325caa380be6d"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-295.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-295.jpg",
+   "sha256": "6b73a953580544aa90587b1f241cbaa9d88cedb45c05c11c46fadbcb37ababb2"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-303.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-303.jpg",
+   "sha256": "7bd53184da52992c1c3147be800b86eaa5b0736afed4f76e0fbc224fc44a0aac"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-304.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-304.jpg",
+   "sha256": "71b6af759449ab40604b4b49ae98fe12b51a86159342fcfe5083c7ad708d8354"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-312.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-312.jpg",
+   "sha256": "4168268040c8728d2885d9e88ba09ccea221730f2331b5c97fd9cde02b68688f"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-318.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-318.jpg",
+   "sha256": "348a0f608dbcd046af4912392983cf7a99dfc46247c22d825ed17159e1a6ba65"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-319.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-319.jpg",
+   "sha256": "73cb445bd07082a619847b3ac568cb77b1e44349183cb588fd6fbdebc7d9344a"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-320.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-320.jpg",
+   "sha256": "e051aeb47707ecbbf7cee49c738b6738b7608f9f48f3eed26cea1a776ff4db00"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-331.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-331.jpg",
+   "sha256": "aac5d8e865e73af6b74668e58a0beaefa733b38b5ca4fc266f8ce01b72801723"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-332.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-332.jpg",
+   "sha256": "61c2e9098153845d04cd76d102cc845340e6791ffd862ba1da17752fa524b8cc"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-334.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-334.jpg",
+   "sha256": "07dfe16880388d119fe3846daa716574abe5344851a263eb51665341cd0a9f28"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-339.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-339.jpg",
+   "sha256": "ca336d5d01e931817a27e6e9e1f7fcaa8b35f9b1d526b5213c86ad512e830414"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-340.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-340.jpg",
+   "sha256": "a6facb4610d0d0a065381e416e05fabc6e70d628fda5f60f06595a681b816415"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-353.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-353.jpg",
+   "sha256": "3e9197f39c733b4e900627d42ffdaab4181f4a74cc3c56c93897ba1a95893270"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-354.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-354.jpg",
+   "sha256": "1764ab08450f79c13bc0d05703433dbab01e8e30e2b22af774d043385c5e4bb8"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-356.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-356.jpg",
+   "sha256": "7f69a5214f2b0670c4187647744b670a9210e3c9b08959b19890dc469179956f"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-362.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-362.jpg",
+   "sha256": "fcc53e9fb2f68314a666a334734f34110c32365f6e19336cd6910c8710a9d189"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-367.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-367.jpg",
+   "sha256": "eead88a2b603649154f9a16004b01b5d79005948794ecb7a20381f5de2a5e57b"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-368.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-368.jpg",
+   "sha256": "8f06c9ffa960141e44608cc8e0d98e310dd6abbe72b0f4b9fc48964a8c7f7e45"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-370.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-370.jpg",
+   "sha256": "d16ef5f8a8c284ef287b14384baf5a946db4b2bfc41f33c58779c135f599f615"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-376.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-376.jpg",
+   "sha256": "8e3b86f639305a3fd64f4533601405c0eef4cf25a2ea88a82bcc116d73febad1"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-378.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-378.jpg",
+   "sha256": "c04d78075e82a80e7c0c935b3898d622307c462113ecb9348cae5bac8a9b3916"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-381.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-381.jpg",
+   "sha256": "348d1f0d23896f126566394dd8f3875650f9fea31243fb02f37040b75e66364c"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-382.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-382.jpg",
+   "sha256": "e1a67d1709520ee1f543479c14f7f5e80eb570b539af46c612bc00db845940a4"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-384.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-384.jpg",
+   "sha256": "f88f11560b088152cbdcf6f5a2f9688878523774e8fbfb81f932dd97a9a0b690"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-389.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-389.jpg",
+   "sha256": "53363104b26a5a4fff2d0427282633be126f569b123b65350aac469335dc7cef"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-403.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-403.jpg",
+   "sha256": "fb95d07e0d86f60cf465d85bcfd6a33931c6a59a42ae5beb3d209919fc223a66"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-404.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-404.jpg",
+   "sha256": "010dd40dcd99b31ba8b95e2aa238a1bb256d8c4a50504199db02a26bc75f44aa"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-412.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-412.jpg",
+   "sha256": "e7057345a1620813fee2b05bd727c842a0812a50f6e1e7a720b6dc868b58d81f"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-417.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-417.jpg",
+   "sha256": "1a1347d46b26913c5c697f8b962ab7968dba38d31d47f293bacbb05f0e7969fe"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-418.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-418.jpg",
+   "sha256": "fd0d8c79740b2d3af0a2e1be41eafb538b3ec3be91ab8755c38e9685e32c5fbe"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-419.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-419.jpg",
+   "sha256": "95e74b20a106f7802dda44486671da490b69c01054f1ecf2a817907f31f151b1"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-420.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-420.jpg",
+   "sha256": "ade70aa24bc1578bfdd10f4bc822dc702462ef8f7180f2c611a84a8282a86adc"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-426.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-426.jpg",
+   "sha256": "6c3384c9738fcc55169be3e1eb63e4c11ec7e69576ca58348d4cb7788cf69fe3"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-431.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-431.jpg",
+   "sha256": "3927f1b2522c80f5a06fd4d6cca1211683fb5cec694bdb12d431c4ed4ce36564"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-432.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-432.jpg",
+   "sha256": "a63ec17c169c0c1a1c78d208daca25ba335cacfad071f43c4034b5658d25bfcb"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-434.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-434.jpg",
+   "sha256": "61b0d257314386a74f0cd643f8d7510baeec1047dea291eedf38ac4acb411ccd"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-440.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-440.jpg",
+   "sha256": "1f9ae6a6077af69e52476f112a5a17159ca6378f6c22bc8591271a99cacd5b50"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-453.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-453.jpg",
+   "sha256": "d3753fe3191427a0dbe8f6b7ae4a9542fb477eeebdfe7236bc3b9e146947370f"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-454.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-454.jpg",
+   "sha256": "2873ad2871a142053c98b93c4f98b8155c4c72132fbf64b64b54ba901900397f"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-456.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-456.jpg",
+   "sha256": "2badceb2a03c0125fef82b3c5d29d402dfa78dc19134c5119d397cce8a3983af"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-462.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-462.jpg",
+   "sha256": "43d18cc563bb79de6a47278720d24a88a12fab9e5ffd823d1c1abe3e21f32885"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-467.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-467.jpg",
+   "sha256": "057b782037e47967762d1eb9d4842174caf1309e977c3bdfc586c00ba4136a43"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-468.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-468.jpg",
+   "sha256": "6d74103e608e2345fe9e9d3e5a2df6ccd67ff568d0a410c5bc2521e112ca5753"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-470.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-470.jpg",
+   "sha256": "e60fcef03f7f075f6cfdfdac81da060d6f7a2b0d96fec1f3a6b942b421faab7c"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-476.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-476.jpg",
+   "sha256": "077da5e84ef5da88243ce65ca51c011a9a6fff7639a241baa2e5305f42d4f5d4"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-478.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-478.jpg",
+   "sha256": "d08d755984e7cc1a26e9a9607d63b5bbd4a1f48d4c63905d403b66bf0a6bab45"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-481.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-481.jpg",
+   "sha256": "565d99d5d7b80b6913bf71efce4ae74bec2da07d78ea42a8163c274953786814"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-482.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-482.jpg",
+   "sha256": "f83182dc0619d65f314221c90a13e84b2590262f138b85066819833c2f37b9aa"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-484.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-484.jpg",
+   "sha256": "0734772c371e7499822fb134dd8042f34dd1fd7bca4911c4ce09d24252e3608d"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-489.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-489.jpg",
+   "sha256": "3d2747dea2bbb5d023494fbeedb08ee76654aea017e90f5ec64e083b08b7a3f0"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-490.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-490.jpg",
+   "sha256": "5e9614384efc6869f614a7250be995e84d34649e6cef712093a1eb24e0d92402"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-504.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-504.jpg",
+   "sha256": "11c878f704e5f67794bfebb5e3252c9448e2c1823dfe6dee8bf4997044235f6f"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-512.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-512.jpg",
+   "sha256": "3a7aac312c53387e8507c3afd3b6f524a68066d029396b02671f05ee4e0497c7"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-518.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-518.jpg",
+   "sha256": "028140058b768739c951448fba6d04f58571c29d6171d633ec39c7ddfc55cb52"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-519.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-519.jpg",
+   "sha256": "865718443bc05d3e915998ec55f4f18bdba0ae6002a4f60f2992bedf7013bced"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-520.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-520.jpg",
+   "sha256": "ffd0339c5dd71d8d84dd6e087ee4b0c0aba82bcdaccc263b061090b1654a257f"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-526.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-526.jpg",
+   "sha256": "77bf8d7a722b90734accc636818f1b36e222974ec01e267eaf1f16db0a27c23f"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-531.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-531.jpg",
+   "sha256": "95fcdbb6bd95df3f388ce80290f62773f26f3ddee642f1189ba55ab63382e69e"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-532.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-532.jpg",
+   "sha256": "4478074824f0d04944be89ef798b77b586565d433e0e0ac30a78c5a6dd3ccb53"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-534.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-534.jpg",
+   "sha256": "4c297b112ae93b4571701bc9c8e2d1096b971918184d3dee98b64d073d2ff6d8"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-539.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-539.jpg",
+   "sha256": "c295d373cc5374a4e659629249310aef7a08ab1e41841cf4a019ced15f437681"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-540.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-540.jpg",
+   "sha256": "16db3b9274b54c1b88ae3a4e5f9451da46757c158edc9885336ea95a763cf1d1"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-553.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-553.jpg",
+   "sha256": "82c4eda1fab2e6e97950e2f91605c989159db62f9a6f0812d09fbc2c027b48d2"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-554.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-554.jpg",
+   "sha256": "29dd862c18c27387b50b1c7d88a567988900db617490c52f3a6fe0c854b284d5"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-555.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-555.jpg",
+   "sha256": "b753d2531d4f2d5b5b8731ab7609399535f71e69c07ba1f2de5f17d9e0ad5ac6"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-556.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-556.jpg",
+   "sha256": "aaa8eaf9837c5b2ac5df0475956b5aa6730b334c7fc0bfbd27b249c2972b4131"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-562.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-562.jpg",
+   "sha256": "a6c93301ad1a83aaae2c556a4c0dc2318caa288a97c08291639b050624e83f7c"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-567.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-567.jpg",
+   "sha256": "cb14ecf81753f2d3ff7270bf28f0c4ace7990dbe67524833c0c8537e9516ebec"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-568.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-568.jpg",
+   "sha256": "a916be0f80fdf1c0a0cc7792983e68299cf09d1fe2f6039f046f39132a01ea38"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-570.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-570.jpg",
+   "sha256": "f3f8e7a34f5869fa0c00f53d7dab682f9aa71fad335225dd4d2df867a6129041"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-576.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-576.jpg",
+   "sha256": "59efe26c9ef2030c90f486af470b0a421466ee14ba0960c070c252bfdfce9f06"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-578.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-578.jpg",
+   "sha256": "5d9023a5860d483b96070341743368c78ab9030042bb83fff24370484a17cae9"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-581.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-581.jpg",
+   "sha256": "e1b550b2bbcbd3e7137f210ac61336a5151d6f00df1803f2f7386d6658fe3910"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-582.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-582.jpg",
+   "sha256": "34f402953f976d2c4b57ac1ea2494657739c9e1b6b0643ec349c4eb7bba5cc46"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-584.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-584.jpg",
+   "sha256": "37749b15e44bceeea240e795e08097816137caa4725d5285c08405b1576b16be"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-585.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-585.jpg",
+   "sha256": "c5b6adbeadafb0a07de1bcf12aa5d33b3d4e8c0dfdab90b2c4b725b01ccf06da"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-589.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-589.jpg",
+   "sha256": "2513d33161f087d1512248be185dbe6fcc1417e3479b9fadeaee5326a42aacda"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-590.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-590.jpg",
+   "sha256": "ec803de80d5453d0abe198950a610edebd210c58a857be686487038fe27634c0"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-603.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-603.jpg",
+   "sha256": "8d30f2c510619f84c361b8a2ee9a9a22a6d32899e2871ad618e26f574619f8f9"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-604.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-604.jpg",
+   "sha256": "470cdb0f3f4b9e32c2215e797cdd741d03f05bb076599ba8517dfcc3712f5fd0"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-612.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-612.jpg",
+   "sha256": "f8f4afe59eb410bb5a98d530be176e520a06cb78b42c1deb1dbc26479410cdb7"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-617.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-617.jpg",
+   "sha256": "652a40ec83b477bb16e24eda61105fa75195e718eaaf1cd7d97d9a0508f6bab1"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-618.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-618.jpg",
+   "sha256": "db033777a939a9f8ddd9e5eb188bf30e8ff5ffa45139366f53da1f04ecf29e12"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-619.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-619.jpg",
+   "sha256": "463e0b5b9bb8fadd556717b0ac4516b3eac7b4b835761909afee14a0875bc7d4"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-620.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-620.jpg",
+   "sha256": "8e6d1e451510b57b3f46ea3fc96079f0bc69a687536db86a56b0da18f2d0eefd"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-631.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-631.jpg",
+   "sha256": "c50dae2202ba590a1fc3b107cbf4280df60eddf0bb1fb7ae0d778946f446ab10"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-632.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-632.jpg",
+   "sha256": "e1cdf0b8748d19101ae5177c757f76acdcc484e246295e91863414f4b817130b"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-634.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-634.jpg",
+   "sha256": "3d1f6a3a317e60b97aa1882497ac5d2192311eeb12f8f4da23f8a6d17f904d26"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-639.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-639.jpg",
+   "sha256": "7e2f13e2a9fdc4aa1a243e923f2c4794ba1c691ed297c575b9858c6de21a8476"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-640.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-640.jpg",
+   "sha256": "57522b8068b3eb23605fae5fa41060298087531f1b3da6c82693761f211d91d5"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-653.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-653.jpg",
+   "sha256": "dfd35508701625254166792de02abf99edd13cf2a54cba7df1f3f51fd1027c7b"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-654.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-654.jpg",
+   "sha256": "6ab758a0d110128ac6f42a43847c2daf628a80d448f31a5f905cbdb999a83ec4"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-656.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-656.jpg",
+   "sha256": "1137738a448689e1968294d3aa77414096adf5f14e54914a92321d5b001fce1d"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-662.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-662.jpg",
+   "sha256": "a7e3c05fc9c82b51cdeb11ae0e8a9921d40c870f769b9bad1cb3a82128c5514a"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-667.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-667.jpg",
+   "sha256": "91d586eee8a2bfc9a4a2452a06454cd3e3eca7082995f3304ccdb3daf491b8b6"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-668.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-668.jpg",
+   "sha256": "d9fba9e4dd013751dd0e93d129e3834fed688ee0fb8a57ebb82d11200f7e7389"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-670.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-670.jpg",
+   "sha256": "d006da2e2a0f7bbd14bf2b6e6653339b3978951a58ef55c4a7fd9bccab1696ad"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-676.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-676.jpg",
+   "sha256": "7533d84daf5f2425234a9c18d6ff5f95464dd1d7515c94561382a461bf10fc66"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-678.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-678.jpg",
+   "sha256": "0575bede4908b26b48cca561bb2fc21a35ec45f966d8ec674fc7c68345924a41"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-681.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-681.jpg",
+   "sha256": "8a1b22fefcb095180187dcaec995d0d851011611d1b440fe8be3ce89f1736eda"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-682.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-682.jpg",
+   "sha256": "c2ac7b4db192cb822e9550812e62faf2922598ec058320cb4ecb7f9fd3f89410"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-684.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-684.jpg",
+   "sha256": "72d0cfb4a8eb1adb3677bd540a1d9fd9baa2594440ebeb2a2c38392e8289f9f9"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-689.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-689.jpg",
+   "sha256": "7ff7fb7d3a402d042a788d888d1ff324c2043386fc0b93c08c4bd6dc9e0daa24"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-690.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-690.jpg",
+   "sha256": "0c55d8ffcefa18fb5f68a0935ef8340ae5496ff1f622f8c9ce66f83225c0b51e"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-703.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-703.jpg",
+   "sha256": "8bcf339db18f0041195f079732ff9c7a8345c3c8708e5376d6a4e3567b3465ef"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-704.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-704.jpg",
+   "sha256": "fe293d815486d48dfa48113daf4ce5a8fa67ec80a2faca7be6cf9a7e1a43a135"
+  },
+  "construction-ppe__images__train__ultralytics-ppe-nov2026-706.jpg": {
+   "rel_path": "construction-ppe/images/train/ultralytics-ppe-nov2026-706.jpg",
+   "sha256": "6e90d91a3148578f2d2dcb8c4f19e24853fcb14518ef1eab679853d0d7842668"
+  },
+  "construction-ppe__images__val__source-3f184ae68fc6f7534cd774fed7b212fb.jpg": {
+   "rel_path": "construction-ppe/images/val/source-3f184ae68fc6f7534cd774fed7b212fb.jpg",
+   "sha256": "daff828856d648a5141c82984409c409b707b8f24176205cf1dee5daec8d6cc8"
+  },
+  "construction-ppe__images__val__source-4cd393d3dd8a7a83a25d413bdeadfd23.jpg": {
+   "rel_path": "construction-ppe/images/val/source-4cd393d3dd8a7a83a25d413bdeadfd23.jpg",
+   "sha256": "892855a42950094c3c7b647a3b4dab71068291dd048175d20435371c72317b81"
+  },
+  "construction-ppe__images__val__source-56088ecf75821c1b93f4015a2bc0a071.jpg": {
+   "rel_path": "construction-ppe/images/val/source-56088ecf75821c1b93f4015a2bc0a071.jpg",
+   "sha256": "5fef05b1e382cb059e9e12295bb7fa42e7c2b535529f2cdd6ee6e4f0ead3cf86"
+  },
+  "construction-ppe__images__val__source-565c1ab59a24c4d04e0909ae74c93f0d.jpg": {
+   "rel_path": "construction-ppe/images/val/source-565c1ab59a24c4d04e0909ae74c93f0d.jpg",
+   "sha256": "c3303b8e12acfb5c9b8caeecd2c407936ba0a26053a9c53df69f8b467f6e61a1"
+  },
+  "construction-ppe__images__val__source-5fd28e2e77938704bc78db0ee3ed95c5.jpg": {
+   "rel_path": "construction-ppe/images/val/source-5fd28e2e77938704bc78db0ee3ed95c5.jpg",
+   "sha256": "587da48dc25002301832ed5a8dbd144ec14b7060253efce876ebd13554a1aeaf"
+  },
+  "construction-ppe__images__val__source-63861e8188160ca09d7e331600db6cad.jpg": {
+   "rel_path": "construction-ppe/images/val/source-63861e8188160ca09d7e331600db6cad.jpg",
+   "sha256": "a053716f0cff112b6de6af4afaefdaa71d8207320dde58f43b47ed8a3c3a8be2"
+  },
+  "construction-ppe__images__val__source-6af78fcdef2424c52bcfefc5f4cf220d.jpg": {
+   "rel_path": "construction-ppe/images/val/source-6af78fcdef2424c52bcfefc5f4cf220d.jpg",
+   "sha256": "84e7dbcfb675283d93a8029109fe5211e00503eea87f6b532e1540f71cdff8bf"
+  },
+  "construction-ppe__images__val__source-6f3ca58e9c68013699ea32f8af0ceef9.jpg": {
+   "rel_path": "construction-ppe/images/val/source-6f3ca58e9c68013699ea32f8af0ceef9.jpg",
+   "sha256": "a5f0f35ffab3cd8e0b893918dc8ad96fa4f6f8104180a0d5613f09d0f5bc061d"
+  },
+  "construction-ppe__images__val__source-8473d8f6d74a556cf5c2ddda99432b04.jpg": {
+   "rel_path": "construction-ppe/images/val/source-8473d8f6d74a556cf5c2ddda99432b04.jpg",
+   "sha256": "b859bc5d78d2a8c7eb861f6a7eaff5ea9459e8887086f35f0a6b21af0b90530e"
+  },
+  "construction-ppe__images__val__source-84927cebf7c164830f2befea9afb6702.jpg": {
+   "rel_path": "construction-ppe/images/val/source-84927cebf7c164830f2befea9afb6702.jpg",
+   "sha256": "d5a85d42e201d666461f5eff680278f40448e512c740da617a2efbe9dfa4bc24"
+  },
+  "construction-ppe__images__val__source-a8c726058fc542d983d5eb9427f86f09.jpg": {
+   "rel_path": "construction-ppe/images/val/source-a8c726058fc542d983d5eb9427f86f09.jpg",
+   "sha256": "4398d9056b0f636bd259982ba823505b02ce04a3216b99441d55cbd68dd45389"
+  },
+  "construction-ppe__images__val__source-aaa3355b226f41989845a45462c68cdb.jpg": {
+   "rel_path": "construction-ppe/images/val/source-aaa3355b226f41989845a45462c68cdb.jpg",
+   "sha256": "328da2f36b98af82fb3c54f80090e286b679b48337856c71c9173ea918531ad3"
+  },
+  "construction-ppe__images__val__source-ab1fb85dccb8e6325a99fca62a476ef7.jpg": {
+   "rel_path": "construction-ppe/images/val/source-ab1fb85dccb8e6325a99fca62a476ef7.jpg",
+   "sha256": "468e5e5e6766ba638ac621d72d4cdc68b0d3f1e4c8789c4e27074730aa6b128a"
+  },
+  "construction-ppe__images__val__source-b08681d985288f3ddcc52556c4445bab.jpg": {
+   "rel_path": "construction-ppe/images/val/source-b08681d985288f3ddcc52556c4445bab.jpg",
+   "sha256": "2886767980d89bef1568074261d047a2d92891053be8d1935505d6126ea3953e"
+  },
+  "construction-ppe__images__val__source-c2db5b6bf60550cfcd7f562460c9e273.jpg": {
+   "rel_path": "construction-ppe/images/val/source-c2db5b6bf60550cfcd7f562460c9e273.jpg",
+   "sha256": "8d8d680d54dcb6417bc45a0a0f97ef141bbccef19e67d0a9bf71955301fa8102"
+  },
+  "construction-ppe__images__val__source-ea0ae6faa6f33684ea285af1f6eae79c.jpg": {
+   "rel_path": "construction-ppe/images/val/source-ea0ae6faa6f33684ea285af1f6eae79c.jpg",
+   "sha256": "caf419a0881a9c970141b2f917a81aef7bd65d6b71c30c8b4c0f9ea229cdcddc"
+  },
+  "construction-ppe__images__val__source-f90f8c78e44eb2d40158a732d46901c8.jpg": {
+   "rel_path": "construction-ppe/images/val/source-f90f8c78e44eb2d40158a732d46901c8.jpg",
+   "sha256": "c31eb80a6d18a700a13e88e3224a0084635ff361712201b655b315e6f31131c1"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-022.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-022.jpg",
+   "sha256": "abf620d6981449176f4fd62071a6f39e605db0db177ae219e034ae6cee1de7d5"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-024.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-024.jpg",
+   "sha256": "28d1cd1b6f4ad96b634d36447cb3ba5ec025c2e6a42e5b6fc1373e6fda3089bd"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-096.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-096.jpg",
+   "sha256": "78bad2cefdf4a5b54634ae5b2b603f334de7bd7c93376506bbf9174055e250a7"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-097.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-097.jpg",
+   "sha256": "8f8e36e9cd592b419f56efa83800cbe630371b850df8ed5ba9c8592d084c4b3f"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-098.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-098.jpg",
+   "sha256": "ab471909871bc5a74d0d858cbd2c92561306834514ba8dbddbf8c054175351f7"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-100.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-100.jpg",
+   "sha256": "15b1e10c6a9d7fd307edbf119b6e5325b4c58838229ae05ee2e2bc7eeb022a22"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-125.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-125.jpg",
+   "sha256": "e7fa934a54bae2da71a5a9f9e78f21a076b887f2e0da4a5955fd2f1b86c2937d"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-146.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-146.jpg",
+   "sha256": "05e72ad92500f3515efff8afbfa99f67d09e255e8ec489bb21b9e223fe68efc5"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-148.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-148.jpg",
+   "sha256": "f1a65422a6f9ecccf05fbecfd75ccf7d5224aa6f8a59aceec163df1dbd5455b3"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-171.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-171.jpg",
+   "sha256": "f2121c195d1c69b3b461d5ac69bbd07f221828911e5918fa4d74ffc66b31726a"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-175.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-175.jpg",
+   "sha256": "a034f0d0f0c33afdb722b5c695b20e256cd4832b0093185ebdf54f2132a4ce75"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-196.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-196.jpg",
+   "sha256": "1de02474bb514bbcb98316ac9a2d6276061cc0acfbb2e8934db5bee6631ef9ea"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-197.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-197.jpg",
+   "sha256": "d498a919cabcf3fea1fd4ff5bca32a8655d3a7bca93fe7ff6b8a562fa664f16e"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-198.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-198.jpg",
+   "sha256": "97901f2a13a7c3776e8b296d9e8e1d507d4d9f6de905ae641b0a7fe657fed70d"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-200.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-200.jpg",
+   "sha256": "bd790d54f765900f24f0faa3978980e1dd58c4ca6fea51ae5a338bd617e6316f"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-225.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-225.jpg",
+   "sha256": "11caac6c1fea591024d4e519d6abc0855f80ce1767011b957b42445d4d47d0e4"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-246.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-246.jpg",
+   "sha256": "1fc41f9eb31c2f7c3d3e7e59093615e1f4b1331883fd292a9910c4e948e6c269"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-248.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-248.jpg",
+   "sha256": "42e63db368aca48ab02fa9f0539b344d41ff55e060b8e0c8e11ea4bdbf0dd489"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-275.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-275.jpg",
+   "sha256": "383322af0a5e3552f665d620dd0284771dbc65e452cf2837969a7ca2f30f235a"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-296.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-296.jpg",
+   "sha256": "1344e7182983c3179eab88a6e54cfa1a059e8b1b7982b070f5e837ef45414bf3"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-298.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-298.jpg",
+   "sha256": "292859a7d2bd1aa0f1c3043c14e91cb00e74db8d295a1132039dfc8718911ad2"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-300.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-300.jpg",
+   "sha256": "e52c8a49cecf54562f441d43e5c7e9aac867a34adae91d12ac87bc2fa07c531e"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-325.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-325.jpg",
+   "sha256": "3b84aede6b28c5090fd8e9b812d9482809aa514cac153c1727899c7669824f4e"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-346.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-346.jpg",
+   "sha256": "2909d799f8e2abe58ba7bdc20ac68b1534aea42d2900d8fcb3023027559167f3"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-348.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-348.jpg",
+   "sha256": "581712e7537e6bd0bd4945a9544a9312af51df230b753fe2777f31a2b70fa2bb"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-375.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-375.jpg",
+   "sha256": "eba4b12dbe1d756ca5047b3cd642ef79581f1f87aba74dfe885f272d4569ca7c"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-396.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-396.jpg",
+   "sha256": "85ad7b8cf48b946c7c05efccdcd6fbf801f8a63b580fe3900c11438bd9851b97"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-398.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-398.jpg",
+   "sha256": "517128d965e0d11e7ba74227a26ea3623b5d06bb5d9f32b42841370fcfefcba7"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-399.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-399.jpg",
+   "sha256": "c94fb87f3d468dbe452ab9670091ba3006351f15e3d80038970da02d7aee1a6d"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-400.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-400.jpg",
+   "sha256": "7634d0752c7c7ae95e03e7cfacd4a8fce4e9859d489f67c8e8f6d1c2b34353c8"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-425.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-425.jpg",
+   "sha256": "85cfac6ed84b25222465f235fb6486366f6fa44d5a9ce1ac5a14990352fd03b5"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-446.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-446.jpg",
+   "sha256": "44418c6a11dcf4d7129f0956ac25a23f122d72c37093213e282a1295d0deb46a"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-448.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-448.jpg",
+   "sha256": "d01e286ceb6c171b52c19df5da422098d954d201a27465dae5842edefdbefb80"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-475.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-475.jpg",
+   "sha256": "8d38b41189ebd534e80b1258d7ffb885a852df9e054e4e132c8a3ab7a86b0ad5"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-496.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-496.jpg",
+   "sha256": "e1dfc2f8f3063057d8a3959443acf18b3bb1a2db47ac14ec2520bc9447eff6d6"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-497.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-497.jpg",
+   "sha256": "f72b9a4f3b61d655e2b9e1da3ec87ea9d21c62238e440808465752eb7172f82b"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-498.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-498.jpg",
+   "sha256": "839f92bb981d7e713925f33dda336fca480cde7d6c7a3d17145440a6b3f20772"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-499.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-499.jpg",
+   "sha256": "07ead79d3a5ed37b79f7b8f3fa6f42b37f9283b0a7a2e078c8e24e82efceb717"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-500.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-500.jpg",
+   "sha256": "435edb6ac604c2ca9223e72a9a75076a7395832cad0742cbb317aa63d6e90b31"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-525.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-525.jpg",
+   "sha256": "a8de79bf14fcd698f8ba694343907cf7eb0d3fea74b7400ae1fd1cce8007bd9c"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-546.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-546.jpg",
+   "sha256": "0e7da00f123f7fa40a5bb7560b3a18b3fa7f4e231bb6ecee58d4f67fa1b183d6"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-548.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-548.jpg",
+   "sha256": "b89b454f8159d84c1c5766abbbe8a2957da0e593ee937af62fa387827005f768"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-575.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-575.jpg",
+   "sha256": "387db5bd559d42a122c1f76e77125a521f8b982d2a7e843fe05c281358a97410"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-596.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-596.jpg",
+   "sha256": "f24a7cb4dbb6961e1c8b7c5f790f3a5ee30183a338a3e1e14eece5c73d1425a4"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-597.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-597.jpg",
+   "sha256": "19f417c7c32f0c9401deba9741a70d40d20f33664505b437e8de3bfc1e8dbe95"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-598.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-598.jpg",
+   "sha256": "8d8ea6ecb29eeda8eeb1c2c5fe071c5d0e1ad35eb8dc44681996c9f96a50077d"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-600.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-600.jpg",
+   "sha256": "21845c290f2be8df44611b13047967c197e87dffb554b959a5c08a7ec7b33f08"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-646.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-646.jpg",
+   "sha256": "ec4981021b32cad255c5ef830bb1d7959f85b2c8e8c658ab6f39611018e5b167"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-648.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-648.jpg",
+   "sha256": "7faeed4145c96d0b42e596d30e77a8a353506a23251fefd8d0560d1082237dff"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-675.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-675.jpg",
+   "sha256": "5ef02b81b47e0e1088e22ee93d9bde2b6592774e309d383588b309bc241420d4"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-696.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-696.jpg",
+   "sha256": "5ce3de543f4230012e81304c6eae4f596aed4c7c3da72b8aa15db2dc9d51d82a"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-697.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-697.jpg",
+   "sha256": "5c04801e323d68d1f679b7129aded1444c02a061bc8a39a5b184a9cab0ff82a9"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-698.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-698.jpg",
+   "sha256": "9a58f1354e5f0b67844337554161dc1444bcc58a724dee34e304ba50b93fabed"
+  },
+  "construction-ppe__images__val__ultralytics-ppe-nov2026-700.jpg": {
+   "rel_path": "construction-ppe/images/val/ultralytics-ppe-nov2026-700.jpg",
+   "sha256": "8559e7e1b4bf210dd8a0ed143967cb366942c3c132975dd5f24c340fe5bce58e"
+  }
+ },
+ "boxes_in_scope": 747
+}

@@ -1,0 +1,82 @@
+id: ultralytics_construction_ppe
+name: Ultralytics Construction-PPE
+version: "2026-11"
+license:
+  name: Creative Commons Attribution 4.0 International
+  spdx: CC-BY-4.0
+  url: https://creativecommons.org/licenses/by/4.0/
+  evidence_url: https://docs.ultralytics.com/datasets/detect/construction-ppe/
+  verified_on: 2026-11-12
+  status: verified
+  commercial_use: allowed
+  share_alike: false
+  attribution_required: true
+  attribution_text: "Ultralytics Construction-PPE Dataset, Ultralytics team, November 2026, CC BY 4.0"
+  notes: >
+    Licencia leída en la documentación oficial y confirmada el 2026-11-12 en el LICENSE.txt
+    (texto CC BY 4.0) y el README.md incluidos en el zip descargado. La licencia del
+    dataset es independiente de la de la librería ultralytics (AGPL-3.0), que NO se usa.
+provenance:
+  publisher: Ultralytics
+  homepage: https://docs.ultralytics.com/datasets/detect/construction-ppe/
+  image_origin: "Imágenes recolectadas por personas e imágenes generadas (sintéticas), según la documentación"
+  notes: "Anotación por anotadores humanos y auto-anotación por IA."
+download:
+  url: https://github.com/ultralytics/assets/releases/download/v0.0.0/construction-ppe.zip
+  filename: construction-ppe.zip
+  format: yolo
+  expected_size: 647666037
+allowed_purposes: [commercial_training, commercial_evaluation, research]
+class_mapping:
+  helmet: {target: helmet, status: direct}
+  gloves: {target: gloves, status: direct}
+  vest:
+    target: safety_vest
+    status: needs_visual_review
+    reason: "Verificar que 'vest' corresponde a chaleco de alta visibilidad y no a cualquier chaleco."
+  boots:
+    target: safety_boot
+    status: needs_visual_review
+    reason: "'boots' no implica calzado de protección; requiere inspección visual."
+  goggles: {target: goggles, status: direct}
+  Person: {target: person, status: direct}
+  no_helmet: {target: no_helmet, status: direct}
+  no_goggle: {target: no_goggles, status: direct}
+  no_gloves: {target: no_gloves, status: direct}
+  no_boots:
+    target: no_safety_boot
+    status: needs_visual_review
+    reason: "Confirmar si 'no_boots' marca pies sin calzado de protección (incluido calzado común)."
+  forklift: {status: excluded, reason: "Fuera de la taxonomía de EPP."}
+  no_vest: {target: no_vest, status: direct}
+reviews:
+  - source_class: boots
+    decision: approved
+    reviewer: "propietario del proyecto (decisión en sesión) + revisión preliminar asistida"
+    reviewed_on: 2026-11-12
+    sample_size: 64
+    notes: >
+      Aprobado con la semántica de CLASS_DEFINITIONS: safety_boot = "calzado de trabajo tipo bota
+      visible", nunca calzado certificado. En la muestra: botas de trabajo y de goma; ~8/64 recortes
+      demasiado borrosos para juzgar (candidatos a revisión en CVAT, no bloquean).
+  - source_class: vest
+    decision: approved
+    reviewer: "propietario del proyecto (decisión en sesión) + revisión preliminar asistida"
+    reviewed_on: 2026-11-12
+    sample_size: 64
+    notes: "64/64 recortes son chalecos de alta visibilidad con bandas reflectantes."
+  - source_class: no_boots
+    decision: approved
+    reviewer: "propietario del proyecto (decisión en sesión)"
+    reviewed_on: 2026-11-12
+    sample_size: 64
+    requires_correction: no_boots_relabel_v1
+    notes: >
+      ~4/64 recortes parecen botas de trabajo. Se aprueba SOLO para las imágenes re-etiquetadas en
+      CVAT dentro de la corrección no_boots_relabel_v1; el resto sigue bloqueado.
+known_limitations:
+  - "Solo 1.000 imágenes: insuficiente por sí solo para un modelo de producción."
+  - "Contiene imágenes generadas (sintéticas); su proporción no está documentada. Riesgo de sesgo de dominio."
+  - "Parte de las anotaciones es auto-anotación por IA: requiere control de calidad."
+  - "Sin partición de test oficial (solo train/val 80/20)."
+  - "Dominio construcción; puede no representar fábricas, almacenes u otras instalaciones."

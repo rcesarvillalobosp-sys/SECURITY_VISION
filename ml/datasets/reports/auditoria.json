@@ -1,0 +1,462 @@
+{
+  "generated_at": "2026-11-13 00:28 UTC",
+  "sources": {
+    "cognisightlabs_ppe_detection": {
+      "manifest": {
+        "id": "cognisightlabs_ppe_detection",
+        "name": "Hugging Face cognisightlabs/PPE_Detection",
+        "version": "hf-main",
+        "license": {
+          "name": "Creative Commons Attribution 4.0 International (declarada)",
+          "spdx": "CC-BY-4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "evidence_url": "https://huggingface.co/datasets/cognisightlabs/PPE_Detection",
+          "verified_on": "2026-11-12",
+          "status": "unclear_provenance",
+          "commercial_use": "unknown",
+          "share_alike": false,
+          "attribution_required": true,
+          "attribution_text": null,
+          "notes": "La tarjeta declara cc-by-4.0, pero indica que es un duplicado de 51ddhesh/PPE_Detection, que tampoco documenta el origen de las imágenes. Un tercero no puede licenciar imágenes de las que no es titular: hasta conocer el origen, el uso comercial es incierto.\n"
+        },
+        "provenance": {
+          "publisher": "cognisightlabs (Hugging Face)",
+          "homepage": "https://huggingface.co/datasets/cognisightlabs/PPE_Detection",
+          "upstream": [
+            "https://huggingface.co/datasets/51ddhesh/PPE_Detection"
+          ],
+          "image_origin": null,
+          "notes": "Origen de imágenes no documentado. Tamaño ~668 MB, 16.014 objetos."
+        },
+        "download": null,
+        "local_format": "yolo",
+        "allowed_purposes": [],
+        "class_mapping": {
+          "Vest": {
+            "target": "safety_vest",
+            "status": "needs_visual_review",
+            "reason": "Verificar que son chalecos de alta visibilidad."
+          },
+          "Safety Shoe": {
+            "target": "safety_boot",
+            "status": "needs_visual_review",
+            "reason": "Verificar visualmente que es calzado de protección."
+          },
+          "Mask": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Mascarilla: fuera de la taxonomía inicial."
+          },
+          "Helmet": {
+            "target": "helmet",
+            "status": "direct",
+            "reason": null
+          },
+          "Goggles": {
+            "target": "goggles",
+            "status": "direct",
+            "reason": null
+          },
+          "Gloves": {
+            "target": "gloves",
+            "status": "direct",
+            "reason": null
+          }
+        },
+        "reviews": [],
+        "known_limitations": [
+          "No anota personas: no sirve para asociar EPP a persona sin re-etiquetado.",
+          "Sin clases negativas (no_*).",
+          "Procedencia de imágenes desconocida: BLOQUEADO hasta aclararla con el publicador."
+        ]
+      },
+      "stats": null
+    },
+    "roboflow_ppe_sheperd_v0": {
+      "manifest": {
+        "id": "roboflow_ppe_sheperd_v0",
+        "name": "Roboflow Universe gimuuniud/ppe_sheperd_v0",
+        "version": "unknown",
+        "license": {
+          "name": "Desconocida",
+          "spdx": null,
+          "url": null,
+          "evidence_url": "https://universe.roboflow.com/gimuuniud/ppe_sheperd_v0",
+          "verified_on": null,
+          "status": "unverified",
+          "commercial_use": "unknown",
+          "share_alike": false,
+          "attribution_required": true,
+          "attribution_text": null,
+          "notes": "La página devolvió HTTP 403 a la consulta automática y no fue posible leer la licencia (2026-11-12). En Roboflow Universe la licencia la elige quien sube el proyecto y las imágenes pueden proceder de terceros. Verificación manual pendiente.\n"
+        },
+        "provenance": {
+          "publisher": "gimuuniud (Roboflow Universe)",
+          "homepage": "https://universe.roboflow.com/gimuuniud/ppe_sheperd_v0",
+          "upstream": [],
+          "image_origin": null,
+          "notes": null
+        },
+        "download": null,
+        "local_format": "yolo",
+        "allowed_purposes": [],
+        "class_mapping": {},
+        "reviews": [],
+        "known_limitations": [
+          "Licencia, clases y volumen sin verificar.",
+          "La descarga desde Roboflow requiere cuenta/API key: la realiza el usuario, no el sistema."
+        ]
+      },
+      "stats": null
+    },
+    "sh17": {
+      "manifest": {
+        "id": "sh17",
+        "name": "SH17 — Safety and Health PPE dataset",
+        "version": "2024",
+        "license": {
+          "name": "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International",
+          "spdx": "CC-BY-NC-SA-4.0",
+          "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+          "evidence_url": "https://github.com/ahmadmughees/SH17dataset",
+          "verified_on": "2026-11-12",
+          "status": "verified",
+          "commercial_use": "forbidden",
+          "share_alike": true,
+          "attribution_required": true,
+          "attribution_text": "H. M. Ahmad and A. Rahimi, \"SH17: A dataset for human safety and personal protective equipment detection in manufacturing industry\", Journal of Safety Science and Resilience, 2024, doi:10.1016/j.jnlssr.2024.09.002\n",
+          "notes": "No comercial y share-alike. El README limita el uso a fines educativos, de investigación y análisis. Las imágenes provienen de Pexels, cuyos términos también aplican.\n"
+        },
+        "provenance": {
+          "publisher": "Hafiz Mughees Ahmad, Afshin Rahimi",
+          "homepage": "https://github.com/ahmadmughees/SH17dataset",
+          "upstream": [
+            "https://www.kaggle.com/datasets/mugheesahmad/sh17-dataset-for-ppe-detection",
+            "https://www.pexels.com"
+          ],
+          "image_origin": "Pexels",
+          "notes": null
+        },
+        "download": null,
+        "local_format": "yolo",
+        "allowed_purposes": [],
+        "class_mapping": {
+          "Person": {
+            "target": "person",
+            "status": "direct",
+            "reason": null
+          },
+          "Helmet": {
+            "target": "helmet",
+            "status": "direct",
+            "reason": null
+          },
+          "Safety-vest": {
+            "target": "safety_vest",
+            "status": "direct",
+            "reason": null
+          },
+          "Gloves": {
+            "target": "gloves",
+            "status": "direct",
+            "reason": null
+          },
+          "Glasses": {
+            "target": "goggles",
+            "status": "needs_visual_review",
+            "reason": "Incluye gafas comunes; no equivalen a gafas de protección."
+          },
+          "Shoes": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Calzado genérico: NO equivale a safety_boot."
+          },
+          "Foot": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Parte del cuerpo, no EPP."
+          },
+          "Head": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Parte del cuerpo."
+          },
+          "Face": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Parte del cuerpo; dato biométrico sensible."
+          },
+          "Ear": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Parte del cuerpo."
+          },
+          "Hands": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Parte del cuerpo."
+          },
+          "Earmuffs": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Fuera de la taxonomía inicial."
+          },
+          "Face-mask-medical": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Fuera de la taxonomía inicial."
+          },
+          "Face-guard": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Fuera de la taxonomía inicial."
+          },
+          "Tools": {
+            "target": null,
+            "status": "excluded",
+            "reason": "No es EPP."
+          },
+          "Medical-suit": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Fuera de la taxonomía inicial."
+          },
+          "Safety-suit": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Fuera de la taxonomía inicial."
+          }
+        },
+        "reviews": [],
+        "known_limitations": [
+          "Licencia no comercial: EXCLUIDO del producto.",
+          "La clase 'Shoes' no distingue calzado de protección."
+        ]
+      },
+      "stats": null
+    },
+    "ultralytics_construction_ppe": {
+      "manifest": {
+        "id": "ultralytics_construction_ppe",
+        "name": "Ultralytics Construction-PPE",
+        "version": "2026-11",
+        "license": {
+          "name": "Creative Commons Attribution 4.0 International",
+          "spdx": "CC-BY-4.0",
+          "url": "https://creativecommons.org/licenses/by/4.0/",
+          "evidence_url": "https://docs.ultralytics.com/datasets/detect/construction-ppe/",
+          "verified_on": "2026-11-12",
+          "status": "verified",
+          "commercial_use": "allowed",
+          "share_alike": false,
+          "attribution_required": true,
+          "attribution_text": "Ultralytics Construction-PPE Dataset, Ultralytics team, November 2026, CC BY 4.0",
+          "notes": "Licencia leída en la documentación oficial y confirmada el 2026-11-12 en el LICENSE.txt (texto CC BY 4.0) y el README.md incluidos en el zip descargado. La licencia del dataset es independiente de la de la librería ultralytics (AGPL-3.0), que NO se usa.\n"
+        },
+        "provenance": {
+          "publisher": "Ultralytics",
+          "homepage": "https://docs.ultralytics.com/datasets/detect/construction-ppe/",
+          "upstream": [],
+          "image_origin": "Imágenes recolectadas por personas e imágenes generadas (sintéticas), según la documentación",
+          "notes": "Anotación por anotadores humanos y auto-anotación por IA."
+        },
+        "download": {
+          "url": "https://github.com/ultralytics/assets/releases/download/v0.0.0/construction-ppe.zip",
+          "filename": "construction-ppe.zip",
+          "format": "yolo",
+          "expected_size": 647666037,
+          "sha256": null
+        },
+        "local_format": "yolo",
+        "allowed_purposes": [
+          "commercial_training",
+          "commercial_evaluation",
+          "research"
+        ],
+        "class_mapping": {
+          "helmet": {
+            "target": "helmet",
+            "status": "direct",
+            "reason": null
+          },
+          "gloves": {
+            "target": "gloves",
+            "status": "direct",
+            "reason": null
+          },
+          "vest": {
+            "target": "safety_vest",
+            "status": "needs_visual_review",
+            "reason": "Verificar que 'vest' corresponde a chaleco de alta visibilidad y no a cualquier chaleco."
+          },
+          "boots": {
+            "target": "safety_boot",
+            "status": "needs_visual_review",
+            "reason": "'boots' no implica calzado de protección; requiere inspección visual."
+          },
+          "goggles": {
+            "target": "goggles",
+            "status": "direct",
+            "reason": null
+          },
+          "Person": {
+            "target": "person",
+            "status": "direct",
+            "reason": null
+          },
+          "no_helmet": {
+            "target": "no_helmet",
+            "status": "direct",
+            "reason": null
+          },
+          "no_goggle": {
+            "target": "no_goggles",
+            "status": "direct",
+            "reason": null
+          },
+          "no_gloves": {
+            "target": "no_gloves",
+            "status": "direct",
+            "reason": null
+          },
+          "no_boots": {
+            "target": "no_safety_boot",
+            "status": "needs_visual_review",
+            "reason": "Confirmar si 'no_boots' marca pies sin calzado de protección (incluido calzado común)."
+          },
+          "forklift": {
+            "target": null,
+            "status": "excluded",
+            "reason": "Fuera de la taxonomía de EPP."
+          },
+          "no_vest": {
+            "target": "no_vest",
+            "status": "direct",
+            "reason": null
+          }
+        },
+        "reviews": [
+          {
+            "source_class": "boots",
+            "decision": "approved",
+            "reviewer": "propietario del proyecto (decisión en sesión) + revisión preliminar asistida",
+            "reviewed_on": "2026-11-12",
+            "sample_size": 64,
+            "requires_correction": null,
+            "notes": "Aprobado con la semántica de CLASS_DEFINITIONS: safety_boot = \"calzado de trabajo tipo bota visible\", nunca calzado certificado. En la muestra: botas de trabajo y de goma; ~8/64 recortes demasiado borrosos para juzgar (candidatos a revisión en CVAT, no bloquean).\n"
+          },
+          {
+            "source_class": "vest",
+            "decision": "approved",
+            "reviewer": "propietario del proyecto (decisión en sesión) + revisión preliminar asistida",
+            "reviewed_on": "2026-11-12",
+            "sample_size": 64,
+            "requires_correction": null,
+            "notes": "64/64 recortes son chalecos de alta visibilidad con bandas reflectantes."
+          },
+          {
+            "source_class": "no_boots",
+            "decision": "approved",
+            "reviewer": "propietario del proyecto (decisión en sesión)",
+            "reviewed_on": "2026-11-12",
+            "sample_size": 64,
+            "requires_correction": "no_boots_relabel_v1",
+            "notes": "~4/64 recortes parecen botas de trabajo. Se aprueba SOLO para las imágenes re-etiquetadas en CVAT dentro de la corrección no_boots_relabel_v1; el resto sigue bloqueado.\n"
+          }
+        ],
+        "known_limitations": [
+          "Solo 1.000 imágenes: insuficiente por sí solo para un modelo de producción.",
+          "Contiene imágenes generadas (sintéticas); su proporción no está documentada. Riesgo de sesgo de dominio.",
+          "Parte de las anotaciones es auto-anotación por IA: requiere control de calidad.",
+          "Sin partición de test oficial (solo train/val 80/20).",
+          "Dominio construcción; puede no representar fábricas, almacenes u otras instalaciones."
+        ]
+      },
+      "stats": {
+        "images": 1000,
+        "boxes": 14863,
+        "splits": {
+          "train": 800,
+          "val": 200
+        },
+        "objects_by_original_class": {
+          "boots": 2484,
+          "Person": 2443,
+          "gloves": 1929,
+          "vest": 1816,
+          "helmet": 1576,
+          "no_gloves": 1042,
+          "no_helmet": 813,
+          "goggles": 751,
+          "no_boots": 747,
+          "no_vest": 567,
+          "forklift": 348,
+          "no_goggle": 347
+        },
+        "objects_by_canonical_class": {
+          "safety_boot": 2484,
+          "person": 2443,
+          "gloves": 1929,
+          "safety_vest": 1816,
+          "helmet": 1576,
+          "no_gloves": 1042,
+          "no_helmet": 813,
+          "goggles": 751,
+          "no_safety_boot": 747,
+          "no_vest": 567,
+          "no_goggles": 347
+        },
+        "images_by_canonical_class": {
+          "person": 991,
+          "safety_vest": 801,
+          "helmet": 759,
+          "safety_boot": 731,
+          "gloves": 682,
+          "goggles": 539,
+          "no_gloves": 434,
+          "no_helmet": 428,
+          "no_vest": 384,
+          "no_safety_boot": 315,
+          "no_goggles": 283
+        },
+        "mapping_status": {
+          "direct": 13768,
+          "excluded": 348,
+          "needs_visual_review": 747
+        },
+        "resolution_min_side": {
+          "720-1079": 44,
+          ">=1080": 956
+        },
+        "box_size": {
+          "medium(<96²)": 4017,
+          "small(<32²)": 2564,
+          "large": 8282
+        },
+        "boxes_per_image": {
+          "mean": 14.863,
+          "median": 12.0,
+          "max": 76,
+          "zero": 0
+        },
+        "issues": {
+          "ppe_without_person": 59,
+          "tiny_box": 36
+        },
+        "issues_by_severity": {
+          "warning": 95
+        }
+      }
+    }
+  },
+  "duplicates": {
+    "exact_groups": [],
+    "near_pairs": [
+      [
+        "ultralytics_construction_ppe::construction-ppe/images/train/source-efc23273c04e007083114c0f217335f0.jpg",
+        "ultralytics_construction_ppe::construction-ppe/images/val/source-9e10b0409f922546c35b276eb5a5756e.jpg",
+        6
+      ]
+    ]
+  }
+}

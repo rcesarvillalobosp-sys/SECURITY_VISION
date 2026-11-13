@@ -1,0 +1,36 @@
+# Plantilla para registrar fotografías/vídeos PROPIOS anotados en CVAT.
+# Copiar como ml/datasets/sources/own_<sitio>.yaml y completar. Exportar desde CVAT en
+# "COCO 1.0" y colocarlo en ml/datasets/raw/own_<sitio>/<version>/extracted/
+#   annotations/instances_default.json   +   images/...
+id: own_sitio_a
+name: Imágenes propias — Sitio A
+version: "2026-11-a"
+license:
+  name: Propiedad de <empresa> — uso interno
+  evidence_url: "<ruta al contrato/acta de cesión o política interna>"
+  verified_on: 2026-11-12
+  status: verified
+  commercial_use: allowed
+  attribution_required: false
+  notes: >
+    Confirmar: titularidad de las imágenes, autorización del centro, información a los
+    trabajadores sobre la captura (protección de datos), y que no se usarán para identificar personas.
+provenance:
+  publisher: "<empresa>"
+  homepage: "<interno>"
+  image_origin: "Cámaras del sitio A, capturadas el <fecha> por <responsable>"
+local_format: coco
+allowed_purposes: [commercial_training, commercial_evaluation]
+class_mapping:
+  person: {target: person, status: direct}
+  helmet: {target: helmet, status: direct}
+  no_helmet: {target: no_helmet, status: direct}
+  safety_vest: {target: safety_vest, status: direct}
+  no_vest: {target: no_vest, status: direct}
+  safety_boot: {target: safety_boot, status: direct}
+  no_safety_boot: {target: no_safety_boot, status: direct}
+  gloves: {target: gloves, status: direct}
+  no_gloves: {target: no_gloves, status: direct}
+  goggles: {target: goggles, status: direct}
+  no_goggles: {target: no_goggles, status: direct}
+known_limitations: []

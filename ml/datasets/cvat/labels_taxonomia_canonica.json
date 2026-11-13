@@ -1,0 +1,178 @@
+[
+  {
+    "name": "person",
+    "color": "#2f80ed",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "occluded_region",
+        "mutable": true,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "helmet",
+    "color": "#27ae60",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "occluded_region",
+        "mutable": true,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "no_helmet",
+    "color": "#eb5757",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "occluded_region",
+        "mutable": true,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "safety_vest",
+    "color": "#f2c94c",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "occluded_region",
+        "mutable": true,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "no_vest",
+    "color": "#f2994a",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "occluded_region",
+        "mutable": true,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "safety_boot",
+    "color": "#9b51e0",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "occluded_region",
+        "mutable": true,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "no_safety_boot",
+    "color": "#bb6bd9",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "occluded_region",
+        "mutable": true,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "gloves",
+    "color": "#56ccf2",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "occluded_region",
+        "mutable": true,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "no_gloves",
+    "color": "#219653",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "occluded_region",
+        "mutable": true,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "goggles",
+    "color": "#828282",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "occluded_region",
+        "mutable": true,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "no_goggles",
+    "color": "#e0e0e0",
+    "type": "rectangle",
+    "attributes": [
+      {
+        "name": "occluded_region",
+        "mutable": true,
+        "input_type": "checkbox",
+        "default_value": "false",
+        "values": [
+          "false"
+        ]
+      }
+    ]
+  }
+]
