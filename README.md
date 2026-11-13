@@ -17,6 +17,7 @@ Plataforma modular de videovigilancia con IA para supervisar el uso de **equipos
 
 | | |
 |---|---|
+| **Visión general** | [Documento técnico (PDF)](docs/presentacion/Security-Vision.pdf): modelo matemático, tecnologías, escalabilidad, calidad de servicio y entrenamiento |
 | **Instalación** | [Windows nativo](docs/installation/local-windows.md) (verificada con una instalación limpia) · [Docker Compose](docs/installation/docker.md) · [Linux + GPU (systemd)](docs/installation/linux-gpu.md) |
 | **Operación** | [Guía de operación](docs/operations/README.md): monitorización, capacidad, copias de seguridad, problemas frecuentes, actualizaciones y lista de seguridad |
 | **API** | [Endpoints y permisos](docs/api/endpoints.md) · [OpenAPI](docs/api/openapi.json) |
@@ -54,6 +55,16 @@ uv run svctl doctor
 ```
 
 Web en http://127.0.0.1:8000.
+
+### Acceso de demostración
+
+Este repositorio es un **piloto**, aún no un producto comercial. Una instalación nueva crea este administrador con los valores de `.env.example`:
+
+| Usuario | Contraseña |
+|---|---|
+| `admin@demo.local` | `Demo-SecurityVision-2026` |
+
+Son credenciales **públicas**: sirven solo para probar el sistema en tu propio equipo. Antes de abrirlo a la red, cambia la contraseña en **Mi cuenta** y quita `SV_BOOTSTRAP_ADMIN_PASSWORD` de `.env`. Con `SV_ENVIRONMENT=production`, la configuración rechaza esta contraseña.
 
 ## Verificación
 

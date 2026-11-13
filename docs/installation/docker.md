@@ -30,7 +30,7 @@
 2. En `.env`, **descomentar la sección de Docker** y completar:
    - `SV_DB_PASSWORD`, `SV_JWT_SECRET`, `SV_SECRETS_KEY`;
    - `SV_MEDIAMTX_API_PASSWORD`, `SV_MEDIAMTX_PUBLISH_PASSWORD`, `SV_MEDIAMTX_AUTH_KEY`;
-   - `SV_BOOTSTRAP_ADMIN_EMAIL` y `SV_BOOTSTRAP_ADMIN_PASSWORD`;
+   - `SV_BOOTSTRAP_ADMIN_EMAIL` y `SV_BOOTSTRAP_ADMIN_PASSWORD` (el compose arranca en modo producción, que rechaza la contraseña pública de demostración: poner una propia);
    - **`SV_PUBLIC_HOST`**: IP o nombre del equipo tal como lo ven los navegadores. Lo usan WebRTC y CORS;
    - **`SV_BIND_IP`**: `127.0.0.1` para solo este equipo, o la IP de la LAN para servir a la red.
 

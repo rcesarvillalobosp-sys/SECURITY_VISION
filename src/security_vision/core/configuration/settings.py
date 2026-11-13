@@ -21,6 +21,9 @@ class Environment(StrEnum):
     PRODUCTION = "production"
 
 
+# Credencial pública de .env.example para instalaciones de demostración: nunca válida en producción.
+DEMO_ADMIN_PASSWORD = "Demo-SecurityVision-2026"
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="SV_", env_file=".env", env_file_encoding="utf-8",
                                       extra="ignore")
@@ -128,6 +131,9 @@ class Settings(BaseSettings):
                 raise ValueError("CORS '*' no permitido en producción")
             if self.allow_test_sources:
                 raise ValueError("SV_ALLOW_TEST_SOURCES no se permite en producción")
+            if (self.bootstrap_admin_password is not None
+                    and self.bootstrap_admin_password.get_secret_value() == DEMO_ADMIN_PASSWORD):
+                raise ValueError("SV_BOOTSTRAP_ADMIN_PASSWORD es la contraseña pública de demostración")
             if self.smtp_host and self.smtp_security == "none":
                 raise ValueError("SMTP sin cifrar no se permite en producción")
         return self

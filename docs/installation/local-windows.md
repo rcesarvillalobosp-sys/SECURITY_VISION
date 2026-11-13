@@ -40,7 +40,7 @@ copy .env.example .env
 uv run svctl gen-secrets
 ```
 
-Pegar `SV_JWT_SECRET` y `SV_SECRETS_KEY` en `.env`. Completar `SV_BOOTSTRAP_ADMIN_EMAIL` y `SV_BOOTSTRAP_ADMIN_PASSWORD` (12 caracteres o más, con 3 tipos). Añadir `SV_WEB_DIST=apps/web/dist`.
+Pegar `SV_JWT_SECRET` y `SV_SECRETS_KEY` en `.env`. `SV_BOOTSTRAP_ADMIN_EMAIL` y `SV_BOOTSTRAP_ADMIN_PASSWORD` traen las credenciales públicas de demostración (`admin@demo.local` / `Demo-SecurityVision-2026`); para algo más que una prueba local, poner otras (12 caracteres o más, con 3 tipos). Añadir `SV_WEB_DIST=apps/web/dist`.
 
 **5. Base de datos**
 

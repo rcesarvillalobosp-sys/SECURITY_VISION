@@ -146,6 +146,15 @@ def test_production_rejects_example_secrets():
     Settings(_env_file=None, environment="development", jwt_secret="change-me-" + "x" * 30, secrets_key="k" * 43)
 
 
+def test_production_rejects_public_demo_password():
+    from security_vision.core.configuration.settings import DEMO_ADMIN_PASSWORD
+
+    base = {"jwt_secret": "x" * 48, "secrets_key": "A" * 43 + "=", "bootstrap_admin_password": DEMO_ADMIN_PASSWORD}
+    Settings(_env_file=None, environment="development", **base)  # la demo local sí funciona
+    with pytest.raises(PydanticValidationError, match="demostración"):
+        Settings(_env_file=None, environment="production", **base)
+
+
 def test_settings_reject_unfilled_env_example_placeholders():
     """Un marcador de .env.example (``<...>``) sin completar no puede usarse como secreto."""
     import pytest
