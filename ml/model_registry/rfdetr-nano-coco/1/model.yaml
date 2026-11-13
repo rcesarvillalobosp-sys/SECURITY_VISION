@@ -1,0 +1,114 @@
+name: rfdetr-nano-coco
+version: '1'
+architecture: rfdetr
+artifact: model.onnx
+sha256: bc29d3e1a0c1a30f8cd304c2b323bb8adf7c63e4b4c3991fa88ab79834050bbf
+input_size:
+- 384
+- 384
+labels:
+- unused_0
+- person
+- bicycle
+- car
+- motorcycle
+- airplane
+- bus
+- train
+- truck
+- boat
+- traffic light
+- fire hydrant
+- unused_12
+- stop sign
+- parking meter
+- bench
+- bird
+- cat
+- dog
+- horse
+- sheep
+- cow
+- elephant
+- bear
+- zebra
+- giraffe
+- unused_26
+- backpack
+- umbrella
+- unused_29
+- unused_30
+- handbag
+- tie
+- suitcase
+- frisbee
+- skis
+- snowboard
+- sports ball
+- kite
+- baseball bat
+- baseball glove
+- skateboard
+- surfboard
+- tennis racket
+- bottle
+- unused_45
+- wine glass
+- cup
+- fork
+- knife
+- spoon
+- bowl
+- banana
+- apple
+- sandwich
+- orange
+- broccoli
+- carrot
+- hot dog
+- pizza
+- donut
+- cake
+- chair
+- couch
+- potted plant
+- bed
+- unused_66
+- dining table
+- unused_68
+- unused_69
+- toilet
+- unused_71
+- tv
+- laptop
+- mouse
+- remote
+- keyboard
+- cell phone
+- microwave
+- oven
+- toaster
+- sink
+- refrigerator
+- unused_83
+- book
+- clock
+- vase
+- scissors
+- teddy bear
+- hair drier
+- toothbrush
+class_map:
+  person: person
+score_threshold: 0.4
+params:
+  input_name: input
+  logits_name: labels
+  boxes_name: dets
+  activation: sigmoid
+license: Apache-2.0
+weights_license: Apache-2.0
+weights_source: rfdetr==1.12.1 RFDETRNano (pesos COCO)
+dataset_ref: COCO (preentrenamiento Objects365 según el autor)
+notes: 'Exportado con rfdetr 1.12.1 en entorno aislado; comprobación de clases: [''person'',
+  ''person'', ''person'', ''person'']'

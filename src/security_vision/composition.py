@@ -16,6 +16,7 @@ from security_vision.core.interfaces.video import VideoSource
 from security_vision.core.registry import ProviderRegistry
 from security_vision.infrastructure.storage.local import LocalFileStorage
 from security_vision.modules.cameras.service import CameraPolicy
+from security_vision.modules.detection.service import DetectionService
 
 
 def build_video_registry() -> ProviderRegistry:
@@ -29,6 +30,38 @@ def build_video_registry() -> ProviderRegistry:
     for name in reg.discover(VideoSource):
         _ = name  # plugins de terceros ya registrados
     return reg
+
+
+def build_inference_registry() -> ProviderRegistry:
+    from security_vision.core.interfaces.inference import DetectionModel, InferenceEngine
+    from security_vision.plugins.detection_models.detr import DetrDetectionModel, RfDetrModel, RtDetrModel
+    from security_vision.plugins.inference_engines.onnxruntime_engine import OnnxRuntimeEngine
+    from security_vision.plugins.inference_engines.openvino_engine import OpenVinoEngine
+
+    reg = ProviderRegistry()
+    reg.register(InferenceEngine, OnnxRuntimeEngine.provider_name, OnnxRuntimeEngine)
+    reg.register(InferenceEngine, OpenVinoEngine.provider_name, OpenVinoEngine)
+    for cls in (DetrDetectionModel, RtDetrModel, RfDetrModel):
+        reg.register(DetectionModel, cls.architecture, cls)
+    reg.discover(InferenceEngine)
+    reg.discover(DetectionModel)
+    return reg
+
+
+def build_detection_service(settings: Settings) -> DetectionService | None:
+    """Carga el modelo configurado en el motor/dispositivo configurado. None si no hay modelo."""
+    if not settings.detection_model:
+        return None
+    from security_vision.core.interfaces.inference import DetectionModel, DeviceRequest, InferenceEngine
+    from security_vision.infrastructure.models.store import ModelStore
+
+    reg = build_inference_registry()
+    registered = ModelStore(Path(settings.model_registry_dir)).get(settings.detection_model)
+    engine = reg.create(InferenceEngine, settings.inference_engine)
+    engine.load_model(registered.artifact, DeviceRequest(preference=settings.inference_devices))
+    model = reg.create(DetectionModel, registered.spec.architecture, registered.spec, engine)
+    model.warmup()
+    return DetectionService(model)
 
 
 def build_storage(settings: Settings) -> LocalFileStorage:

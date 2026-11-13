@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 STEPS = [
-    ("ruff (lint)", ["ruff", "check", "src", "apps", "tests", "scripts"]),
+    ("ruff (lint)", ["ruff", "check", "src", "apps", "tests", "scripts", "ml"]),
     ("import-linter (arquitectura)", ["lint-imports"]),
     ("alembic check (modelo == migraciones)", ["alembic", "check"]),
     ("pytest", ["pytest", "-q", "-p", "no:cacheprovider"]),

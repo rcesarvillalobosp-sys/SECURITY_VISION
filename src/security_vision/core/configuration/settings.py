@@ -62,6 +62,12 @@ class Settings(BaseSettings):
     mediamtx_publish_user: str | None = None
     mediamtx_publish_password: SecretStr | None = None
 
+    # Inferencia (criterios 13 y 14: modelo y motor se cambian solo por configuración)
+    detection_model: str | None = None  # "nombre@versión" del registro de modelos; vacío = sin detección
+    inference_engine: str = "onnxruntime"  # onnxruntime | openvino
+    inference_devices: list[str] = ["cuda", "cpu"]  # preferencia con respaldo explícito
+    model_registry_dir: str = "ml/model_registry"
+
     # Worker de procesamiento
     worker_metrics_port: int = 9101
     worker_reconcile_seconds: float = 30.0

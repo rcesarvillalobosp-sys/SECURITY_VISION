@@ -9,7 +9,13 @@ import signal
 
 from prometheus_client import start_http_server
 
-from security_vision.composition import build_media, build_storage, build_video_registry, camera_policy
+from security_vision.composition import (
+    build_detection_service,
+    build_media,
+    build_storage,
+    build_video_registry,
+    camera_policy,
+)
 from security_vision.core.configuration.settings import Settings, get_settings
 from security_vision.core.interfaces.video import VideoPublisher
 from security_vision.infrastructure.database.session import create_engine, uow_factory
@@ -41,7 +47,12 @@ def build_runtime(settings: Settings) -> tuple[WorkerRuntime, object, PostgresMe
     runtime = WorkerRuntime(uow=uow_factory(engine), cipher=AesGcmCipher(settings.secrets_key.get_secret_value()),
                             registry=build_video_registry(), storage=build_storage(settings),
                             policy=camera_policy(settings), bus=bus, media=media,
-                            publisher_factory=publisher_factory, snapshot_seconds=settings.worker_snapshot_seconds)
+                            publisher_factory=publisher_factory, snapshot_seconds=settings.worker_snapshot_seconds,
+                            detector=build_detection_service(settings))
+    if runtime.detector is not None:
+        dev = runtime.detector.model.engine.get_device()
+        log.info("detección activa", extra={"model": runtime.detector.model_id, "engine": settings.inference_engine,
+                                            "device": dev.kind, "device_name": dev.name})
     return runtime, engine, bus
 
 

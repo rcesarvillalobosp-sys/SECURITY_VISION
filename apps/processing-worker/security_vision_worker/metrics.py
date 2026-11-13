@@ -54,18 +54,52 @@ class CameraCollector(Collector):
                 age.add_metric(v, a.stats.frame_age_ewma)
             if p := self.rt.publishers.get(cid):
                 published.add_metric(v, p.published)
-        yield from (up, fps, read, stale, frames, dropped, conn_err, read_err, reconn, analyzed, age, published)
+        persons = GaugeMetricFamily("sv_camera_persons", "Personas en el último fotograma analizado", labels=lbl)
+        for cid, (_fid, dets) in list(self.rt.latest.items()):
+            w = self.rt.supervisor.worker(cid)
+            if w is not None:
+                persons.add_metric([cid, w.spec.name], sum(d.class_name == "person" for d in dets))
+        yield from (up, fps, read, stale, frames, dropped, conn_err, read_err, reconn, analyzed, age, published,
+                    persons)
+        det = self.rt.detector
+        if det is not None:
+            m = det.model.engine.get_metrics()
+            dev = m.device.kind if m.device else "?"
+            inf = GaugeMetricFamily("sv_inference_ms", "Latencia de inferencia (p50/p95, ms)",
+                                    labels=["model", "device", "quantile"])
+            if m.p50_ms is not None:
+                inf.add_metric([det.model_id, dev, "0.5"], m.p50_ms)
+                inf.add_metric([det.model_id, dev, "0.95"], m.p95_ms or 0.0)
+            calls = CounterMetricFamily("sv_inference_calls", "Llamadas de inferencia", labels=["model", "device"])
+            calls.add_metric([det.model_id, dev], m.calls)
+            errs = CounterMetricFamily("sv_inference_errors", "Errores de inferencia", labels=["model"])
+            errs.add_metric([det.model_id], det.stats.errors)
+            by_cls = CounterMetricFamily("sv_detections", "Detecciones por clase canónica", labels=["model", "class"])
+            for cls, n in det.stats.by_class.items():
+                by_cls.add_metric([det.model_id, cls], n)
+            yield from (inf, calls, errs, by_cls)
 
 
 class ProcessCollector(Collector):
-    """CPU y RAM del proceso (psutil si está instalado; si no, se omite sin fallar)."""
+    """CPU y RAM del proceso (psutil si está instalado; si no, se omite sin fallar).
 
-    def collect(self) -> Iterator[Metric]:
+    Se reutiliza el mismo ``psutil.Process``: ``cpu_percent`` mide desde la llamada anterior,
+    así que un objeto nuevo en cada lectura devolvería siempre 0.
+    """
+
+    def __init__(self) -> None:
         try:
             import psutil
+
+            self._proc = psutil.Process()
+            self._proc.cpu_percent(None)
         except ImportError:
+            self._proc = None
+
+    def collect(self) -> Iterator[Metric]:
+        if self._proc is None:
             return
-        p = psutil.Process()
+        p = self._proc
         cpu = GaugeMetricFamily("sv_worker_cpu_percent", "CPU del proceso worker (%)")
         cpu.add_metric([], p.cpu_percent(None))
         rss = GaugeMetricFamily("sv_worker_memory_rss_bytes", "Memoria residente del worker")

@@ -9,6 +9,19 @@
 - **MediaMTX v1.21.3** (MIT). Binario oficial de GitHub, sha256 verificado contra `checksums.sha256`.
 - **psutil** (BSD-3) y **Pillow** (MIT-CMU).
 
+**Actualización 2026-11-12 (Fase 3), verificada en la fuente:**
+
+| Componente | Licencia | Uso en el producto |
+|---|---|---|
+| **RT-DETRv2-r18** (`PekingU/rtdetr_v2_r18vd`, commit `5650961749fa`) | Apache-2.0 según la model card; entrenado en COCO train2017 | ✅ Detector de personas base |
+| **RF-DETR Nano** (`rfdetr` 1.12.1) | Código y pesos Nano/Small/Medium/Large: Apache-2.0. **Atto/Femto/Pico/XLarge/2XLarge: PML 1.0** (excluidas) | ✅ Alternativa evaluada |
+| ONNX Runtime GPU 1.31.1 | MIT | ✅ Motor principal |
+| OpenVINO 2026.4 | Apache-2.0 | ✅ Motor alternativo |
+| PyTorch 2.14, torchvision, transformers 5.22, onnx, scipy | BSD-3 / Apache-2.0 / BSD-3 | Solo exportación y entrenamiento (no forman parte del runtime) |
+| Bibliotecas CUDA 13/cuDNN 9 (paquetes `nvidia-*`) | **NVIDIA propietaria (EULA)** | ⚠️ Aceleración opcional; revisar sus cláusulas antes de redistribuirlas en un instalador |
+
+Pesos entrenados sobre COCO: las imágenes de COCO tienen licencias Flickr heterogéneas. Usar los pesos publicados como Apache-2.0 es práctica habitual, pero conviene revisarlo con el área legal antes de comercializar. El modelo EPP propio sustituirá a estos pesos base.
+
 Leyenda de uso comercial: ✅ permitido · ⚠️ permitido con obligaciones o matices · ❌ no apto para el producto principal.
 
 ## Componentes del producto

@@ -1,0 +1,103 @@
+name: rtdetr-v2-r18-coco
+version: '1'
+architecture: rtdetr
+artifact: model.onnx
+sha256: 510bb295d548d58d6db92f2d4710805dfccc6d7d47cd521290c04bdde209e2cb
+input_size:
+- 640
+- 640
+labels:
+- person
+- bicycle
+- car
+- motorbike
+- aeroplane
+- bus
+- train
+- truck
+- boat
+- traffic light
+- fire hydrant
+- stop sign
+- parking meter
+- bench
+- bird
+- cat
+- dog
+- horse
+- sheep
+- cow
+- elephant
+- bear
+- zebra
+- giraffe
+- backpack
+- umbrella
+- handbag
+- tie
+- suitcase
+- frisbee
+- skis
+- snowboard
+- sports ball
+- kite
+- baseball bat
+- baseball glove
+- skateboard
+- surfboard
+- tennis racket
+- bottle
+- wine glass
+- cup
+- fork
+- knife
+- spoon
+- bowl
+- banana
+- apple
+- sandwich
+- orange
+- broccoli
+- carrot
+- hot dog
+- pizza
+- donut
+- cake
+- chair
+- sofa
+- pottedplant
+- bed
+- diningtable
+- toilet
+- tvmonitor
+- laptop
+- mouse
+- remote
+- keyboard
+- cell phone
+- microwave
+- oven
+- toaster
+- sink
+- refrigerator
+- book
+- clock
+- vase
+- scissors
+- teddy bear
+- hair drier
+- toothbrush
+class_map:
+  person: person
+score_threshold: 0.4
+params:
+  input_name: pixel_values
+  logits_name: logits
+  boxes_name: pred_boxes
+  activation: sigmoid
+license: Apache-2.0
+weights_license: Apache-2.0
+weights_source: PekingU/rtdetr_v2_r18vd@5650961749fa93567c0d46fc7f43ea4f9e914107
+dataset_ref: COCO train2017
+notes: 'Exportado con torch 2.14.1+cu130, opset 17; verificación sobre 59 detecciones
+  ONNX vs PyTorch: max |Δ| = 1.2e-05.'

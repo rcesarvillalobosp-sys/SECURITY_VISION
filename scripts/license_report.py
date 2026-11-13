@@ -41,6 +41,10 @@ def main() -> int:
             continue
         lic = license_of(d)
         flag = ""
+        if "proprietary" in lic.lower():
+            # Permitidas como dependencias opcionales de aceleración (EULA NVIDIA): no se redistribuyen
+            # dentro del producto sin revisar sus cláusulas. No bloquean la CI, pero quedan señaladas.
+            flag = "⚠️ propietaria (EULA NVIDIA): revisar redistribución"
         if name.lower() not in REVIEWED and (lic == "DESCONOCIDA" or STRONG_COPYLEFT.search(lic)):
             flag = "⚠️ revisar"
             problems.append(f"{name}: {lic}")

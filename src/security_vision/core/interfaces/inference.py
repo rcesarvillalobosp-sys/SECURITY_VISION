@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import ClassVar
+from typing import Any, ClassVar
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict
@@ -71,20 +71,25 @@ class InferenceEngine(ABC):
 
 
 class ModelSpec(BaseModel):
-    """Contenido de ``model.yaml`` en el registro de modelos."""
+    """Contenido de ``model.yaml`` en el registro de modelos (ml/model_registry/<nombre>/<versión>/)."""
 
     model_config = ConfigDict(extra="forbid")
     name: str
     version: str
-    architecture: str  # "rtdetr", "rfdetr", ...
-    artifact: str
+    architecture: str  # "rtdetr", "rfdetr", ... (adaptador DetectionModel registrado)
+    artifact: str  # ruta relativa al model.yaml
     sha256: str
-    input_size: tuple[int, int]
-    class_map: dict[str, str]  # etiqueta del modelo -> clase canónica
+    input_size: tuple[int, int]  # (alto, ancho)
+    labels: list[str]  # índice de salida del modelo -> etiqueta del modelo
+    class_map: dict[str, str]  # etiqueta del modelo -> clase canónica (las no mapeadas se ignoran)
     score_threshold: float = 0.3
+    class_thresholds: dict[str, float] = {}  # umbral por clase canónica
+    params: dict[str, Any] = {}  # parámetros específicos del adaptador (normalización, nombres de E/S...)
     license: str
     weights_license: str
+    weights_source: str
     dataset_ref: str | None = None
+    notes: str | None = None
 
     @property
     def model_id(self) -> str:

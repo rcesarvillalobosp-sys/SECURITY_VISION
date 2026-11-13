@@ -17,6 +17,7 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from security_vision.core.domain.cameras import Camera, SourceType
+from security_vision.core.domain.vision import Detection
 from security_vision.core.events.catalog import CameraStatusChanged
 from security_vision.core.interfaces.cameras import MediaServer
 from security_vision.core.interfaces.infrastructure import MessageBus, ObjectStorage, SecretCipher
@@ -38,6 +39,7 @@ from security_vision.modules.cameras.supervisor import (
     CameraWorker,
     ReconnectPolicy,
 )
+from security_vision.modules.detection.service import DetectionService
 
 log = logging.getLogger("security_vision.worker")
 
@@ -131,11 +133,38 @@ class PublishLoop:
             pub.close()
 
 
+COLORS = {"person": (66, 135, 245), "helmet": (40, 200, 90), "safety_vest": (40, 200, 90),
+          "safety_boot": (40, 200, 90), "gloves": (40, 200, 90), "goggles": (40, 200, 90)}
+
+
+def encode_annotated_jpeg(rgb, detections: list[Detection]) -> bytes:
+    """Snapshot de diagnóstico con las detecciones dibujadas (rojo = clases "no_*")."""
+    if not detections:
+        return encode_jpeg(rgb, 75, 960)
+    import io
+
+    from PIL import Image, ImageDraw
+
+    img = Image.fromarray(rgb)
+    d = ImageDraw.Draw(img)
+    lw = max(2, img.width // 400)
+    for det in detections:
+        color = (230, 40, 40) if det.class_name.startswith("no_") else COLORS.get(det.class_name, (240, 200, 0))
+        box = (det.bbox.x1 * img.width, det.bbox.y1 * img.height, det.bbox.x2 * img.width, det.bbox.y2 * img.height)
+        d.rectangle(box, outline=color, width=lw)
+        d.text((box[0] + 3, max(0, box[1] - 12)), f"{det.class_name} {det.confidence:.2f}", fill=color)
+    img.thumbnail((960, 960))
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=75)
+    return buf.getvalue()
+
+
 class WorkerRuntime:
     def __init__(self, *, uow: Callable[[], UnitOfWork], cipher: SecretCipher, registry: ProviderRegistry,
                  storage: ObjectStorage, policy: CameraPolicy, bus: MessageBus | None,
                  media: MediaServer | None, publisher_factory: Callable[[str, float], VideoPublisher] | None,
-                 reconnect: ReconnectPolicy | None = None, snapshot_seconds: float = 5.0) -> None:
+                 reconnect: ReconnectPolicy | None = None, snapshot_seconds: float = 5.0,
+                 detector: DetectionService | None = None) -> None:
         self.uow = uow
         self.cipher = cipher
         self.registry = registry
@@ -145,6 +174,9 @@ class WorkerRuntime:
         self.media = media
         self.publisher_factory = publisher_factory
         self.snapshot_seconds = snapshot_seconds
+        self.detector = detector
+        # cámara -> (frame_id, detecciones) del último fotograma analizado
+        self.latest: dict[str, tuple[int, list[Detection]]] = {}
         self.loop: asyncio.AbstractEventLoop | None = None
         self._status_q: asyncio.Queue[tuple[str, CameraState, str | None]] = asyncio.Queue()
         self.supervisor = CameraSupervisor(self._make_source, reconnect, on_status=self._on_status)
@@ -196,7 +228,14 @@ class WorkerRuntime:
         cam = self.cameras.get(cid)
         if worker is None or cam is None:
             return
-        loop = AnalysisLoop(worker)
+        handle = None
+        if self.detector is not None:
+            det = self.detector
+
+            def handle(frame: Frame, cid: str = cid) -> None:
+                self.latest[cid] = (frame.frame_id, det.detect(frame, cid))
+
+        loop = AnalysisLoop(worker, handle)
         loop.start()
         self.analysis[cid] = loop
         if (self.media and self.publisher_factory and cam.mediamtx_path
@@ -235,8 +274,10 @@ class WorkerRuntime:
                 frame = worker.slot.peek_latest()
                 if frame is None or worker.stats.state is not CameraState.STREAMING:
                     continue
+                dets = self.latest.get(cid)
+                overlay = dets[1] if dets and frame.frame_id - dets[0] <= 30 else []
                 try:
-                    jpeg = await asyncio.to_thread(encode_jpeg, frame.data, 75, 960)
+                    jpeg = await asyncio.to_thread(encode_annotated_jpeg, frame.data, overlay)
                     await asyncio.to_thread(self.storage.put, SNAPSHOT_KEY.format(camera_id=cid), jpeg,
                                             "image/jpeg")
                 except Exception:

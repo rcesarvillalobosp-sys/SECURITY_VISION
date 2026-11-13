@@ -29,3 +29,8 @@ node_modules/
 # Datos de ejecución locales
 var/
 
+# Entrenamientos y resultados (pesos grandes, no versionar)
+ml/training/runs/
+ml/evaluation/results/*.json
+!ml/evaluation/results/.gitkeep
+

@@ -50,5 +50,15 @@ Formato breve: contexto → decisión → consecuencias. Estado: **Aceptada** sa
 ## ADR-0012 MediaMTX como punto único de conexión a cada cámara
 - **Decisión:** si hay MediaMTX, las cámaras RTSP se leen a través de su proxy: la cámara sirve una sola conexión, y navegador y worker leen de MediaMTX. Las cámaras locales (USB) las publica el worker. MediaMTX escucha solo en localhost y exige usuario para publicar y para su API.
 
+## ADR-0013 Un adaptador DETR configurable en lugar de uno por modelo
+- **Decisión:** RT-DETR, RT-DETRv2 y RF-DETR comparten postproceso (consultas con logits sigmoide y cajas cxcywh, sin NMS). Un único `DetrDetectionModel` se parametriza desde `model.yaml` (normalización y nombres de entrada/salida); las subclases `rtdetr` y `rfdetr` solo fijan valores por defecto. D-FINE y DEIM encajarían igual.
+
+## ADR-0014 Verificación de exportaciones por detecciones, con referencia previa
+- **Contexto:** comparar los tensores ONNX y PyTorch elemento a elemento falla aunque el modelo sea correcto, porque la selección top-k de consultas de RT-DETR puede reordenarse. Además, `torch.onnx.export` altera el estado interno del modelo, así que la referencia calculada **después** de exportar era incorrecta. Se detectó al exportar y se diagnosticó: en 20 imágenes, 301 detecciones coinciden con Δ ≤ 1e-5.
+- **Decisión:** la referencia PyTorch se calcula antes de exportar. Se comparan detecciones emparejadas (clase, score y caja, con Δ < 2e-2), tolerando las que cruzan el umbral. Si la exportación no es fiel, no se registra.
+
+## ADR-0015 Selección explícita de GPU en OpenVINO; iGPU no validada
+- **Decisión:** los dispositivos `openvino-igpu`, `openvino-dgpu` y `openvino-gpu.N` se resuelven por tipo de dispositivo. En este equipo la UHD 630 (driver de 2019) provoca un **fallo nativo** que tumba el proceso al compilar el modelo, así que **no se debe configurar** hasta actualizar el driver de Intel y validarlo. La GTX 1650 vía OpenVINO funciona, pero tarda unos 495 ms, frente a 31 ms con ONNX Runtime CUDA.
+
 ## ADR-0009 Auditoría de solo inserción reforzada en la base de datos
 - **Decisión:** un trigger en PostgreSQL rechaza cualquier UPDATE o DELETE sobre `audit_log`. La única excepción es anonimizar al actor cuando se borra su usuario (`SET NULL`).
