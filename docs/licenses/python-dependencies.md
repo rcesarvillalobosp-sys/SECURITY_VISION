@@ -93,3 +93,4 @@ Fuente: metadatos de los paquetes instalados en el entorno (`uv sync --extra ml`
 | typing-inspection | 0.4.5 | MIT |  |
 | typing_extensions | 4.16.0 | PSF-2.0 |  |
 | uvicorn | 0.54.0 | BSD-3-Clause |  |
+| websockets | 17.4 | BSD-3-Clause |  |

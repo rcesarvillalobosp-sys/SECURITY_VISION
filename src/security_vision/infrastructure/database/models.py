@@ -334,3 +334,20 @@ class OutboxRow(Base):
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     attempts: Mapped[int] = mapped_column(Integer, default=0)
     __table_args__ = (Index("ix_event_outbox_pending", "id", postgresql_where="published_at IS NULL"),)
+
+
+class CameraStatsRow(Base):
+    """Agregados por cámara y minuto (fotogramas-persona): base del panel y de los reportes."""
+
+    __tablename__ = "camera_stats"
+    camera_id: Mapped[UUID] = mapped_column(ForeignKey("cameras.id", ondelete="CASCADE"), primary_key=True)
+    bucket: Mapped[datetime] = mapped_column(DateTime(timezone=True), primary_key=True)  # inicio del minuto
+    analyzed_frames: Mapped[int] = mapped_column(Integer, default=0)
+    person_frames: Mapped[int] = mapped_column(Integer, default=0)  # suma de personas por fotograma
+    max_persons: Mapped[int] = mapped_column(Integer, default=0)
+    compliant: Mapped[int] = mapped_column(Integer, default=0)
+    in_review: Mapped[int] = mapped_column(Integer, default=0)
+    possible: Mapped[int] = mapped_column(Integer, default=0)
+    confirmed: Mapped[int] = mapped_column(Integer, default=0)
+    unverifiable: Mapped[int] = mapped_column(Integer, default=0)
+    __table_args__ = (Index("ix_camera_stats_bucket", "bucket"),)

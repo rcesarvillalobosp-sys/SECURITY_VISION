@@ -25,7 +25,7 @@ from security_vision.core.domain.errors import (
 from security_vision.infrastructure.monitoring.logging import configure_logging, request_id_var
 
 from .container import Container, build_container
-from .routers import auth, cameras, incidents, rules, system, users
+from .routers import auth, cameras, dashboard, incidents, rules, system, users
 
 log = logging.getLogger("security_vision.api")
 
@@ -55,9 +55,13 @@ def create_app(settings: Settings | None = None, container: Container | None = N
         from security_vision.infrastructure.messaging.outbox import OutboxRelay
 
         relay = asyncio.create_task(OutboxRelay(app.state.container.engine, app.state.container.bus).run_forever())
+        if app.state.container.live is not None:
+            app.state.container.live.start()
         log.info("API iniciada", extra={"environment": settings.environment.value})
         yield
         relay.cancel()
+        if app.state.container.live is not None:
+            await app.state.container.live.stop()
         await app.state.container.close()
 
     app = FastAPI(
@@ -105,7 +109,33 @@ def create_app(settings: Settings | None = None, container: Container | None = N
     app.include_router(cameras.router)
     app.include_router(rules.router)
     app.include_router(incidents.router)
+    app.include_router(dashboard.router)
+    _mount_web(app, settings)
     return app
+
+
+def _mount_web(app: FastAPI, settings: Settings) -> None:
+    """Sirve el frontend compilado (mismo origen que la API) si SV_WEB_DIST apunta a apps/web/dist."""
+    from pathlib import Path
+
+    from fastapi.responses import FileResponse
+    from fastapi.staticfiles import StaticFiles
+
+    dist = Path(settings.web_dist) if settings.web_dist else None
+    if not dist or not (dist / "index.html").exists():
+        return
+    app.mount("/assets", StaticFiles(directory=dist / "assets"), name="assets")
+
+    @app.get("/{path:path}", include_in_schema=False)
+    async def spa(path: str) -> FileResponse:
+        if path.startswith(("api/", "health/", "metrics")):
+            from fastapi import HTTPException
+
+            raise HTTPException(status.HTTP_404_NOT_FOUND)  # una ruta de API inexistente no devuelve la SPA
+        target = (dist / path).resolve()
+        if path and target.is_file() and target.is_relative_to(dist.resolve()):
+            return FileResponse(target)
+        return FileResponse(dist / "index.html", headers={"Cache-Control": "no-cache"})
 
 
 def app_factory() -> FastAPI:

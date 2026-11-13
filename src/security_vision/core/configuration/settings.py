@@ -44,7 +44,8 @@ class Settings(BaseSettings):
     max_failed_logins: int = 5
     lockout_minutes: int = 15
 
-    cors_origins: list[str] = ["http://localhost:5173"]
+    cors_origins: list[str] = ["http://localhost:5173", "http://127.0.0.1:5173"]
+    web_dist: str | None = None  # p. ej. apps/web/dist: la API sirve el frontend compilado
 
     # Vídeo y almacenamiento
     video_provider: str = "pyav"  # adaptador VideoSource por defecto (pyav | gstreamer)

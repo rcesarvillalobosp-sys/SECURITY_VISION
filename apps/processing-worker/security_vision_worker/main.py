@@ -84,6 +84,7 @@ async def run(settings: Settings) -> None:
     tasks = [asyncio.create_task(c) for c in (
         runtime.status_writer(), runtime.snapshot_writer(), runtime.config_listener(), runtime.event_publisher(),
         runtime.incident_writer(), OutboxRelay(engine, bus).run_forever(),  # type: ignore[arg-type]
+        runtime.live_publisher(), runtime.stats_flusher(engine),
         _daily_retention(settings, engine),
         runtime.periodic_reconcile(settings.worker_reconcile_seconds))]
     stop = asyncio.Event()

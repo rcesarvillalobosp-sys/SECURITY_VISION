@@ -83,3 +83,9 @@ Formato breve: contexto → decisión → consecuencias. Estado: **Aceptada** sa
 ## ADR-0021 La verificabilidad precede a cualquier evidencia (corrección)
 - **Contexto:** en la revisión de evidencias de la Fase 6 se encontró un incidente falso de chaleco sobre una persona de unos 35 px. La regla aceptaba `no_*` antes de comprobar si la persona era verificable.
 - **Decisión:** si la persona o la región no son verificables, ninguna detección cuenta, ni de presencia ni de ausencia. Hay tests de regresión.
+
+## ADR-0022 Datos en vivo por WebSocket con autenticación en el primer mensaje
+- **Decisión:** el navegador recibe vídeo (WebRTC, MediaMTX) y metadatos (WebSocket de la API) por caminos separados. El WebSocket se autentica en el primer mensaje (sin token en la URL ni en los logs), comprueba `Origin`, filtra por permiso y por cámara suscrita, y cierra la conexión si el token caduca sin renovarse.
+
+## ADR-0023 Frontend: token en memoria, refresh en cookie httpOnly y recursos locales
+- **Decisión:** el token de acceso nunca se guarda en `localStorage`. Ante un 401 se hace una sola renovación compartida. Las fuentes y los recursos se empaquetan localmente (sin CDN), coherente con el procesamiento local. En producción, la API sirve el build desde el mismo origen.

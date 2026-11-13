@@ -79,6 +79,34 @@ class PostgresMessageBus(MessageBus):
             if conn in self._listeners:
                 self._listeners.remove(conn)
 
+    async def publish_raw(self, channel: str, payload: str) -> None:
+        """Mensajes efímeros de alta frecuencia (datos en vivo): sin outbox ni garantías."""
+        if len(payload.encode()) > MAX_PAYLOAD:
+            return
+        async with self._lock:
+            conn = await self._publisher()
+            await conn.execute("SELECT pg_notify($1, $2)", channel, payload)
+
+    async def listen_raw(self, channels: Sequence[str]) -> AsyncIterator[tuple[str, str]]:
+        queue: asyncio.Queue[tuple[str, str]] = asyncio.Queue(maxsize=5000)
+        conn = await asyncpg.connect(self._dsn)
+        self._listeners.append(conn)
+
+        def on_notify(_c: object, _pid: int, channel: str, payload: str) -> None:
+            with contextlib.suppress(asyncio.QueueFull):  # datos en vivo: perder un fotograma no importa
+                queue.put_nowait((channel, payload))
+
+        for ch in channels:
+            await conn.add_listener(ch, on_notify)
+        try:
+            while True:
+                yield await queue.get()
+        finally:
+            with contextlib.suppress(Exception):
+                await conn.close()
+            if conn in self._listeners:
+                self._listeners.remove(conn)
+
     async def close(self) -> None:
         for c in [self._pub, *self._listeners]:
             if c is not None and not c.is_closed():

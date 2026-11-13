@@ -29,6 +29,7 @@ from security_vision.core.interfaces.repositories import UnitOfWork
 from security_vision.core.interfaces.video import Frame, VideoPublisher, VideoSource
 from security_vision.core.registry import ProviderRegistry
 from security_vision.infrastructure.video.probe import encode_jpeg
+from security_vision.modules.analytics.live import StatsAccumulator, live_frame_payload
 from security_vision.modules.cameras.service import (
     SNAPSHOT_KEY,
     CameraPolicy,
@@ -245,6 +246,9 @@ class WorkerRuntime:
         self.history: dict[str, deque[FrameSnapshot]] = {}
         self.incidents_recorded = 0
         self.incident_errors = 0
+        self.stats = StatsAccumulator()
+        self._live_q: asyncio.Queue = asyncio.Queue(maxsize=200)
+        self.live_dropped = 0
         # cámara -> (frame_id, detecciones, análisis) del último fotograma analizado
         self.latest: dict[str, tuple[int, list[Detection], AnalyzedFrame | None]] = {}
         self.loop: asyncio.AbstractEventLoop | None = None
@@ -325,6 +329,10 @@ class WorkerRuntime:
                     if not hist or (frame.captured_at - hist[-1].analyzed.frame_ts).total_seconds() >= 0.9:
                         hist.append(snap)
                     self._on_evaluation(cid, analyzed, snap)
+                if analyzed is not None:
+                    self.stats.add(analyzed)
+                    if self.loop is not None:
+                        self.loop.call_soon_threadsafe(self._put_live, live_frame_payload(analyzed))
 
         loop = AnalysisLoop(worker, handle)
         loop.start()
@@ -408,6 +416,35 @@ class WorkerRuntime:
                     await asyncio.sleep(2 ** attempt)
             else:
                 self.incident_errors += 1
+
+    def _put_live(self, payload: dict) -> None:
+        try:
+            self._live_q.put_nowait(payload)
+        except asyncio.QueueFull:
+            self.live_dropped += 1  # datos efímeros: se prefiere perder un fotograma a acumular retraso
+
+    async def live_publisher(self) -> None:
+        import json
+
+        while True:
+            payload = await self._live_q.get()
+            if self.bus is None or not hasattr(self.bus, "publish_raw"):
+                continue
+            try:
+                await self.bus.publish_raw("sv_live", json.dumps(payload, separators=(",", ":")))
+            except Exception as exc:
+                log.debug("no se pudo publicar el fotograma en vivo: %s", exc)
+
+    async def stats_flusher(self, engine, interval: float = 30.0) -> None:
+        from security_vision.infrastructure.database.repositories.stats import upsert_minutes
+
+        while True:
+            await asyncio.sleep(interval)
+            rows = self.stats.drain()
+            try:
+                await upsert_minutes(engine, rows)
+            except Exception:
+                log.exception("no se pudieron guardar las estadísticas (%d filas)", len(rows))
 
     def _put_event(self, event: object) -> None:
         try:

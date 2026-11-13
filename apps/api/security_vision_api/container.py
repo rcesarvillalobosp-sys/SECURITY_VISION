@@ -21,6 +21,8 @@ from security_vision.modules.incidents.service import IncidentService
 from security_vision.modules.security_rules.service import RulesService
 from security_vision.modules.users.services import AuthPolicy, AuthService, UserService
 
+from .live import LiveHub
+
 
 @dataclass
 class Container:
@@ -37,6 +39,12 @@ class Container:
     bus: PostgresMessageBus
     media: MediaServer | None
     metrics: ApiMetrics
+    tokens: JwtTokenService | None = None
+    live: LiveHub | None = None
+
+    def auth_token_expiry(self, token: str):
+        assert self.tokens is not None
+        return self.tokens.decode_access_token(token).expires_at
 
     async def audit_evidence(self, user_id, incident_id, key: str, ip: str | None, tampered: bool = False) -> None:
         from security_vision.infrastructure.database.session import uow_factory
@@ -75,4 +83,5 @@ def build_container(settings: Settings) -> Container:
                      users=UserService(uow, hasher), cameras=cameras, rules=RulesService(uow, bus),
                      incidents=IncidentService(uow, storage),
                      hasher=hasher, cipher=cipher,
-                     storage=storage, bus=bus, media=media, metrics=create_api_metrics())
+                     storage=storage, bus=bus, media=media, metrics=create_api_metrics(), tokens=tokens,
+                     live=LiveHub(bus))

@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Sala de control: fondo profundo, paneles con borde fino, cifras en monoespaciada.
+   Los colores de estado son los mismos en toda la aplicación (vídeo, tablas, gráficas). */
+@theme {
+  --font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --color-ink-950: #070a0e;
+  --color-ink-900: #0b1016;
+  --color-ink-850: #0f151d;
+  --color-ink-800: #141c26;
+  --color-ink-700: #1e2834;
+  --color-ink-600: #2a3644;
+  --color-ink-400: #6b7a8c;
+  --color-ink-300: #93a1b2;
+  --color-ink-100: #dbe3ec;
+
+  --color-signal: #f5a524; /* acento: señalización industrial */
+  --color-ok: #2bd17e;
+  --color-review: #f2c94c;
+  --color-possible: #ff8c1a;
+  --color-alert: #ff3b3b;
+  --color-unknown: #8a94a3;
+}
+
+html, body, #root { height: 100%; }
+body {
+  background: var(--color-ink-950);
+  color: var(--color-ink-100);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Rejilla técnica tenue de fondo */
+.grid-bg {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.025) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.label { @apply text-[11px] font-medium uppercase tracking-[0.12em] text-ink-400; }
+.panel { @apply rounded-md border border-ink-700 bg-ink-900/80; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgb(255 59 59 / 0.6); } 100% { box-shadow: 0 0 0 10px rgb(255 59 59 / 0); } }
+.pulse-alert { animation: pulse-ring 1.6s ease-out infinite; }
+
+:focus-visible { outline: 2px solid var(--color-signal); outline-offset: 2px; }
