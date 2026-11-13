@@ -67,6 +67,8 @@ class Settings(BaseSettings):
     inference_engine: str = "onnxruntime"  # onnxruntime | openvino
     inference_devices: list[str] = ["cuda", "cpu"]  # preferencia con respaldo explícito
     model_registry_dir: str = "ml/model_registry"
+    tracker: str = "bytetrack"
+    tracker_max_lost_seconds: float = Field(default=3.0, gt=0, le=60)
 
     # Worker de procesamiento
     worker_metrics_port: int = 9101

@@ -26,10 +26,26 @@ class ObjectTracker(ABC):
     def get_tracks(self) -> list[Track]: ...
 
 
+@dataclass(frozen=True, slots=True)
+class Association:
+    """Un EPP (o señal "no_*") asignado a una persona en un fotograma."""
+
+    item: Detection
+    slot: str  # región corporal: head | eyes | torso | hands | feet
+    score: float  # calidad geométrica de la asignación [0, 1]
+    ambiguous: bool  # otra persona era casi igual de plausible (oclusión/solape)
+
+
 class PPEAssociator(ABC):
     @abstractmethod
-    def associate(self, persons: Sequence[Track], items: Sequence[Detection]) -> dict[int, list[Detection]]:
-        """track_id de persona -> EPP asociados."""
+    def associate(self, persons: Sequence[Track], items: Sequence[Detection]) -> AssociationResult:
+        """Asigna cada EPP a como mucho una persona, respetando la capacidad de cada región."""
+
+
+@dataclass(frozen=True, slots=True)
+class AssociationResult:
+    by_person: dict[int, list[Association]]  # track_id -> EPP asociados
+    unassigned: list[Detection]  # EPP sin persona plausible (persona no detectada, falso positivo...)
 
 
 @dataclass(frozen=True, slots=True)
@@ -58,7 +74,7 @@ class EvaluationResult:
 
 class SecurityEvaluator(ABC):
     @abstractmethod
-    def evaluate(self, tracks: Sequence[Track], associations: Mapping[int, Sequence[Detection]],
+    def evaluate(self, tracks: Sequence[Track], associations: AssociationResult,
                  ctx: EvaluationContext) -> EvaluationResult: ...
 
     @abstractmethod
@@ -75,7 +91,7 @@ class AnalyzedFrame:
     frame_ts: datetime
     frame_size: Size
     tracks: list[Track]
-    associations: dict[int, list[Detection]]
+    associations: AssociationResult
     timings_ms: dict[str, float]
 
 

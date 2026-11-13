@@ -60,5 +60,12 @@ Formato breve: contexto → decisión → consecuencias. Estado: **Aceptada** sa
 ## ADR-0015 Selección explícita de GPU en OpenVINO; iGPU no validada
 - **Decisión:** los dispositivos `openvino-igpu`, `openvino-dgpu` y `openvino-gpu.N` se resuelven por tipo de dispositivo. En este equipo la UHD 630 (driver de 2019) provoca un **fallo nativo** que tumba el proceso al compilar el modelo, así que **no se debe configurar** hasta actualizar el driver de Intel y validarlo. La GTX 1650 vía OpenVINO funciona, pero tarda unos 495 ms, frente a 31 ms con ONNX Runtime CUDA.
 
+## ADR-0016 ByteTrack propio, adaptado a baja frecuencia de análisis
+- **Contexto:** `supervision` haría obligatorio OpenCV. Además, ByteTrack está calibrado para 30 fps, mientras que aquí se analiza a 2–5 fps.
+- **Decisión:** implementación propia con tiempos en segundos, Kalman en fotogramas de referencia de 1/30 s, rescate por distancia entre centros (normalizada por la altura) y tolerancia temporal de los tentativos. Validado con escenarios sintéticos y umbrales de regresión (fase-4.md).
+
+## ADR-0017 Asociación EPP–persona por regiones con capacidad y algoritmo húngaro
+- **Decisión:** cada EPP solo puede asignarse dentro de su región corporal, cada región tiene capacidad (1 casco, 2 guantes…) y la asignación es global. Las asignaciones con un competidor cercano se marcan como `ambiguous`, y el motor de reglas las tratará como no verificables. Los EPP sin persona plausible se reportan como `unassigned`, nunca se fuerzan.
+
 ## ADR-0009 Auditoría de solo inserción reforzada en la base de datos
 - **Decisión:** un trigger en PostgreSQL rechaza cualquier UPDATE o DELETE sobre `audit_log`. La única excepción es anonimizar al actor cuando se borra su usuario (`SET NULL`).

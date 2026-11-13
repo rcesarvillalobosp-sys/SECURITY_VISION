@@ -64,6 +64,26 @@ def build_detection_service(settings: Settings) -> DetectionService | None:
     return DetectionService(model)
 
 
+def build_tracking(settings: Settings):
+    """Fábrica de trackers (uno por cámara) y asociador EPP (compartido, sin estado)."""
+    from security_vision.core.interfaces.analysis import ObjectTracker
+    from security_vision.modules.tracking.association import GeometricPPEAssociator
+    from security_vision.plugins.trackers.bytetrack import ByteTrackConfig, ByteTracker
+
+    reg = ProviderRegistry()
+    reg.register(ObjectTracker, ByteTracker.provider_name, ByteTracker)
+    reg.discover(ObjectTracker)
+    name = settings.tracker
+    cfg = ByteTrackConfig(max_lost_seconds=settings.tracker_max_lost_seconds)
+
+    def factory() -> ObjectTracker:
+        if name == ByteTracker.provider_name:
+            return reg.create(ObjectTracker, name, cfg)
+        return reg.create(ObjectTracker, name)
+
+    return factory, GeometricPPEAssociator()
+
+
 def build_storage(settings: Settings) -> LocalFileStorage:
     key = hashlib.sha256(b"storage-signing:" + settings.secrets_key.get_secret_value().encode()).digest()
     return LocalFileStorage(Path(settings.storage_dir), signing_key=key)

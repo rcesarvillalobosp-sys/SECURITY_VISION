@@ -55,12 +55,23 @@ class CameraCollector(Collector):
             if p := self.rt.publishers.get(cid):
                 published.add_metric(v, p.published)
         persons = GaugeMetricFamily("sv_camera_persons", "Personas en el último fotograma analizado", labels=lbl)
-        for cid, (_fid, dets) in list(self.rt.latest.items()):
+        tracked = GaugeMetricFamily("sv_camera_tracked_persons", "Personas con track confirmado", labels=lbl)
+        unassigned = GaugeMetricFamily("sv_camera_ppe_unassigned", "EPP sin persona en el último análisis",
+                                       labels=lbl)
+        ambiguous = GaugeMetricFamily("sv_camera_ppe_ambiguous", "EPP con asignación ambigua en el último análisis",
+                                      labels=lbl)
+        for cid, (_fid, dets, af) in list(self.rt.latest.items()):
             w = self.rt.supervisor.worker(cid)
-            if w is not None:
-                persons.add_metric([cid, w.spec.name], sum(d.class_name == "person" for d in dets))
+            if w is None:
+                continue
+            v = [cid, w.spec.name]
+            persons.add_metric(v, sum(d.class_name == "person" for d in dets))
+            if af is not None:
+                tracked.add_metric(v, len(af.tracks))
+                unassigned.add_metric(v, len(af.associations.unassigned))
+                ambiguous.add_metric(v, sum(a.ambiguous for lst in af.associations.by_person.values() for a in lst))
         yield from (up, fps, read, stale, frames, dropped, conn_err, read_err, reconn, analyzed, age, published,
-                    persons)
+                    persons, tracked, unassigned, ambiguous)
         det = self.rt.detector
         if det is not None:
             m = det.model.engine.get_metrics()

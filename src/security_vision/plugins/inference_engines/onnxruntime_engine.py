@@ -92,6 +92,7 @@ class OnnxRuntimeEngine(InferenceEngine):
         path = verify_artifact(artifact)
         opts = ort.SessionOptions()
         opts.graph_optimization_level = ort.GraphOptimizationLevel.ORT_ENABLE_ALL
+        opts.log_severity_level = 3  # solo errores: los avisos de ORT (ScatterND...) se repiten en cada inferencia
         if self._threads:
             opts.intra_op_num_threads = self._threads
         avail = set(ort.get_available_providers())

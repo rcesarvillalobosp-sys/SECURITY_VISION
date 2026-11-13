@@ -13,6 +13,7 @@ from security_vision.composition import (
     build_detection_service,
     build_media,
     build_storage,
+    build_tracking,
     build_video_registry,
     camera_policy,
 )
@@ -44,11 +45,13 @@ def build_runtime(settings: Settings) -> tuple[WorkerRuntime, object, PostgresMe
         def publisher_factory(url: str, fps: float) -> VideoPublisher:
             return PyAVRtspPublisher(url, fps, user, pwd)
 
+    tracker_factory, associator = build_tracking(settings)
     runtime = WorkerRuntime(uow=uow_factory(engine), cipher=AesGcmCipher(settings.secrets_key.get_secret_value()),
                             registry=build_video_registry(), storage=build_storage(settings),
                             policy=camera_policy(settings), bus=bus, media=media,
                             publisher_factory=publisher_factory, snapshot_seconds=settings.worker_snapshot_seconds,
-                            detector=build_detection_service(settings))
+                            detector=build_detection_service(settings),
+                            tracker_factory=tracker_factory, associator=associator)
     if runtime.detector is not None:
         dev = runtime.detector.model.engine.get_device()
         log.info("detección activa", extra={"model": runtime.detector.model_id, "engine": settings.inference_engine,

@@ -19,6 +19,7 @@ from uuid import UUID
 from security_vision.core.domain.cameras import Camera, SourceType
 from security_vision.core.domain.vision import Detection
 from security_vision.core.events.catalog import CameraStatusChanged
+from security_vision.core.interfaces.analysis import AnalyzedFrame, ObjectTracker, PPEAssociator
 from security_vision.core.interfaces.cameras import MediaServer
 from security_vision.core.interfaces.infrastructure import MessageBus, ObjectStorage, SecretCipher
 from security_vision.core.interfaces.repositories import UnitOfWork
@@ -40,6 +41,7 @@ from security_vision.modules.cameras.supervisor import (
     ReconnectPolicy,
 )
 from security_vision.modules.detection.service import DetectionService
+from security_vision.modules.tracking.analyzer import CameraAnalyzer
 
 log = logging.getLogger("security_vision.worker")
 
@@ -137,8 +139,11 @@ COLORS = {"person": (66, 135, 245), "helmet": (40, 200, 90), "safety_vest": (40,
           "safety_boot": (40, 200, 90), "gloves": (40, 200, 90), "goggles": (40, 200, 90)}
 
 
-def encode_annotated_jpeg(rgb, detections: list[Detection]) -> bytes:
-    """Snapshot de diagnóstico con las detecciones dibujadas (rojo = clases "no_*")."""
+def encode_annotated_jpeg(rgb, detections: list[Detection], analyzed: AnalyzedFrame | None = None) -> bytes:
+    """Snapshot de diagnóstico: personas con su ID temporal y EPP coloreado (rojo = "no_*",
+    blanco = sin persona asociada, "?" = asignación ambigua)."""
+    if analyzed is not None:
+        return _encode_analyzed(rgb, analyzed)
     if not detections:
         return encode_jpeg(rgb, 75, 960)
     import io
@@ -159,12 +164,44 @@ def encode_annotated_jpeg(rgb, detections: list[Detection]) -> bytes:
     return buf.getvalue()
 
 
+def _encode_analyzed(rgb, af: AnalyzedFrame) -> bytes:
+    import io
+
+    from PIL import Image, ImageDraw
+
+    img = Image.fromarray(rgb)
+    d = ImageDraw.Draw(img)
+    width, height = img.size
+    lw = max(2, width // 400)
+
+    def box(b):
+        return (b.x1 * width, b.y1 * height, b.x2 * width, b.y2 * height)
+
+    for t in af.tracks:
+        d.rectangle(box(t.bbox), outline=COLORS["person"], width=lw)
+        d.text((t.bbox.x1 * width + 3, t.bbox.y1 * height + 2), f"P{t.track_id}", fill=COLORS["person"])
+        for a in af.associations.by_person.get(t.track_id, []):
+            col = (230, 40, 40) if a.item.class_name.startswith("no_") else (40, 200, 90)
+            mark = "?" if a.ambiguous else ""
+            d.rectangle(box(a.item.bbox), outline=col, width=lw)
+            d.text((a.item.bbox.x1 * width, max(0, a.item.bbox.y1 * height - 12)),
+                   f"P{t.track_id}:{a.item.class_name}{mark}", fill=col)
+    for it in af.associations.unassigned:
+        d.rectangle(box(it.bbox), outline=(255, 255, 255), width=lw)
+    img.thumbnail((960, 960))
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=75)
+    return buf.getvalue()
+
+
 class WorkerRuntime:
     def __init__(self, *, uow: Callable[[], UnitOfWork], cipher: SecretCipher, registry: ProviderRegistry,
                  storage: ObjectStorage, policy: CameraPolicy, bus: MessageBus | None,
                  media: MediaServer | None, publisher_factory: Callable[[str, float], VideoPublisher] | None,
                  reconnect: ReconnectPolicy | None = None, snapshot_seconds: float = 5.0,
-                 detector: DetectionService | None = None) -> None:
+                 detector: DetectionService | None = None,
+                 tracker_factory: Callable[[], ObjectTracker] | None = None,
+                 associator: PPEAssociator | None = None) -> None:
         self.uow = uow
         self.cipher = cipher
         self.registry = registry
@@ -175,8 +212,10 @@ class WorkerRuntime:
         self.publisher_factory = publisher_factory
         self.snapshot_seconds = snapshot_seconds
         self.detector = detector
-        # cámara -> (frame_id, detecciones) del último fotograma analizado
-        self.latest: dict[str, tuple[int, list[Detection]]] = {}
+        self.tracker_factory = tracker_factory
+        self.associator = associator
+        # cámara -> (frame_id, detecciones, análisis) del último fotograma analizado
+        self.latest: dict[str, tuple[int, list[Detection], AnalyzedFrame | None]] = {}
         self.loop: asyncio.AbstractEventLoop | None = None
         self._status_q: asyncio.Queue[tuple[str, CameraState, str | None]] = asyncio.Queue()
         self.supervisor = CameraSupervisor(self._make_source, reconnect, on_status=self._on_status)
@@ -231,9 +270,13 @@ class WorkerRuntime:
         handle = None
         if self.detector is not None:
             det = self.detector
+            analyzer = (CameraAnalyzer(cid, self.tracker_factory(), self.associator)
+                        if self.tracker_factory and self.associator else None)
 
             def handle(frame: Frame, cid: str = cid) -> None:
-                self.latest[cid] = (frame.frame_id, det.detect(frame, cid))
+                dets = det.detect(frame, cid)
+                analyzed = analyzer.process(frame, dets) if analyzer else None
+                self.latest[cid] = (frame.frame_id, dets, analyzed)
 
         loop = AnalysisLoop(worker, handle)
         loop.start()
@@ -249,6 +292,7 @@ class WorkerRuntime:
     def _stop_aux(self, cid: str) -> None:
         if loop := self.analysis.pop(cid, None):
             loop.stop()
+        self.latest.pop(cid, None)  # el tracker de la cámara se descarta con ella
         if pub := self.publishers.pop(cid, None):
             pub.stop()
 
@@ -274,10 +318,12 @@ class WorkerRuntime:
                 frame = worker.slot.peek_latest()
                 if frame is None or worker.stats.state is not CameraState.STREAMING:
                     continue
-                dets = self.latest.get(cid)
-                overlay = dets[1] if dets and frame.frame_id - dets[0] <= 30 else []
+                last = self.latest.get(cid)
+                fresh = bool(last and frame.frame_id - last[0] <= 30)
+                overlay = last[1] if fresh and last else []
+                analyzed = last[2] if fresh and last else None
                 try:
-                    jpeg = await asyncio.to_thread(encode_annotated_jpeg, frame.data, overlay)
+                    jpeg = await asyncio.to_thread(encode_annotated_jpeg, frame.data, overlay, analyzed)
                     await asyncio.to_thread(self.storage.put, SNAPSHOT_KEY.format(camera_id=cid), jpeg,
                                             "image/jpeg")
                 except Exception:
