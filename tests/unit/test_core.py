@@ -144,3 +144,17 @@ def test_production_rejects_example_secrets():
         Settings(_env_file=None, environment="production", jwt_secret="change-me-" + "x" * 30,
                  secrets_key="k" * 43)
     Settings(_env_file=None, environment="development", jwt_secret="change-me-" + "x" * 30, secrets_key="k" * 43)
+
+
+def test_settings_reject_unfilled_env_example_placeholders():
+    """Un marcador de .env.example (``<...>``) sin completar no puede usarse como secreto."""
+    import pytest
+    from pydantic import ValidationError as PydanticValidationError
+
+    from security_vision.core.configuration.settings import Settings
+
+    base = {"database_url": "postgresql+asyncpg://u:p@h/d", "jwt_secret": "x" * 48, "secrets_key": "A" * 43 + "="}
+    Settings(_env_file=None, **base)  # válido
+    for field in ("jwt_secret", "mediamtx_auth_key", "bootstrap_admin_password"):
+        with pytest.raises(PydanticValidationError, match="valor de ejemplo"):
+            Settings(_env_file=None, **(base | {field: "<al menos 32 caracteres aleatorios>"}))

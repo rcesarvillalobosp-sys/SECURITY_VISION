@@ -27,7 +27,7 @@
 
    Si no hay `uv`, se puede generar cada secreto con `python -c "import secrets; print(secrets.token_urlsafe(32))"`. En ese caso `SV_SECRETS_KEY` debe tener 32 bytes en base64 url-safe.
 
-2. En `.env`, completar:
+2. En `.env`, **descomentar la sección de Docker** y completar:
    - `SV_DB_PASSWORD`, `SV_JWT_SECRET`, `SV_SECRETS_KEY`;
    - `SV_MEDIAMTX_API_PASSWORD`, `SV_MEDIAMTX_PUBLISH_PASSWORD`, `SV_MEDIAMTX_AUTH_KEY`;
    - `SV_BOOTSTRAP_ADMIN_EMAIL` y `SV_BOOTSTRAP_ADMIN_PASSWORD`;

@@ -23,6 +23,7 @@ import secrets
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import quote
 
 sys.path.insert(0, str(Path(__file__).parent))
 from dev_postgres import DEFAULT_BASE, read_env, write_env
@@ -94,7 +95,7 @@ def cmd_config(args: argparse.Namespace) -> None:
     pub_pwd = env.get("SV_MEDIAMTX_PUBLISH_PASSWORD") or secrets.token_urlsafe(18)
     api_pwd = env.get("SV_MEDIAMTX_API_PASSWORD") or secrets.token_urlsafe(18)
     auth_key = env.get("SV_MEDIAMTX_AUTH_KEY") or secrets.token_urlsafe(32)
-    auth_url = f"{args.api_url.rstrip('/')}/api/v1/media/auth?key={auth_key}"
+    auth_url = f"{args.api_url.rstrip('/')}/api/v1/media/auth?key={quote(auth_key, safe='')}"
     origins = args.origin or (["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:8000",
                                "http://127.0.0.1:8000"])
     cfg = render_config(rtsp_port=8554, webrtc_port=8889, api_port=9997, publish_user="svpublisher",

@@ -112,6 +112,13 @@ class Settings(BaseSettings):
 
     @model_validator(mode="after")
     def _production_guards(self) -> Settings:
+        # En cualquier entorno: un marcador de .env.example sin completar (``<...>``) no es un secreto
+        for name in ("jwt_secret", "secrets_key", "mediamtx_api_password", "mediamtx_publish_password",
+                     "mediamtx_auth_key", "bootstrap_admin_password", "smtp_password"):
+            value = getattr(self, name)
+            raw = value.get_secret_value() if value is not None else ""
+            if raw.startswith("<") and raw.endswith(">"):
+                raise ValueError(f"SV_{name.upper()} sigue con el valor de ejemplo de .env.example: completarlo")
         if self.environment is Environment.PRODUCTION:
             for name in ("jwt_secret", "secrets_key"):
                 value = getattr(self, name).get_secret_value().lower()

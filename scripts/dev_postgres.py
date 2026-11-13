@@ -30,7 +30,10 @@ def read_env() -> dict[str, str]:
         for line in ENV_FILE.read_text(encoding="utf-8").splitlines():
             if "=" in line and not line.lstrip().startswith("#"):
                 k, v = line.split("=", 1)
-                env[k.strip()] = v.strip()
+                v = v.split(" #", 1)[0].strip()  # comentario al final de la línea
+                if v.startswith("<") and v.endswith(">"):
+                    continue  # marcador de .env.example sin completar: como si no existiera
+                env[k.strip()] = v
     return env
 
 
