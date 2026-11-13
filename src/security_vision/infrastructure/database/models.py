@@ -231,3 +231,106 @@ class ZoneRow(Timestamps, Base):
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     __table_args__ = (Index("ix_zones_camera_id", "camera_id"),
                       UniqueConstraint("camera_id", "name", name="uq_zones_camera_name"))
+
+
+# --- incidentes y evidencias ------------------------------------------------------------
+
+class IncidentRow(Timestamps, Base):
+    """Incumplimiento confirmado por el motor de reglas, sujeto a revisión humana."""
+
+    __tablename__ = "incidents"
+    id: Mapped[UUID] = pk()
+    source_event_id: Mapped[UUID] = mapped_column(unique=True)  # idempotencia
+    camera_id: Mapped[UUID | None] = mapped_column(ForeignKey("cameras.id", ondelete="SET NULL"))
+    camera_name: Mapped[str] = mapped_column(String(200))  # instantánea: el incidente sobrevive a la cámara
+    zone_id: Mapped[UUID | None] = mapped_column(ForeignKey("zones.id", ondelete="SET NULL"))
+    profile_id: Mapped[UUID | None] = mapped_column(ForeignKey("security_profiles.id", ondelete="SET NULL"))
+    profile_version: Mapped[int | None] = mapped_column(Integer)
+    track_id: Mapped[int] = mapped_column(Integer)
+    violation_type: Mapped[str] = mapped_column(String(64))
+    status: Mapped[str] = mapped_column(String(20), default="PENDIENTE")
+    confidence: Mapped[float] = mapped_column(Float)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    confirmed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    end_reason: Mapped[str | None] = mapped_column(String(32))
+    model_id: Mapped[str | None] = mapped_column(String(120))
+    details: Mapped[dict[str, Any]] = mapped_column(default=dict)
+    __table_args__ = (
+        Index("ix_incidents_confirmed_at", "confirmed_at"),
+        Index("ix_incidents_status", "status"),
+        Index("ix_incidents_camera_confirmed", "camera_id", "confirmed_at"),
+        CheckConstraint("status IN ('PENDIENTE','EN_REVISION','CONFIRMADO','DESCARTADO','RESUELTO')",
+                        name="status_valid"),
+        CheckConstraint("confidence >= 0 AND confidence <= 1", name="confidence_range"),
+    )
+
+
+class EvidenceRow(Base):
+    __tablename__ = "evidences"
+    id: Mapped[UUID] = pk()
+    incident_id: Mapped[UUID] = mapped_column(ForeignKey("incidents.id", ondelete="CASCADE"), index=True)
+    kind: Mapped[str] = mapped_column(String(32))  # frame | annotated | crop | context
+    storage_key: Mapped[str] = mapped_column(String(500), unique=True)
+    sha256: Mapped[str] = mapped_column(String(64))
+    content_type: Mapped[str] = mapped_column(String(64))
+    size_bytes: Mapped[int] = mapped_column(Integer)
+    width: Mapped[int | None] = mapped_column(Integer)
+    height: Mapped[int | None] = mapped_column(Integer)
+    captured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    frame_id: Mapped[int | None] = mapped_column(BigInteger)
+    meta: Mapped[dict[str, Any]] = mapped_column(default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    purged_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class DetectionRow(Base):
+    """Detecciones persistidas: las de los fotogramas de evidencia (no todas las de cada fotograma)."""
+
+    __tablename__ = "detections"
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    incident_id: Mapped[UUID] = mapped_column(ForeignKey("incidents.id", ondelete="CASCADE"), index=True)
+    evidence_id: Mapped[UUID | None] = mapped_column(ForeignKey("evidences.id", ondelete="SET NULL"))
+    camera_id: Mapped[UUID] = mapped_column()
+    track_id: Mapped[int | None] = mapped_column(Integer)
+    class_name: Mapped[str] = mapped_column(String(64))
+    bbox: Mapped[list[Any]] = mapped_column()  # [x1, y1, x2, y2] normalizado
+    confidence: Mapped[float] = mapped_column(Float)
+    frame_id: Mapped[int] = mapped_column(BigInteger)
+    frame_ts: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    model_id: Mapped[str] = mapped_column(String(120))
+    inference_ms: Mapped[float] = mapped_column(Float)
+
+
+class IncidentHistoryRow(Base):
+    __tablename__ = "incident_history"
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    incident_id: Mapped[UUID] = mapped_column(ForeignKey("incidents.id", ondelete="CASCADE"), index=True)
+    actor_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    action: Mapped[str] = mapped_column(String(32))  # created | status_changed | ended | commented
+    from_status: Mapped[str | None] = mapped_column(String(20))
+    to_status: Mapped[str | None] = mapped_column(String(20))
+    note: Mapped[str | None] = mapped_column(Text)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class IncidentCommentRow(Base):
+    __tablename__ = "incident_comments"
+    id: Mapped[UUID] = pk()
+    incident_id: Mapped[UUID] = mapped_column(ForeignKey("incidents.id", ondelete="CASCADE"), index=True)
+    author_id: Mapped[UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    body: Mapped[str] = mapped_column(Text)
+    at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class OutboxRow(Base):
+    """Eventos escritos en la misma transacción que el cambio; un relé los publica (al menos una vez)."""
+
+    __tablename__ = "event_outbox"
+    id: Mapped[int] = mapped_column(BigInteger, Identity(), primary_key=True)
+    event_type: Mapped[str] = mapped_column(String(100))
+    payload: Mapped[dict[str, Any]] = mapped_column()
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    attempts: Mapped[int] = mapped_column(Integer, default=0)
+    __table_args__ = (Index("ix_event_outbox_pending", "id", postgresql_where="published_at IS NULL"),)

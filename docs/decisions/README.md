@@ -73,3 +73,13 @@ Formato breve: contexto → decisión → consecuencias. Estado: **Aceptada** sa
 
 ## ADR-0009 Auditoría de solo inserción reforzada en la base de datos
 - **Decisión:** un trigger en PostgreSQL rechaza cualquier UPDATE o DELETE sobre `audit_log`. La única excepción es anonimizar al actor cuando se borra su usuario (`SET NULL`).
+
+## ADR-0019 Incidentes escritos por el worker en una transacción con outbox
+- **Decisión:** el worker registra el incidente, la evidencia, las detecciones y el historial directamente en PostgreSQL, en una transacción idempotente (identificador derivado de la confirmación). Las notificaciones salen por un **outbox** que publican relés con `FOR UPDATE SKIP LOCKED`, entrega al menos una vez. NOTIFY sin outbox ("como mucho una vez") no es aceptable para incidentes.
+
+## ADR-0020 Evidencias con URL firmadas ligadas al usuario e integridad verificada
+- **Decisión:** HMAC sobre (clave, usuario, caducidad de 5 min). Cada acceso se audita con la identidad. El sha256 se verifica al servir: una evidencia alterada no se entrega. Al aplicar la retención se borran los archivos y se conservan los metadatos.
+
+## ADR-0021 La verificabilidad precede a cualquier evidencia (corrección)
+- **Contexto:** en la revisión de evidencias de la Fase 6 se encontró un incidente falso de chaleco sobre una persona de unos 35 px. La regla aceptaba `no_*` antes de comprobar si la persona era verificable.
+- **Decisión:** si la persona o la región no son verificables, ninguna detección cuenta, ni de presencia ni de ausencia. Hay tests de regresión.

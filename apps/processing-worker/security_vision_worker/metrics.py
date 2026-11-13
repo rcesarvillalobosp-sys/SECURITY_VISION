@@ -88,8 +88,12 @@ class CameraCollector(Collector):
         closed = CounterMetricFamily("sv_violations_closed", "Incumplimientos cerrados", labels=["camera_id", "reason"])
         for (cid, reason), n in list(self.rt.violations_closed.items()):
             closed.add_metric([cid, reason], n)
+        inc = CounterMetricFamily("sv_incidents_recorded", "Incidentes registrados con evidencia")
+        inc.add_metric([], self.rt.incidents_recorded)
+        inc_err = CounterMetricFamily("sv_incident_errors", "Incidentes que no se pudieron registrar")
+        inc_err.add_metric([], self.rt.incident_errors)
         yield from (up, fps, read, stale, frames, dropped, conn_err, read_err, reconn, analyzed, age, published,
-                    persons, tracked, unassigned, ambiguous, by_status, confirmed, closed)
+                    persons, tracked, unassigned, ambiguous, by_status, confirmed, closed, inc, inc_err)
         det = self.rt.detector
         if det is not None:
             m = det.model.engine.get_metrics()

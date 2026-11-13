@@ -55,6 +55,13 @@ class PPERule:
 
     def observe(self, person: Track, associated: Sequence[Association], others: Sequence[Track], frame: Size,
                 th: RuleThresholds) -> ObservationRecord:
+        # La verificabilidad se comprueba ANTES que cualquier evidencia. Si la persona es demasiado
+        # pequeña, poco segura, está cortada u ocluida, ninguna detección (ni "helmet" ni "no_helmet")
+        # es fiable: el detector se equivoca precisamente en esos casos (hallazgo de la Fase 6: un
+        # "no_vest" de 0.46 sobre una figura de ~35 px generó un incidente falso).
+        reason = self.unverifiable_reason(person, others, frame, th)
+        if reason:
+            return ObservationRecord(Observation.UNVERIFIABLE, reason=reason)
         mine = [a for a in associated if a.slot == self.slot and a.item.confidence >= th.min_item_confidence]
         clear = [a for a in mine if not a.ambiguous]
         negatives = [a for a in clear if a.item.class_name == self.negative]
@@ -69,9 +76,6 @@ class PPERule:
                                      confidence=max(a.item.confidence for a in positives))
         if mine:  # solo asignaciones ambiguas: no se puede atribuir a esta persona
             return ObservationRecord(Observation.UNVERIFIABLE, reason="asignación ambigua (solape de personas)")
-        reason = self.unverifiable_reason(person, others, frame, th)
-        if reason:
-            return ObservationRecord(Observation.UNVERIFIABLE, reason=reason)
         return ObservationRecord(Observation.ABSENT, explicit=False)
 
 

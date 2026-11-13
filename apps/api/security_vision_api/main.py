@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import time
 import uuid
@@ -24,7 +25,7 @@ from security_vision.core.domain.errors import (
 from security_vision.infrastructure.monitoring.logging import configure_logging, request_id_var
 
 from .container import Container, build_container
-from .routers import auth, cameras, rules, system, users
+from .routers import auth, cameras, incidents, rules, system, users
 
 log = logging.getLogger("security_vision.api")
 
@@ -51,8 +52,12 @@ def create_app(settings: Settings | None = None, container: Container | None = N
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         app.state.container = container or build_container(settings)
+        from security_vision.infrastructure.messaging.outbox import OutboxRelay
+
+        relay = asyncio.create_task(OutboxRelay(app.state.container.engine, app.state.container.bus).run_forever())
         log.info("API iniciada", extra={"environment": settings.environment.value})
         yield
+        relay.cancel()
         await app.state.container.close()
 
     app = FastAPI(
@@ -99,6 +104,7 @@ def create_app(settings: Settings | None = None, container: Container | None = N
     app.include_router(users.router)
     app.include_router(cameras.router)
     app.include_router(rules.router)
+    app.include_router(incidents.router)
     return app
 
 

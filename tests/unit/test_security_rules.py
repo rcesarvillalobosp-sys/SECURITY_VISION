@@ -256,3 +256,22 @@ def test_threshold_validation(bad):
 def test_profile_rejects_unknown_ppe():
     with pytest.raises(ValidationError):
         SecurityProfile("p", "p", ("casco",))
+
+
+def test_regression_tiny_person_with_explicit_negative_is_never_confirmed():
+    """Hallazgo de la Fase 6: una figura lejana de ~35 px con un "no_vest" de 0.46 generó un incidente.
+    Con resolución insuficiente, ni la evidencia explícita cuenta: NO_VERIFICABLE."""
+    vest = SecurityProfile("p-vest", "Chaleco", ("safety_vest",))
+    ev = evaluator(vest)
+    tiny = person(box=(0.20, 0.20, 0.215, 0.249))  # ~35 px de alto en 720p
+    res = run(ev, 60, tracks=[tiny], associations=assoc(1, "no_vest"))
+    assert all(r.new_violations == [] for r in res)
+    assert res[-1].persons[0].status is S.NO_VERIFICABLE
+
+
+def test_occluded_region_ignores_explicit_negative():
+    back = person(1, (0.40, 0.20, 0.48, 0.70))
+    front = person(2, (0.38, 0.30, 0.50, 0.95))
+    a = Association(item("no_vest"), "torso", 0.9, False)
+    rec = DEFAULT_RULES["safety_vest"].observe(back, [a], [back, front], FRAME, RuleThresholds())
+    assert rec.observation is Observation.UNVERIFIABLE

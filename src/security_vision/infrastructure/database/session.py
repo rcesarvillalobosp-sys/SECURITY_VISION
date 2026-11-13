@@ -12,6 +12,7 @@ from security_vision.core.interfaces.repositories import UnitOfWork
 
 from .repositories.cameras import SqlCameraRepository
 from .repositories.identity import SqlAuditLog, SqlRoleRepository, SqlSessionRepository, SqlUserRepository
+from .repositories.incidents import SqlIncidentRepository
 from .repositories.rules import SqlRulesRepository
 
 
@@ -38,6 +39,7 @@ class SqlUnitOfWork(UnitOfWork):
         self.audit = SqlAuditLog(self._session)
         self.cameras = SqlCameraRepository(self._session)
         self.rules = SqlRulesRepository(self._session)
+        self.incidents = SqlIncidentRepository(self._session)
         return self
 
     async def __aexit__(self, *exc: object) -> None:

@@ -40,6 +40,15 @@ class IncidentConfirmed(DomainEvent):
     profile_id: UUID | None = None
     model_id: str
     evidence_keys: list[str]
+    incident_id: UUID | None = None
+
+
+@register_event
+class IncidentUpdated(DomainEvent):
+    event_type: ClassVar[str] = "incident.updated.v1"
+    incident_id: UUID
+    change: str  # status | ended
+    status: str
 
 
 @register_event

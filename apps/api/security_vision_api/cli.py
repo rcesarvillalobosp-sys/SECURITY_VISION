@@ -42,6 +42,21 @@ async def _bootstrap() -> dict[str, object]:
         await engine.dispose()
 
 
+async def _purge() -> dict[str, object]:
+    from dataclasses import asdict
+
+    from security_vision.composition import build_retention
+    from security_vision.core.configuration.settings import get_settings
+    from security_vision.infrastructure.database.session import create_engine
+
+    s = get_settings()
+    engine = create_engine(s.database_url.get_secret_value(), pool_size=2)
+    try:
+        return asdict(await build_retention(s, engine).purge())
+    finally:
+        await engine.dispose()
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="svctl")
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -52,6 +67,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     sv.add_argument("--port", type=int, default=8000)
     sv.add_argument("--reload", action="store_true")
     sub.add_parser("gen-secrets")
+    sub.add_parser("purge", help="aplica la política de retención (evidencias, historial, huérfanos)")
     args = ap.parse_args(argv)
 
     if args.cmd == "migrate":
@@ -63,6 +79,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
         uvicorn.run("security_vision_api.main:app_factory", factory=True, host=args.host, port=args.port,
                     reload=args.reload, access_log=False)
+    elif args.cmd == "purge":
+        print(json.dumps(asyncio.run(_purge()), ensure_ascii=False))
     elif args.cmd == "gen-secrets":
         from security_vision.infrastructure.security.adapters import AesGcmCipher
 

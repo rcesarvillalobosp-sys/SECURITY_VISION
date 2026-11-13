@@ -84,6 +84,23 @@ def build_tracking(settings: Settings):
     return factory, GeometricPPEAssociator()
 
 
+def build_retention(settings: Settings, engine):
+    """Servicio de retención con la purga del historial de conectividad en SQL."""
+    from sqlalchemy import text
+
+    from security_vision.infrastructure.database.session import uow_factory
+    from security_vision.modules.incidents.retention import RetentionDefaults, RetentionService
+
+    async def purge_status(cutoff):
+        async with engine.begin() as conn:
+            res = await conn.execute(text("DELETE FROM camera_status_events WHERE at < :c"), {"c": cutoff})
+            return res.rowcount
+
+    defaults = RetentionDefaults(evidences_days=settings.retention_evidences_days,
+                                 status_events_days=settings.retention_status_events_days)
+    return RetentionService(uow_factory(engine), build_storage(settings), defaults, purge_status)
+
+
 def build_storage(settings: Settings) -> LocalFileStorage:
     key = hashlib.sha256(b"storage-signing:" + settings.secrets_key.get_secret_value().encode()).digest()
     return LocalFileStorage(Path(settings.storage_dir), signing_key=key)

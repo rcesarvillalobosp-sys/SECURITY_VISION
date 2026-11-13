@@ -11,6 +11,7 @@ import asyncio
 import logging
 import threading
 import time
+from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -18,6 +19,7 @@ from uuid import UUID
 
 from security_vision.core.domain.cameras import Camera, SourceType
 from security_vision.core.domain.compliance import CameraRules, ComplianceStatus
+from security_vision.core.domain.incidents import NewIncident, violation_event_id
 from security_vision.core.domain.vision import Detection
 from security_vision.core.events.catalog import CameraStatusChanged, PersonComplianceChanged
 from security_vision.core.interfaces.analysis import AnalyzedFrame, ObjectTracker, PPEAssociator
@@ -42,6 +44,8 @@ from security_vision.modules.cameras.supervisor import (
     ReconnectPolicy,
 )
 from security_vision.modules.detection.service import DetectionService
+from security_vision.modules.incidents.evidence import FrameSnapshot, build_evidence
+from security_vision.modules.incidents.service import IncidentService
 from security_vision.modules.security_rules.engine import RuleBasedSecurityEvaluator
 from security_vision.modules.tracking.analyzer import CameraAnalyzer
 
@@ -216,7 +220,8 @@ class WorkerRuntime:
                  reconnect: ReconnectPolicy | None = None, snapshot_seconds: float = 5.0,
                  detector: DetectionService | None = None,
                  tracker_factory: Callable[[], ObjectTracker] | None = None,
-                 associator: PPEAssociator | None = None) -> None:
+                 associator: PPEAssociator | None = None,
+                 incidents: IncidentService | None = None) -> None:
         self.uow = uow
         self.cipher = cipher
         self.registry = registry
@@ -234,6 +239,12 @@ class WorkerRuntime:
         self.violations_confirmed: dict[tuple[str, str], int] = {}  # (cámara, epp) -> nº
         self.violations_closed: dict[tuple[str, str], int] = {}  # (cámara, motivo) -> nº
         self._events_q: asyncio.Queue = asyncio.Queue(maxsize=10_000)
+        self.incidents = incidents
+        self._incidents_q: asyncio.Queue = asyncio.Queue(maxsize=1_000)
+        # Búfer de contexto por cámara: ~1 fotograma analizado por segundo de los últimos ~12 s
+        self.history: dict[str, deque[FrameSnapshot]] = {}
+        self.incidents_recorded = 0
+        self.incident_errors = 0
         # cámara -> (frame_id, detecciones, análisis) del último fotograma analizado
         self.latest: dict[str, tuple[int, list[Detection], AnalyzedFrame | None]] = {}
         self.loop: asyncio.AbstractEventLoop | None = None
@@ -309,7 +320,11 @@ class WorkerRuntime:
                 analyzed = analyzer.process(frame, dets) if analyzer else None
                 self.latest[cid] = (frame.frame_id, dets, analyzed)
                 if analyzed is not None and analyzed.evaluation is not None:
-                    self._on_evaluation(cid, analyzed)
+                    snap = FrameSnapshot(frame.data, analyzed, tuple(dets))
+                    hist = self.history.setdefault(cid, deque(maxlen=12))
+                    if not hist or (frame.captured_at - hist[-1].analyzed.frame_ts).total_seconds() >= 0.9:
+                        hist.append(snap)
+                    self._on_evaluation(cid, analyzed, snap)
 
         loop = AnalysisLoop(worker, handle)
         loop.start()
@@ -322,7 +337,7 @@ class WorkerRuntime:
             pub.start()
             self.publishers[cid] = pub
 
-    def _on_evaluation(self, cid: str, af: AnalyzedFrame) -> None:
+    def _on_evaluation(self, cid: str, af: AnalyzedFrame, snap: FrameSnapshot | None = None) -> None:
         """Hilo de análisis: contabiliza y encola eventos para el bucle asyncio."""
         ev = af.evaluation
         assert ev is not None
@@ -334,6 +349,13 @@ class WorkerRuntime:
         for c in ev.closed_violations:
             key = (cid, c.reason)
             self.violations_closed[key] = self.violations_closed.get(key, 0) + 1
+        if self.loop is not None and self.incidents is not None:
+            for v in ev.new_violations:
+                if snap is not None:
+                    job = ("confirmed", cid, v, snap, list(self.history.get(cid, ())))
+                    self.loop.call_soon_threadsafe(self._put_incident, job)
+            for c in ev.closed_violations:
+                self.loop.call_soon_threadsafe(self._put_incident, ("closed", cid, c, None, []))
         if self.loop is None or not ev.transitions:
             return
         by_track = {p.track_id: p for p in ev.persons}
@@ -343,6 +365,49 @@ class WorkerRuntime:
                                             current=tr.current,
                                             ppe={k: v.value for k, v in (p.ppe if p else {}).items()})
             self.loop.call_soon_threadsafe(self._put_event, event)
+
+    def _put_incident(self, job: tuple) -> None:
+        try:
+            self._incidents_q.put_nowait(job)
+        except asyncio.QueueFull:
+            self.incident_errors += 1
+            log.error("cola de incidentes llena: se pierde un incidente (revisar la base de datos)")
+
+    def _profile_version(self, cid: str, profile_id: str | None) -> int | None:
+        rules = self.rules.get(cid)
+        if not rules or not profile_id:
+            return None
+        profiles = [rules.default_profile] + [z.profile for z in rules.zones]
+        return next((p.version for p in profiles if p is not None and p.id == profile_id), None)
+
+    async def incident_writer(self) -> None:
+        """Construye la evidencia y registra el incidente (idempotente; reintenta ante fallos de BD)."""
+        while True:
+            kind, cid, payload, snap, history = await self._incidents_q.get()
+            for attempt in range(5):
+                try:
+                    if kind == "confirmed":
+                        images = await asyncio.to_thread(build_evidence, payload, snap, history)
+                        cam = self.cameras.get(cid)
+                        model_id = self.detector.model_id if self.detector else None
+                        new = NewIncident(violation=payload, camera_name=cam.name if cam else cid,
+                                          model_id=model_id, profile_version=self._profile_version(
+                                              cid, payload.profile_id), evidences=images)
+                        incident, created = await self.incidents.record(new)  # type: ignore[union-attr]
+                        if created:
+                            self.incidents_recorded += 1
+                            log.warning("incidente registrado", extra={"incident_id": str(incident.id),
+                                                                       "camera_id": cid, "ppe": payload.ppe_class,
+                                                                       "evidences": len(images)})
+                    else:
+                        await self.incidents.mark_ended(  # type: ignore[union-attr]
+                            violation_event_id(payload.violation), payload.closed_at, payload.reason)
+                    break
+                except Exception:
+                    log.exception("no se pudo registrar el incidente (intento %d)", attempt + 1)
+                    await asyncio.sleep(2 ** attempt)
+            else:
+                self.incident_errors += 1
 
     def _put_event(self, event: object) -> None:
         try:
@@ -364,6 +429,7 @@ class WorkerRuntime:
         if loop := self.analysis.pop(cid, None):
             loop.stop()
         self.latest.pop(cid, None)  # el tracker de la cámara se descarta con ella
+        self.history.pop(cid, None)
         self.analyzers.pop(cid, None)
         if pub := self.publishers.pop(cid, None):
             pub.stop()

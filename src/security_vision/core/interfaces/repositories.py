@@ -11,6 +11,7 @@ from uuid import UUID
 from ..domain.compliance import CameraRules, SecurityProfile, ZoneRule
 from ..domain.identity import AuthSession, User
 from .cameras import CameraRepository
+from .incidents import IncidentRepository
 
 
 class UserRepository(ABC):
@@ -112,6 +113,7 @@ class UnitOfWork(ABC):
     audit: AuditLog
     cameras: CameraRepository
     rules: RulesRepository
+    incidents: IncidentRepository
 
     @abstractmethod
     async def __aenter__(self) -> Self: ...

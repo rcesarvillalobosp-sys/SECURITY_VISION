@@ -17,6 +17,7 @@ from security_vision.infrastructure.security.adapters import AesGcmCipher, Argon
 from security_vision.infrastructure.storage.local import LocalFileStorage
 from security_vision.infrastructure.video.probe import RegistryVideoProbe
 from security_vision.modules.cameras.service import CameraService
+from security_vision.modules.incidents.service import IncidentService
 from security_vision.modules.security_rules.service import RulesService
 from security_vision.modules.users.services import AuthPolicy, AuthService, UserService
 
@@ -29,12 +30,21 @@ class Container:
     users: UserService
     cameras: CameraService
     rules: RulesService
+    incidents: IncidentService
     hasher: Argon2PasswordHasher
     cipher: AesGcmCipher
     storage: LocalFileStorage
     bus: PostgresMessageBus
     media: MediaServer | None
     metrics: ApiMetrics
+
+    async def audit_evidence(self, user_id, incident_id, key: str, ip: str | None, tampered: bool = False) -> None:
+        from security_vision.infrastructure.database.session import uow_factory
+
+        async with uow_factory(self.engine)() as uow:
+            await uow.audit.record("evidence.integrity_failed" if tampered else "evidence.viewed", actor_id=user_id,
+                                   entity_type="incident", entity_id=str(incident_id), after={"key": key}, ip=ip)
+            await uow.commit()
 
     async def close(self) -> None:
         await self.bus.close()
@@ -63,5 +73,6 @@ def build_container(settings: Settings) -> Container:
                             camera_policy(settings), bus=bus, media=media, media_path_for=path_name)
     return Container(settings=settings, engine=engine, auth=AuthService(uow, hasher, tokens, policy),
                      users=UserService(uow, hasher), cameras=cameras, rules=RulesService(uow, bus),
+                     incidents=IncidentService(uow, storage),
                      hasher=hasher, cipher=cipher,
                      storage=storage, bus=bus, media=media, metrics=create_api_metrics())

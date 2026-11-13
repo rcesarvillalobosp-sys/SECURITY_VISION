@@ -70,6 +70,10 @@ class Settings(BaseSettings):
     tracker: str = "bytetrack"
     tracker_max_lost_seconds: float = Field(default=3.0, gt=0, le=60)
 
+    # Retención (días)
+    retention_evidences_days: int = Field(default=90, ge=1, le=3650)
+    retention_status_events_days: int = Field(default=30, ge=1, le=3650)
+
     # Worker de procesamiento
     worker_metrics_port: int = 9101
     worker_reconcile_seconds: float = 30.0

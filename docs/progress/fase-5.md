@@ -71,7 +71,7 @@ Todos los umbrales son configurables por perfil y se validan: no se admite decid
   - al cambiar de imagen, el incumplimiento se cierra como `track_lost`;
   - en 60 s hubo 3 confirmaciones (2 de casco y 1 de chaleco) y 0 errores.
 
-  **La confirmación de chaleco no se revisó visualmente.**
+  **Corrección posterior (Fase 6):** la confirmación de chaleco resultó ser un falso positivo (persona de ~35 px). Se corrigió el motor; ver docs/progress/fase-6.md.
 
 ## Limitaciones
 

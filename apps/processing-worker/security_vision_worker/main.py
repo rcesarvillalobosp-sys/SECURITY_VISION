@@ -12,6 +12,7 @@ from prometheus_client import start_http_server
 from security_vision.composition import (
     build_detection_service,
     build_media,
+    build_retention,
     build_storage,
     build_tracking,
     build_video_registry,
@@ -20,9 +21,11 @@ from security_vision.composition import (
 from security_vision.core.configuration.settings import Settings, get_settings
 from security_vision.core.interfaces.video import VideoPublisher
 from security_vision.infrastructure.database.session import create_engine, uow_factory
+from security_vision.infrastructure.messaging.outbox import OutboxRelay
 from security_vision.infrastructure.messaging.postgres_bus import PostgresMessageBus
 from security_vision.infrastructure.monitoring.logging import configure_logging
 from security_vision.infrastructure.security.adapters import AesGcmCipher
+from security_vision.modules.incidents.service import IncidentService
 
 from .metrics import build_registry
 from .runtime import WorkerRuntime
@@ -46,17 +49,30 @@ def build_runtime(settings: Settings) -> tuple[WorkerRuntime, object, PostgresMe
             return PyAVRtspPublisher(url, fps, user, pwd)
 
     tracker_factory, associator = build_tracking(settings)
-    runtime = WorkerRuntime(uow=uow_factory(engine), cipher=AesGcmCipher(settings.secrets_key.get_secret_value()),
-                            registry=build_video_registry(), storage=build_storage(settings),
+    uow = uow_factory(engine)
+    storage = build_storage(settings)
+    runtime = WorkerRuntime(uow=uow, cipher=AesGcmCipher(settings.secrets_key.get_secret_value()),
+                            registry=build_video_registry(), storage=storage,
                             policy=camera_policy(settings), bus=bus, media=media,
                             publisher_factory=publisher_factory, snapshot_seconds=settings.worker_snapshot_seconds,
                             detector=build_detection_service(settings),
-                            tracker_factory=tracker_factory, associator=associator)
+                            tracker_factory=tracker_factory, associator=associator,
+                            incidents=IncidentService(uow, storage))
     if runtime.detector is not None:
         dev = runtime.detector.model.engine.get_device()
         log.info("detección activa", extra={"model": runtime.detector.model_id, "engine": settings.inference_engine,
                                             "device": dev.kind, "device_name": dev.name})
     return runtime, engine, bus
+
+
+async def _daily_retention(settings: Settings, engine: object) -> None:
+    service = build_retention(settings, engine)  # type: ignore[arg-type]
+    while True:
+        try:
+            await service.purge()
+        except Exception:
+            log.exception("purga de retención falló")
+        await asyncio.sleep(24 * 3600)
 
 
 async def run(settings: Settings) -> None:
@@ -67,6 +83,8 @@ async def run(settings: Settings) -> None:
     await runtime.reconcile()
     tasks = [asyncio.create_task(c) for c in (
         runtime.status_writer(), runtime.snapshot_writer(), runtime.config_listener(), runtime.event_publisher(),
+        runtime.incident_writer(), OutboxRelay(engine, bus).run_forever(),  # type: ignore[arg-type]
+        _daily_retention(settings, engine),
         runtime.periodic_reconcile(settings.worker_reconcile_seconds))]
     stop = asyncio.Event()
     for sig in (signal.SIGINT, signal.SIGTERM):
